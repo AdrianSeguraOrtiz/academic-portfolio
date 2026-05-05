@@ -1,0 +1,132 @@
+# Academic Portfolio Data Schema
+
+All structured data lives in `data/` as YAML files. Lists are ordered from oldest to newest; output scripts can reverse or filter them for CV and web views.
+
+## Directory Layout
+
+```text
+data/
+  profile.yaml
+
+  entities/
+    organizations.yaml
+
+  career/
+    certifications.yaml
+    degrees.yaml
+    experience.yaml
+    grants.yaml
+    honors.yaml
+    research_stays.yaml
+
+  research/
+    publications.yaml
+    research_projects.yaml
+    reviewing.yaml
+    software_packages.yaml
+    software_projects.yaml
+
+  activities/
+    dissemination/
+      presentations.yaml
+      press.yaml
+      scientific_dissemination_articles.yaml
+      social_media.yaml
+      tv_media.yaml
+    teaching/
+      academic_supervision.yaml
+      teaching_innovation_projects.yaml
+      university_classes.yaml
+```
+
+`entities/` contains reusable lookup records. The other folders group CV sections by domain. `activities/dissemination/` contains outreach and media activity; `activities/teaching/` contains teaching activity.
+
+## Organizations
+
+Organizations are standalone lookup records. They should not contain reverse links or relationship fields to publications, projects, awards, or other records. Use these fields consistently:
+
+```yaml
+id: organization_01
+name: Universidad de Málaga
+full_name: Universidad de Málaga
+abbreviation: UMA
+type: University
+location:
+  city: Málaga
+  country: Spain
+website: https://www.uma.es/
+```
+
+## IDs
+
+Referencable records use stable IDs with this pattern:
+
+```text
+type_01
+type_02
+```
+
+Examples: `degree_01`, `award_01`, `software_01`, `organization_01`.
+
+New records should be appended chronologically and assigned the next available number for that record type.
+
+## Cross-References
+
+Use explicit relationship fields instead of universal relationship blocks. Relationship fields always store IDs and use the `_ids` suffix for lists:
+
+```yaml
+organization_ids:
+- organization_01
+publication_ids:
+- publication_01
+software_project_ids:
+- software_05
+```
+
+Profile-level current activity is also stored as references instead of duplicated records:
+
+```yaml
+current_position_ids:
+- position_05
+current_stay_ids:
+- stay_02
+```
+
+Allowed relationship fields are intentionally limited by record type:
+
+| File / group | Allowed relationship fields |
+| --- | --- |
+| `activities/dissemination/press.yaml` / `press_items` | `publication_ids` |
+| `activities/dissemination/social_media.yaml` / `social_media_items` | `publication_ids` |
+| `activities/dissemination/tv_media.yaml` / `tv_items` | `publication_ids` |
+| `activities/dissemination/scientific_dissemination_articles.yaml` / `scientific_dissemination_articles` | `publication_ids`, `software_package_ids` |
+| `activities/dissemination/presentations.yaml` / `presentations` | `publication_ids`, `software_package_ids` |
+| `activities/teaching/university_classes.yaml` / `university_classes` | `organization_ids` |
+| `activities/teaching/academic_supervision.yaml` / `academic_supervision` | `organization_ids` |
+| `activities/teaching/teaching_innovation_projects.yaml` / `teaching_innovation_projects` | `organization_ids` |
+| `career/degrees.yaml` / `degrees` | `organization_ids` |
+| `career/certifications.yaml` / `certifications` | `organization_ids` |
+| `career/experience.yaml` / `positions` | `organization_ids` |
+| `career/research_stays.yaml` / `stays` | `organization_ids` |
+| `career/honors.yaml` / `honors` | `degree_ids` |
+| `career/grants.yaml` / `grants` | `position_ids`, `stay_ids` |
+| `research/publications.yaml` / `publications` | `organization_ids`, `software_project_ids`, `research_project_ids`, `position_ids`, `stay_ids`, `grant_ids` |
+| `research/research_projects.yaml` / `funded_projects` | `organization_ids` |
+| `research/reviewing.yaml` / `reviewing` | none |
+| `research/software_packages.yaml` / `software_packages` | none |
+| `research/software_projects.yaml` / `projects` | none |
+
+Organizations are stored in `data/entities/organizations.yaml` and referenced by ID from other files.
+Records should not reference themselves; inverse relationships should be derived by scripts instead of duplicated manually.
+
+## Validation
+
+Run:
+
+```bash
+make validate-data
+```
+
+This delegates to `ruby scripts/validate_data.rb`.
+
+The validator checks YAML syntax, duplicate IDs, ID format, allowed relationship fields, unresolved references, deprecated `associated_with` blocks, self-references, and chronological order for dated lists.
