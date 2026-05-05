@@ -1,0 +1,62 @@
+certifications:
+- id: certification_01
+  title: 'Cambridge English: Preliminary (PET) - Level B1'
+  issuer: University of Cambridge
+  issuer_type: University
+  organization_ids:
+  - organization_13
+  issue_date: 2015-07
+  start_date: null
+  end_date: null
+  duration_hours: null
+  credential_id: '0049218488'
+  notes: null
+- id: certification_02
+  title: Boost Your Future - Professional Development Workshop
+  issuer: ESESA
+  issuer_type: null
+  organization_ids:
+  - organization_14
+  issue_date: 2017-09
+  start_date: null
+  end_date: null
+  duration_hours: null
+  credential_id: null
+  notes: null
+- id: certification_03
+  title: Introduction to the Use of Generative Artificial Intelligence in University
+    Teaching
+  issuer: Universidad de Málaga
+  issuer_type: University
+  organization_ids:
+  - organization_01
+  issue_date: 2023-10
+  start_date: '2023-09-29'
+  end_date: '2023-12-21'
+  duration_hours: 12
+  credential_id: null
+  notes: University teaching certification.
+- id: certification_04
+  title: IMFAHE International Mentor Program Student Certificate (2024-2025)
+  issuer: IMFAHE
+  issuer_type: null
+  organization_ids:
+  - organization_15
+  issue_date: 2025-06
+  start_date: null
+  end_date: null
+  duration_hours: null
+  credential_id: null
+  notes: null
+- id: certification_05
+  title: Jornadas de Formación, Mejora e Investigación Docente
+  issuer: Universidad de Málaga
+  issuer_type: University
+  organization_ids:
+  - organization_01
+  issue_date: 2025-07
+  start_date: '2025-07-17'
+  end_date: '2025-07-18'
+  duration_hours: 10
+  credential_id: null
+  notes: Teacher training and educational innovation course.

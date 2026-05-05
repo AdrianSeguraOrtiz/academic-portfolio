@@ -1,0 +1,30 @@
+grants:
+- id: grant_01
+  name: Predoctoral grant (Formación del Profesorado Universitario - University Faculty
+    Training)
+  awarding_entity: Ministry of Science, Innovation and Universities
+  awarding_entity_type: Public
+  position_ids:
+  - position_04
+  - position_06
+  stay_ids: []
+  purpose: Predoctoral research funding
+  issue_date: 2022-12
+  start_date: 2022-12
+  end_date: null
+  duration: 4 years
+  notes: Merit-based grant supporting doctoral research and its postdoctoral orientation
+    phase.
+- id: grant_02
+  name: Ayuda movilidad FPU
+  awarding_entity: Ministerio de Ciencia e Innovación. Universidades
+  awarding_entity_type: Public
+  position_ids: []
+  stay_ids:
+  - stay_01
+  purpose: Predoctoral mobility
+  issue_date: '2024-03-30'
+  start_date: null
+  end_date: '2024-06-28'
+  duration: null
+  notes: null

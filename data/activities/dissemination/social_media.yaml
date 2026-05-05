@@ -1,0 +1,187 @@
+social_media_items:
+- id: social_media_01
+  platform: LinkedIn
+  accounts:
+  - adrian-segura-ortiz
+  date: '2023-02-15'
+  url: https://www.linkedin.com/posts/adrian-segura-ortiz_geneci-a-novel-evolutionary-machine-learning-activity-7031638966562873344-SynJ?utm_source=share&utm_medium=member_desktop&rcm=ACoAADevVqYBjftBBJtDGUiC94Ry3K770UhGq94
+  views: null
+  description: LinkedIn post announcing the GENECI article in Computers in Biology
+    and Medicine.
+  publication_ids:
+  - publication_01
+- id: social_media_02
+  platform: LinkedIn
+  accounts:
+  - adrian-segura-ortiz
+  date: '2024-07-03'
+  url: https://www.linkedin.com/posts/adrian-segura-ortiz_research-generegulatorynetworks-memeticalgorithm-activity-7214233738644246528-F8PQ?utm_source=share&utm_medium=member_desktop&rcm=ACoAADevVqYBjftBBJtDGUiC94Ry3K770UhGq94
+  views: null
+  description: LinkedIn post announcing the ICCS 2024 paper on a memetic algorithm
+    for gene regulatory network inference.
+  publication_ids:
+  - publication_02
+- id: social_media_03
+  platform: Instagram
+  accounts:
+  - https://www.instagram.com/nath.biohack?igsh=Z3IwMG9lYWR3dzR5
+  - https://www.instagram.com/adriansegura.99?igsh=dHVwb3U4aDFpN2Fv
+  date: '2024-09-02'
+  url: https://www.instagram.com/reel/C_bri8BPcJc/?igsh=NHZoeTBpYzk1cHJp
+  views: null
+  description: null
+  publication_ids:
+  - publication_03
+- id: social_media_04
+  platform: Instagram
+  accounts:
+  - https://www.instagram.com/_ibima?igsh=dmhiMTQ4YTJscGJ5
+  - https://www.instagram.com/adriansegura.99?igsh=dHVwb3U4aDFpN2Fv
+  date: '2024-09-02'
+  url: https://www.instagram.com/reel/C_chjeWIvhw/?igsh=N3ZnMDV2b3Zkc2N4
+  views: null
+  description: null
+  publication_ids:
+  - publication_03
+- id: social_media_05
+  platform: X
+  accounts:
+  - itis_uma
+  date: '2024-09-03'
+  url: https://x.com/itis_uma/status/1830874768372810209?t=Z842pV_66iDI7vsqQ747fQ&s=33
+  views: null
+  description: X post by ITIS UMA sharing a video about the MO-GENECI algorithm.
+  publication_ids:
+  - publication_03
+- id: social_media_06
+  platform: LinkedIn
+  accounts:
+  - adrian-segura-ortiz
+  date: '2024-07-15'
+  url: https://www.linkedin.com/posts/adrian-segura-ortiz_research-generegulatorynetworks-bioinformatics-activity-7218551063660924929-Zja4?utm_source=share&utm_medium=member_desktop&rcm=ACoAADevVqYBjftBBJtDGUiC94Ry3K770UhGq94
+  views: null
+  description: LinkedIn post announcing the MO-GENECI article in Computers in Biology
+    and Medicine.
+  publication_ids:
+  - publication_03
+- id: social_media_07
+  platform: X
+  accounts:
+  - itis_uma
+  date: '2025-07-10'
+  url: https://x.com/itis_uma/status/1943215760035217768?t=Fxpgzu9F7djDQCcbIUnDmQ&s=19
+  views: null
+  description: X post by ITIS UMA sharing the UMA news item about MOEBA-BIO.
+  publication_ids:
+  - publication_04
+- id: social_media_08
+  platform: LinkedIn
+  accounts:
+  - ITIS UMA
+  date: '2025-07-10'
+  url: https://www.linkedin.com/posts/noticia-share-7348982803234992128-zkif/?utm_source=share&utm_medium=member_android&rcm=ACoAADevVqYBjftBBJtDGUiC94Ry3K770UhGq94
+  views: null
+  description: LinkedIn post by ITIS UMA sharing news about MOEBA-BIO as open-source
+    software for biomedical data analysis.
+  publication_ids:
+  - publication_04
+- id: social_media_09
+  platform: LinkedIn
+  accounts:
+  - adrian-segura-ortiz
+  date: '2025-06-03'
+  url: https://www.linkedin.com/posts/adrian-segura-ortiz_exhaustive-biclustering-driven-by-self-learning-activity-7335558220112977921-rkSB?utm_source=share&utm_medium=member_desktop&rcm=ACoAADevVqYBjftBBJtDGUiC94Ry3K770UhGq94
+  views: null
+  description: LinkedIn post announcing the MOEBA-BIO journal article and its collaboration
+    with the University of Lille.
+  publication_ids:
+  - publication_04
+- id: social_media_10
+  platform: Instagram
+  accounts:
+  - https://www.instagram.com/universidadand?igsh=MWY2M3hrNHlsZHUwMg==
+  - https://www.instagram.com/fundaciondescubre?igsh=MXdqbHRoZG5tbTFxNw==
+  - https://www.instagram.com/adriansegura.99?igsh=dHVwb3U4aDFpN2Fv
+  date: '2025-07-25'
+  url: https://www.instagram.com/reel/DMhqCVoMptb/?igsh=bjdxZ2EzNDE0Zmx3
+  views: null
+  description: null
+  publication_ids:
+  - publication_05
+- id: social_media_11
+  platform: Instagram
+  accounts:
+  - https://www.instagram.com/salud_ahora_?igsh=OGx0d3J6dnNxYnBt
+  - https://www.instagram.com/_ibima?igsh=dmhiMTQ4YTJscGJ5
+  - https://www.instagram.com/adriansegura.99?igsh=dHVwb3U4aDFpN2Fv
+  date: '2026-03-25'
+  url: https://www.instagram.com/reel/DWUY0LWDUKg/?igsh=MXVyNnY5NXFvM2c5cA%3D%3D
+  views: null
+  description: null
+  publication_ids:
+  - publication_05
+- id: social_media_12
+  platform: Instagram
+  accounts:
+  - https://www.instagram.com/adriansegura.99?igsh=dHVwb3U4aDFpN2Fv
+  date: '2026-03-19'
+  url: https://www.instagram.com/reel/DWE5LkKCJOR/?igsh=YmNoZTlpOXV1dnE4
+  views: null
+  description: null
+  publication_ids:
+  - publication_05
+- id: social_media_13
+  platform: X
+  accounts:
+  - sombradoble
+  date: '2025-07-26'
+  url: https://x.com/sombradoble/status/1948993297168400391
+  views: null
+  description: X post by Sombradoble about BIO-INSIGHT and AI-based gene analysis
+    in fibromyalgia and ME/CFS.
+  publication_ids:
+  - publication_05
+- id: social_media_14
+  platform: LinkedIn
+  accounts:
+  - Fundación Descubre
+  date: '2025-07-25'
+  url: https://www.linkedin.com/posts/fundaci%C3%B3n-descubre-sistema-inteligente-share-7354451092681764864-btt4/?utm_source=share&utm_medium=member_desktop&rcm=ACoAADevVqYBjftBBJtDGUiC94Ry3K770UhGq94
+  views: null
+  description: LinkedIn post by Fundación Descubre about BIO-INSIGHT and gene analysis
+    in chronic fatigue-related diseases.
+  publication_ids:
+  - publication_05
+- id: social_media_15
+  platform: LinkedIn
+  accounts:
+  - Consejería Universidad, Investigación e Innovación
+  date: '2025-07-25'
+  url: https://www.linkedin.com/posts/bioinsight-ugcPost-7354445540882841601-m7s_/?utm_source=share&utm_medium=member_desktop&rcm=ACoAADevVqYBjftBBJtDGUiC94Ry3K770UhGq94
+  views: null
+  description: LinkedIn post about BIO-INSIGHT as an AI-based system for analyzing
+    gene interactions in complex diseases.
+  publication_ids:
+  - publication_05
+- id: social_media_16
+  platform: LinkedIn
+  accounts:
+  - adrian-segura-ortiz
+  date: '2025-07-15'
+  url: https://www.linkedin.com/posts/adrian-segura-ortiz_bioinsight-generegulatorynetworks-bioinformatics-activity-7350808588379906048-YemT?utm_source=share&utm_medium=member_desktop&rcm=ACoAADevVqYBjftBBJtDGUiC94Ry3K770UhGq94
+  views: null
+  description: LinkedIn post announcing the BIO-INSIGHT article in Computers in Biology
+    and Medicine.
+  publication_ids:
+  - publication_05
+- id: social_media_17
+  platform: LinkedIn
+  accounts:
+  - adrian-segura-ortiz
+  date: '2025-12-19'
+  url: https://www.linkedin.com/posts/adrian-segura-ortiz_pbevogen-new-paper-published-happy-to-activity-7407712863332491264-2mx9?utm_source=share&utm_medium=member_desktop&rcm=ACoAADevVqYBjftBBJtDGUiC94Ry3K770UhGq94
+  views: null
+  description: LinkedIn post announcing the PBEvoGen article in Computational Biology
+    and Chemistry.
+  publication_ids:
+  - publication_06

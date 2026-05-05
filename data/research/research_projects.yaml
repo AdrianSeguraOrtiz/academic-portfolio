@@ -1,0 +1,92 @@
+funded_projects:
+- id: research_project_01
+  acronym: EnBiC2-Lab
+  title: Environmental and Biodiversity Climate Change Lab
+  code: LifeWatch-2019-11-UMA-01
+  institution: Universidad de Málaga
+  institution_type: University
+  principal_investigators:
+  - Juan Teodomiro López Navarrete
+  funders:
+  - FEDER
+  participation: Team member
+  start_date: '2019-01-01'
+  end_date: '2023-06-30'
+  total_amount_eur: 11298828.13
+  organization_ids:
+  - organization_01
+- id: research_project_02
+  acronym: Aether
+  title: >-
+    Una aproximación holística de smart data para el análisis de datos guiado por el contexto: null
+    explotación de semántica y contexto
+  code: PID2020-112540RB-C41
+  institution: Universidad de Málaga
+  institution_type: University
+  principal_investigators:
+  - José Francisco Aldana Montes
+  - Ismael Navas Delgado
+  funders:
+  - Agencia Estatal de Investigación
+  participation: Team member
+  start_date: '2021-01-01'
+  end_date: '2024-12-31'
+  total_amount_eur: 201102
+  organization_ids:
+  - organization_01
+- id: research_project_03
+  acronym: KOSMOS
+  title: >-
+    Potenciando los Ecosistemas de Compartición de Datos Federados con un Enfoque Multidimensional
+  code: PID2024-155363OB-C41
+  institution: Universidad de Málaga
+  institution_type: University
+  principal_investigators:
+  - José Francisco Aldana Montes
+  - José Manuel García Nieto
+  funders:
+  - Plan Nacional de Proyectos de Generación de Conocimiento
+  participation: Team member
+  start_date: '2025-09-01'
+  end_date: null
+  total_amount_eur: 197500
+  organization_ids:
+  - organization_01
+- id: research_project_04
+  acronym: Andalucía ISI2A2
+  title: >-
+    Infraestructura y Servicios de Integración e Inteligencia de Datos en el sector de la
+    Agroalimentación en Andalucía
+  code: DGP_PIDI_2024_01174
+  institution: Universidad de Málaga
+  institution_type: University
+  principal_investigators:
+  - José Francisco Aldana Montes
+  - José Manuel García Nieto
+  funders:
+  - Plan Andaluz de Investigación
+  participation: Team member
+  start_date: null
+  end_date: null
+  total_amount_eur: 132000
+  organization_ids:
+  - organization_01
+collaborations:
+- id: collaboration_01
+  institution: Universidad de Valencia
+  topic: >-
+    Omic analysis and artificial intelligence techniques for fibromyalgia and myalgic encephalomyelitis
+  start_date: null
+  end_date: null
+  collaborators: null
+additional_project_mentions:
+- id: project_mention_01
+  name: Tropical-IA
+  start_date: null
+  end_date: null
+  context: Mentioned as a Khaos Research collaboration; no further details provided.
+- id: project_mention_02
+  name: 5G+TACTILE
+  start_date: null
+  end_date: null
+  context: Mentioned as a Khaos Research collaboration; no further details provided.

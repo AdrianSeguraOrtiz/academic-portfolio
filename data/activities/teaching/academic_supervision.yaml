@@ -1,0 +1,31 @@
+academic_supervision:
+- id: supervision_01
+  type: Final degree project
+  title: Optimización multi-objetivo para biclustering en datos de expresión génica
+  student: Pablo Moreno García-Espina
+  degree: Grado en Ingeniería de la Salud
+  academic_year: 2024/2025
+  institution: Universidad de Málaga
+  role: Co-supervisor
+  date: 2025-06
+  duration: null
+  modality: null
+  url: https://hdl.handle.net/10630/41029
+  repository_url: https://github.com/pmgespina/biclustering.git
+  organization_ids:
+  - organization_01
+- id: supervision_02
+  type: External internship tutoring
+  title: Tutorización de práctica externa extracurricular
+  student: Nina Souto Blanco
+  degree: Grado en Bioquímica
+  academic_year: 2024/2025
+  institution: Universidad de Málaga
+  role: External internship tutor
+  date: '2025-10-22'
+  duration: 300 hours
+  modality: Extracurricular
+  url: null
+  repository_url: null
+  organization_ids:
+  - organization_01

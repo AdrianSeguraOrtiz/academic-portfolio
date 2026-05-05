@@ -1,0 +1,50 @@
+stays:
+- id: stay_01
+  title: Predoctoral Researcher (International Stay)
+  institution: Lille University of Science and Technology
+  institution_type: University
+  organization_ids:
+  - organization_04
+  - organization_08
+  - organization_11
+  location:
+    city: Lille
+    region: Hauts-de-France
+    country: France
+  start_date: 2024-04
+  end_date: 2024-06
+  duration: 3 months
+  employment_type: Full-time
+  work_mode: On-site
+  purpose: Doctorate
+  type: International stay
+  host_group: ORKAD research group, CRIStAL centre
+  funding: FPU mobility grant
+  tasks:
+  - Designed an evolutionary biclustering framework specialised in biomedical data
+    and guided by domain context.
+  description: Predoctoral international stay at the CRIStAL centre of the University
+    of Lille.
+  notes: null
+- id: stay_02
+  title: Postdoctoral Researcher (International Stay)
+  institution: Athena Research Center
+  institution_type: Research center
+  organization_ids:
+  - organization_05
+  location:
+    city: Athens
+    region: Attiki
+    country: Greece
+  start_date: 2026-04
+  end_date: 2026-06
+  duration: 3 months
+  employment_type: Full-time
+  work_mode: On-site
+  purpose: Postdoctoral research
+  type: International stay
+  host_group: null
+  funding: null
+  tasks: []
+  description: Postdoctoral international research stay.
+  notes: null

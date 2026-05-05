@@ -1,0 +1,30 @@
+presentations:
+- id: presentation_01
+  title: Exploiting medical-expert knowledge via a novel memetic algorithm for the inference of gene regulatory networks
+  event: International Conference on Computational Science (ICCS 2024)
+  type: Conference presentation
+  location: Málaga, Andalucía, Spain
+  start_date: '2024-07-02'
+  end_date: '2024-07-04'
+  authors:
+  - Adrián Segura Ortiz
+  - José Manuel García Nieto
+  - José Francisco Aldana Montes
+  corresponding_author: true
+  publication_ids:
+  - publication_02
+  software_package_ids:
+  - package_01
+- id: presentation_02
+  title: Optimización del Consenso de Múltiples Técnicas de Inferencia de Redes de Regulación Génica Desde una Perspectiva Holística Guiada por el Contexto Biológico de los Datos
+  event: Jornadas Andaluzas de Bioinformática (JABI 2025)
+  type: Regional congress presentation
+  location: Málaga, Spain
+  start_date: '2025-05-12'
+  end_date: '2025-05-14'
+  authors:
+  - Adrián Segura Ortiz
+  corresponding_author: true
+  publication_ids: []
+  software_package_ids:
+  - package_01

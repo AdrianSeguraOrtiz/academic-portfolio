@@ -1,0 +1,136 @@
+organizations:
+- id: organization_01
+  name: Universidad de Málaga
+  full_name: Universidad de Málaga
+  abbreviation: UMA
+  type: University
+  location:
+    city: Málaga
+    country: Spain
+  website: https://www.uma.es/
+- id: organization_02
+  name: Laboratorio de Biología Molecular del Cáncer
+  full_name: Laboratorio de Biología Molecular del Cáncer
+  abbreviation: LBMC
+  type: Laboratory
+  location:
+    city: Málaga
+    country: Spain
+  website: https://www.uma.es/sala-de-prensa/noticias/el-laboratorio-de-biologia-molecular-del-cancer-de-la-uma-referente-en-tecnicas-moleculares-de-vanguardia/
+- id: organization_03
+  name: Khaos Research
+  full_name: Khaos Research Group
+  abbreviation: null
+  type: Research group
+  location:
+    city: Málaga
+    country: Spain
+  website: https://khaos.uma.es/
+- id: organization_04
+  name: Université de Lille
+  full_name: Université de Lille
+  abbreviation: ULille
+  type: University
+  location:
+    city: Lille
+    country: France
+  website: https://www.univ-lille.fr/en/
+- id: organization_05
+  name: Athena Research Center
+  full_name: Athena Research and Innovation Center in Information, Communication and Knowledge Technologies
+  abbreviation: Athena RC
+  type: Research center
+  location:
+    city: Marousi
+    country: Greece
+  website: https://www.athenarc.gr/en/
+- id: organization_06
+  name: ITIS
+  full_name: Instituto de Tecnología e Ingeniería del Software "José María Troya Linero"
+  abbreviation: ITIS
+  type: Research institute
+  location:
+    city: Málaga
+    country: Spain
+  website: https://itis.uma.es/
+- id: organization_07
+  name: IBIMA Plataforma BIONAND
+  full_name: Instituto de Investigación Biomédica de Málaga y Plataforma en Nanomedicina
+  abbreviation: IBIMA
+  type: Health research institute
+  location:
+    city: Málaga
+    country: Spain
+  website: https://ibima.eu/
+- id: organization_08
+  name: CRIStAL
+  full_name: Centre de Recherche en Informatique, Signal et Automatique de Lille
+  abbreviation: CRIStAL
+  type: Research laboratory
+  location:
+    city: Villeneuve-d'Ascq
+    country: France
+  website: https://www.cristal.univ-lille.fr/
+- id: organization_09
+  name: INFINITE
+  full_name: Institute for Translational Research in Inflammation
+  abbreviation: INFINITE
+  type: Research unit
+  location:
+    city: Lille
+    country: France
+  website: https://lille-inflammation-research.org/en/
+- id: organization_10
+  name: Universidad Católica de Valencia San Vicente Mártir
+  full_name: Universidad Católica de Valencia San Vicente Mártir
+  abbreviation: UCV
+  type: University
+  location:
+    city: Valencia
+    country: Spain
+  website: https://www.ucv.es/
+- id: organization_11
+  name: ORKAD
+  full_name: Operational Research, Knowledge And Data
+  abbreviation: ORKAD
+  type: Research team
+  location:
+    city: Villeneuve-d'Ascq
+    country: France
+  website: https://orkad.univ-lille.fr/
+- id: organization_12
+  name: CIMES
+  full_name: Centro de Investigaciones Médico-Sanitarias
+  abbreviation: CIMES
+  type: Biomedical research center
+  location:
+    city: Málaga
+    country: Spain
+  website: https://cimes.es/
+- id: organization_13
+  name: University of Cambridge
+  full_name: University of Cambridge
+  abbreviation: null
+  type: University
+  location:
+    city: Cambridge
+    country: United Kingdom
+  website: https://www.cam.ac.uk/
+- id: organization_14
+  name: ESESA
+  full_name: Escuela Superior de Estudios de Empresa
+  abbreviation: ESESA
+  type: Business school
+  location:
+    city: Málaga
+    country: Spain
+  website: https://esesa.eu/
+- id: organization_15
+  name: IMFAHE
+  full_name: International Mentoring Foundation for the Advancement of Higher Education
+  abbreviation: IMFAHE
+  type: Foundation
+  location:
+    city: null
+    country: United States
+  website: https://www.imfahe.org/

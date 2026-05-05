@@ -1,0 +1,45 @@
+person:
+  full_name: Adrián Segura Ortiz
+  given_name: Adrián
+  surnames: Segura Ortiz
+  identifiers:
+    orcid: 0000-0003-2149-5754
+    national_id: '09082595X'
+  date_of_birth: '1999-12-21'
+  gender: Male
+  nationality: Spain
+  birth_place:
+    city: Málaga
+    province: Málaga
+    region: Andalucía
+    country: Spain
+contact:
+  email: adrianseor.99@uma.es
+  phone: '663640389'
+  city: Málaga
+  province: Málaga
+  region: Andalucía
+  postcode: '29006'
+  country: Spain
+links:
+  linkedin: https://www.linkedin.com/in/adrian-segura-ortiz/
+  github: https://github.com/AdrianSeguraOrtiz
+  docker_hub: https://hub.docker.com/u/adriansegura99
+current_position_ids:
+- position_05
+- position_06
+current_stay_ids:
+- stay_02
+research_profile:
+  summary: Researcher in artificial intelligence and bioinformatics focused on context-guided
+    computational methods for biomedical data analysis.
+  areas:
+  - Artificial intelligence
+  - Bioinformatics
+  - Biomedical data analysis
+  - Gene regulatory network inference
+  - Evolutionary biclustering
+  - Co-expression pattern detection
+  - Context-guided computational methods
+  - Domain knowledge integration
+  - Interpretable AI

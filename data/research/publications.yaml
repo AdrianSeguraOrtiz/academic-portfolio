@@ -1,0 +1,205 @@
+publications:
+- id: publication_01
+  title: >-
+    GENECI: A novel evolutionary machine learning consensus-based approach for the inference
+    of gene regulatory networks
+  authors:
+  - Adrián Segura Ortiz
+  - José Manuel García Nieto
+  - José Francisco Aldana Montes
+  - Ismael Navas Delgado
+  venue: Computers in Biology and Medicine
+  publisher: null
+  volume: '155'
+  article_number: '106653'
+  publication_date: '2023-02-14'
+  type: Scientific paper
+  format: Journal
+  doi: 10.1016/j.compbiomed.2023.106653
+  url: https://doi.org/10.1016/j.compbiomed.2023.106653
+  total_authors: 4
+  corresponding_author: false
+  organization_ids:
+  - organization_03
+  - organization_06
+  - organization_01
+  - organization_07
+  software_project_ids:
+  - software_05
+  research_project_ids: []
+  position_ids:
+  - position_04
+  stay_ids: []
+  grant_ids:
+  - grant_01
+- id: publication_02
+  title: >-
+    Exploiting medical-expert knowledge via a novel memetic algorithm for the inference of
+    gene regulatory networks
+  authors:
+  - Adrián Segura Ortiz
+  - José Manuel García Nieto
+  - José Francisco Aldana Montes
+  venue: International Conference on Computational Science
+  publisher: Springer Nature Switzerland
+  volume: null
+  article_number: null
+  publication_date: '2024-06-28'
+  type: Scientific paper
+  format: Conference proceeding
+  doi: 10.1007/978-3-031-63772-8_1
+  url: https://doi.org/10.1007/978-3-031-63772-8_1
+  total_authors: 3
+  corresponding_author: null
+  organization_ids:
+  - organization_03
+  - organization_06
+  - organization_01
+  - organization_07
+  software_project_ids:
+  - software_09
+  research_project_ids: []
+  position_ids:
+  - position_04
+  stay_ids: []
+  grant_ids:
+  - grant_01
+- id: publication_03
+  title: >-
+    Multi-objective context-guided consensus of a massive array of techniques for the inference
+    of Gene Regulatory Networks
+  authors:
+  - Adrián Segura Ortiz
+  - José Manuel García Nieto
+  - José Francisco Aldana Montes
+  - Ismael Navas Delgado
+  venue: Computers in Biology and Medicine
+  publisher: null
+  volume: '179'
+  article_number: '108850'
+  publication_date: '2024-09-16'
+  type: Scientific paper
+  format: Journal
+  doi: 10.1016/j.compbiomed.2024.108850
+  url: https://doi.org/10.1016/j.compbiomed.2024.108850
+  total_authors: 4
+  corresponding_author: true
+  organization_ids:
+  - organization_03
+  - organization_06
+  - organization_01
+  - organization_07
+  software_project_ids:
+  - software_07
+  research_project_ids: []
+  position_ids:
+  - position_04
+  stay_ids: []
+  grant_ids:
+  - grant_01
+- id: publication_04
+  title: >-
+    Exhaustive biclustering driven by self-learning evolutionary approach for biomedical data
+  authors:
+  - Adrián Segura Ortiz
+  - Adán José García
+  - Laetitia Jourdan
+  - José Manuel García Nieto
+  venue: Computer Methods and Programs in Biomedicine
+  publisher: null
+  volume: null
+  article_number: '108846'
+  publication_date: '2025-05-29'
+  type: Scientific paper
+  format: Journal
+  doi: 10.1016/j.cmpb.2025.108846
+  url: https://doi.org/10.1016/j.cmpb.2025.108846
+  total_authors: 4
+  corresponding_author: true
+  organization_ids:
+  - organization_03
+  - organization_06
+  - organization_01
+  - organization_07
+  - organization_04
+  - organization_08
+  - organization_11
+  - organization_09
+  software_project_ids:
+  - software_10
+  research_project_ids: []
+  position_ids:
+  - position_04
+  stay_ids:
+  - stay_01
+  grant_ids:
+  - grant_01
+  - grant_02
+- id: publication_05
+  title: >-
+    Multifaceted evolution focused on maximal exploitation of domain knowledge for the consensus
+    inference of Gene Regulatory Networks
+  authors:
+  - Adrián Segura Ortiz
+  - Karen Giménez Orenga
+  - José Manuel García Nieto
+  - Elisa Oltra
+  - José Francisco Aldana Montes
+  venue: Computers in Biology and Medicine
+  publisher: Elsevier
+  volume: '196'
+  article_number: null
+  publication_date: '2025-09-01'
+  type: Scientific paper
+  format: Journal
+  doi: 10.1016/j.compbiomed.2025.110632
+  url: https://doi.org/10.1016/j.compbiomed.2025.110632
+  total_authors: 5
+  corresponding_author: true
+  organization_ids:
+  - organization_03
+  - organization_06
+  - organization_01
+  - organization_07
+  - organization_10
+  software_project_ids:
+  - software_08
+  research_project_ids: []
+  position_ids:
+  - position_04
+  stay_ids: []
+  grant_ids:
+  - grant_01
+- id: publication_06
+  title: >-
+    Multi-Objective Consensus Optimization for Gene Regulatory Networks Inference: A Preference-Based
+    Approach
+  authors:
+  - Adrián Segura Ortiz
+  - Antonio Jesús Nebro Urbaneja
+  - José Manuel García Nieto
+  - José Francisco Aldana Montes
+  venue: Computational Biology and Chemistry
+  publisher: Elsevier
+  volume: null
+  article_number: null
+  publication_date: '2025-12-06'
+  type: Scientific paper
+  format: Journal
+  doi: 10.1016/j.compbiolchem.2025.108827
+  url: https://doi.org/10.1016/j.compbiolchem.2025.108827
+  total_authors: 4
+  corresponding_author: null
+  organization_ids:
+  - organization_03
+  - organization_06
+  - organization_01
+  - organization_07
+  software_project_ids:
+  - software_11
+  research_project_ids: []
+  position_ids:
+  - position_04
+  stay_ids: []
+  grant_ids:
+  - grant_01

@@ -1,0 +1,157 @@
+positions:
+- id: position_01
+  title: Student Trainee
+  institution: Laboratorio de Biología Molecular del Cáncer (CIMES)
+  institution_type: Laboratory
+  organization_ids:
+  - organization_02
+  - organization_12
+  department: null
+  group: null
+  location: Málaga, Andalusia, Spain
+  work_mode: Hybrid
+  employment_type: Internship
+  dedication: null
+  start_date: 2021-03
+  end_date: 2021-06
+  duration: 4 months
+  current: false
+  project_context: null
+  tasks:
+  - Developed an automated NGS analysis pipeline for tumor samples on the Picasso
+    supercomputer.
+  - Programmed Bash and R scripts with GNU Parallel for large-scale sample processing.
+  - Integrated FastQC, MultiQC, Qualimap, and vcftoolz compare for quality control
+    and visualization.
+  - Evaluated multiple aligners and variant callers to reduce false positives.
+  - Annotated variants using ANNOVAR, OpenCRAVAT, MyVariant, and biomedical databases.
+  - Detected copy number alterations and gene fusions with unified R reporting.
+- id: position_02
+  title: Junior Software Engineer
+  institution: Khaos Research
+  institution_type: Research group
+  organization_ids:
+  - organization_03
+  department: null
+  group: Khaos Research
+  location: Málaga, Andalusia, Spain
+  work_mode: On-site
+  employment_type: Full-time
+  dedication: Full-time
+  start_date: 2021-07
+  end_date: 2022-12
+  duration: 1 year 6 months
+  current: false
+  project_context: EnBiC2-Lab
+  tasks:
+  - Developed Progressive Web Applications with Next.js and MongoDB for crop sample
+    data recording and analysis.
+  - Encapsulated Python, Java, and R scripts into Docker containers for EnBiC2-Lab
+    components.
+  - Developed an evolutionary algorithm with JMetal and EPANET simulations to predict
+    irrigation connector properties.
+  - Contributed to Angular interfaces for scientific workflow execution.
+  - Managed project tasks and coordination through OpenProject.
+- id: position_03
+  title: Associate Software Engineer
+  institution: Khaos Research
+  institution_type: Research group
+  organization_ids:
+  - organization_03
+  department: null
+  group: Khaos Research
+  location: Málaga, Andalusia, Spain
+  work_mode: On-site
+  employment_type: Part-time
+  dedication: Part-time
+  start_date: 2022-12
+  end_date: 2025-12
+  duration: 3 years 1 month
+  current: false
+  project_context: null
+  tasks:
+  - Developed a workflow orchestration tool in Go with SQLite storage, JSON/YAML component
+    definitions, and Kubernetes and Nomad execution support.
+  - Administered computational resources using Proxmox and vSphere for deployment,
+    maintenance, and monitoring of virtual machines.
+  - Processed multisource satellite imagery from Sentinel-2, PlanetScope, and Landsat,
+    including download automation, temporal composites, spectral indices, and band
+    manipulation.
+  - Developed Gradio interfaces for remote sensing model execution and result visualization.
+  - Maintained OpenProject installations, upgrades, deployments, and project-management
+    workflows.
+- id: position_04
+  title: PhD candidate - FPU Fellowship
+  institution: Universidad de Málaga
+  institution_type: University
+  organization_ids:
+  - organization_01
+  department: Lenguajes y Ciencias de la Computación (LCC)
+  group: null
+  location: Málaga, Andalusia, Spain
+  work_mode: On-site
+  employment_type: Full-time
+  dedication: Full-time
+  start_date: 2022-12
+  end_date: 2025-12
+  duration: 3 years 1 month
+  current: false
+  project_context: FPU Fellowship
+  tasks:
+  - Designed evolutionary algorithms and hybrid artificial intelligence methods for
+    bioinformatics problems.
+  - Integrated over 25 gene regulatory network inference techniques in reproducible
+    Docker environments and PyPI packages.
+  - Developed asynchronous and parallel evolutionary algorithms for biologically informed
+    network consensus.
+  - Implemented multi-objective biclustering algorithms for clinical and genomic data.
+  - Published results in peer-reviewed journals and presented work at conferences
+    with open-source reproducibility assets.
+  - Taught 8 undergraduate courses across 4 degree programmes over 4 academic years.
+  - Supervised 1 Bachelor's thesis and 1 external internship.
+- id: position_05
+  title: Associate Team Coordinator
+  institution: Khaos Research
+  institution_type: Research group
+  organization_ids:
+  - organization_03
+  department: null
+  group: Khaos Research
+  location: Málaga, Andalusia, Spain
+  work_mode: On-site
+  employment_type: Part-time
+  dedication: Part-time
+  start_date: 2025-12
+  end_date: null
+  duration: 6 months
+  current: true
+  project_context: null
+  tasks:
+  - Technical coordination of computational and research software activities.
+  - Coordination support for project design, implementation, and maintenance.
+- id: position_06
+  title: Postdoctoral researcher - FPU-POP Fellowship
+  institution: Universidad de Málaga
+  institution_type: University
+  organization_ids:
+  - organization_01
+  department: Lenguajes y Ciencias de la Computación (LCC)
+  group: null
+  location: Málaga, Andalusia, Spain
+  work_mode: On-site
+  employment_type: Full-time
+  dedication: Full-time
+  start_date: 2025-12
+  end_date: null
+  duration: 6 months
+  current: true
+  project_context: FPU-POP
+  tasks:
+  - Postdoctoral research in artificial intelligence and bioinformatics.
+  - Teaching and academic tutoring within the Department of Languages and Computer
+    Science.
+professional_activity:
+  summary: Research, teaching, software engineering, technical coordination, and computational
+    infrastructure work across bioinformatics and environmental data projects.
+  collaborations:
+  - Khaos Research projects including Aether, KOSMOS, Tropical-IA, and 5G+TACTILE

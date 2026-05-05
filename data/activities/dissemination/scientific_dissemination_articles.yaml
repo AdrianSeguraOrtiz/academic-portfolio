@@ -1,0 +1,25 @@
+scientific_dissemination_articles:
+- id: scientific_dissemination_article_01
+  title: Context-Guided Evolutionary Algorithms for Consensus Inference of Gene Regulatory Networks
+  outlet: ERCIM News
+  issue: '143'
+  date: '2026-01-30'
+  url: https://ercim-news.ercim.eu/en143/special/3004-context-guided-evolutionary-algorithms-for-consensus-inference-of-gene-regulatory-networks
+  publication_ids:
+  - publication_01
+  - publication_02
+  - publication_03
+  - publication_05
+  - publication_06
+  software_package_ids:
+  - package_01
+- id: scientific_dissemination_article_02
+  title: 'MOEBA-BIO: An Open and Extensible Framework for Evolutionary Biclustering in Biomedicine'
+  outlet: ERCIM News
+  issue: '144'
+  date: '2026-04-13'
+  url: https://ercim-news.ercim.eu/en144/special/moeba-bio-an-open-and-extensible-framework-for-evolutionary-biclustering-in-biomedicine
+  publication_ids:
+  - publication_04
+  software_package_ids:
+  - package_02

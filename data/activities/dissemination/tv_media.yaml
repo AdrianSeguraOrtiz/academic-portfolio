@@ -1,0 +1,9 @@
+tv_items:
+- id: tv_media_01
+  program: Salud Ahora
+  channel: Canal Málaga
+  date: '2026-03-18'
+  url: https://www.canalmalaga.es/videos/336553-salud-ahora-18032026
+  description: null
+  publication_ids:
+  - publication_05

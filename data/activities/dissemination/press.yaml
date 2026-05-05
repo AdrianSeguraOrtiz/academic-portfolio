@@ -1,0 +1,160 @@
+press_items:
+- id: press_01
+  title: Investigadores del IBIMA Plataforma Bionand avanzan en la comprensión de
+    la enfermedad a nivel molecular
+  outlet: Diario Sur
+  date: '2023-08-19'
+  url: https://www.diariosur.es/malaga-capital/investigadores-ibima-plataforma-bionand-avanzan-comprension-enfermedad-20230819134019-nt.html?ref=https%3A%2F%2Fwww.diariosur.es%2Fmalaga-capital%2Finvestigadores-ibima-plataforma-bionand-avanzan-comprension-enfermedad-20230819134019-nt.html%3Fref%3Dhttps%3A%2F%2Fwww.diariosur.es%2Fmalaga-capital%2Finvestigadores-ibima-plataforma-bionand-avanzan-comprension-enfermedad-20230819134019-nt.html
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_01
+- id: press_02
+  title: Investigadores del IBIMA Plataforma Bionand avanzan en la comprensión de
+    la enfermedad a nivel molecular
+  outlet: Europa Press
+  date: '2023-08-19'
+  url: https://www.europapress.es/esandalucia/malaga/noticia-investigadores-ibima-plataforma-bionand-avanzan-comprension-enfermedad-nivel-molecular-20230819122451.html
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_01
+- id: press_03
+  title: Investigadores del IBIMA emplean una nueva estrategia para comprender cómo
+    interactúan los genes
+  outlet: ConSalud
+  date: '2023-08-21'
+  url: https://www.consalud.es/profesionales/investigadores-ibima-emplean-estrategia-comprender-como-interactuan-genes_133557_102.html
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_01
+- id: press_04
+  title: Investigadores de IBIMA Plataforma BIONAND y la UMA desarrollan un algoritmo
+    útil para la comprensión de los procesos celulares implicados en distintas enfermedades
+  outlet: IBIMA
+  date: '2024-08-29'
+  url: https://ibima.eu/es/investigadores-de-ibima-plataforma-bionand-y-la-uma-desarrollan-un-algoritmo-util-para-la-comprension-de-los-procesos-celulares-implicados-en-distintas-enfermedades/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_03
+- id: press_05
+  title: Nuevo algoritmo útil para la comprensión de los procesos celulares
+  outlet: Salud a Diario
+  date: '2024-08-29'
+  url: https://www.saludadiario.es/profesionales/desarrollan-un-algoritmo-util-para-la-comprension-de-los-procesos-celulares-implicados-en-distintas-enfermedades/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_03
+- id: press_06
+  title: Investigadores de Málaga crean un algoritmo para entender los procesos celulares
+    implicados en distintas enfermedades
+  outlet: La Opinión de Málaga
+  date: '2024-08-29'
+  url: https://www.laopiniondemalaga.es/malaga/2024/08/29/investigadores-malaguenos-algoritmo-entender-genes-enfermedades-ibima-107493253.html
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_03
+- id: press_07
+  title: Desarrollan un algoritmo útil para la comprensión de los procesos celulares
+    implicados en distintas enfermedades
+  outlet: Europa Press
+  date: '2024-08-29'
+  url: https://www.europapress.es/esandalucia/malaga/noticia-desarrollan-algoritmo-util-comprension-procesos-celulares-implicados-distintas-enfermedades-20240829115250.html
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_03
+- id: press_08
+  title: Un investigador de la UMA desarrolla una herramienta para descubrir estructuras
+    ocultas en datos biomédicos
+  outlet: UMA Divulga
+  date: '2025-07-09'
+  url: https://www.umadivulga.uma.es/noticias/un-investigador-de-la-uma-desarrolla-una-herramienta-para-descubrir-estructuras-ocultas-en-datos-biomedicos/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_04
+- id: press_09
+  title: "‘MOEBA-BIO’, una herramienta para descubrir estructuras ocultas en datos
+    biomédicos"
+  outlet: Universidad de Málaga
+  date: '2025-07-09'
+  url: https://www.uma.es/sala-de-prensa/noticias/moeba-bio-una-nueva-herramienta-para-descubrir-estructuras-ocultas-en-datos-biomedicos/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_04
+- id: press_10
+  title: "‘MOEBA-BIO’, una nueva herramienta desarrollada en la UMA para descubrir
+    estructuras ocultas en datos biomédicos"
+  outlet: Cadena SER
+  date: '2025-07-09'
+  url: https://cadenaser.com/andalucia/2025/07/09/moeba-bio-una-nueva-herramienta-desarrollada-en-la-uma-para-descubrir-estructuras-ocultas-en-datos-biomedicos-ser-malaga/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_04
+- id: press_11
+  title: Una herramienta revolucionaria para descrubrir estructuras ocultas en datos
+    médicos
+  outlet: Nova Ciencia
+  date: '2025-07-09'
+  url: https://novaciencia.es/una-herramienta-revolucionaria-para-descrubrir-estructuras-ocultas-en-datos-medicos/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_04
+- id: press_12
+  title: La Universidad de Málaga desarrolla un software de código abierto para descubrir
+    estructuras ocultas en datos biomédicos
+  outlet: Europa Press
+  date: '2025-07-09'
+  url: https://www.europapress.es/andalucia/malaga-00356/noticia-universidad-malaga-desarrolla-software-codigo-abierto-descubrir-estructuras-ocultas-datos-biomedicos-20250709145949.html
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_04
+- id: press_13
+  title: Desarrollan un sistema "inteligente" que analiza los genes implicados en
+    enfermedades como la fatiga crónica
+  outlet: Europa Press
+  date: '2025-07-25'
+  url: https://www.europapress.es/esandalucia/malaga/noticia-desarrollan-sistema-inteligente-analiza-genes-implicados-enfermedades-fatiga-cronica-20250725121046.html
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_05
+- id: press_14
+  title: Inteligencia artificial para dar ‘voz genética’ a la fibromialgia y a la
+    fatiga crónica
+  outlet: iDescubre
+  date: '2025-07-25'
+  url: https://idescubre.fundaciondescubre.es/noticias/inteligencia-artificial-para-dar-voz-genetica-a-la-fibromialgia-y-a-la-fatiga-cronica/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_05
+- id: press_15
+  title: Un nuevo sistema 'inteligente' analiza los genes implicados en la fatiga
+    crónica
+  outlet: Salud a Diario
+  date: '2025-07-27'
+  url: https://www.saludadiario.es/investigacion/un-sistema-inteligente-analiza-los-genes-implicados-en-enfermedades-como-la-fatiga-cronica/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_05
+- id: press_16
+  title: Así funciona el sistema inteligente que analiza los genes implicados en la
+    fatiga crónica
+  outlet: Nova Ciencia
+  date: '2025-07-27'
+  url: https://novaciencia.es/asi-funciona-el-sistema-inteligente-que-analiza-los-genes-implicados-en-la-fatiga-cronica/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_05

@@ -1,0 +1,36 @@
+honors:
+- id: award_01
+  title: Award for the Best High School Academic Record
+  awarding_entities:
+  - Málaga City Council, Education Department
+  degree_ids: []
+  issue_date: 2017-06
+  context: 9th City of Málaga Education Awards.
+- id: award_02
+  title: Destacad@s Awards 2021
+  awarding_entities:
+  - BBVA
+  - Diario Sur
+  degree_ids:
+  - degree_01
+  issue_date: 2021-11
+  context: Recognition as one of the top three academic records at the School of Computer
+    Engineering for the graduating class of 2020/2021.
+- id: award_03
+  title: Bachelor's End-of-Program Extraordinary Award Profesor José María Troya Linero
+  awarding_entities:
+  - Universidad de Málaga
+  degree_ids:
+  - degree_01
+  issue_date: 2022-07
+  context: Award for the best academic record in the Bachelor's in Health Engineering
+    program, considering both specializations.
+- id: award_04
+  title: Master's End-of-Program Extraordinary Award Profesor José María Troya Linero
+  awarding_entities:
+  - Universidad de Málaga
+  degree_ids:
+  - degree_02
+  issue_date: 2023-07
+  context: Award for the top academic record in the Master's in Software Engineering
+    and Artificial Intelligence.
