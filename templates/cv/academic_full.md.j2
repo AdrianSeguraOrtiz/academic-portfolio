@@ -1,0 +1,344 @@
+{% macro ref_list(record, field) -%}
+{{ record.get("resolved", {}).get(field, []) | linked_names }}
+{%- endmacro %}
+
+{% macro ref_names(record, field) -%}
+{{ record.get("resolved", {}).get(field, []) | names }}
+{%- endmacro %}
+
+{% macro ref_anchor_list(record, field) -%}
+{{ record.get("resolved", {}).get(field, []) | anchor_links }}
+{%- endmacro %}
+
+{% macro anchor(record) -%}
+<a id="{{ record | anchor_id }}"></a>
+{%- endmacro %}
+
+{% macro organization_names(record) -%}
+{%- set linked = record.get("resolved", {}).get("organization_ids", []) | linked_names -%}
+{{ linked or record.get("institution", "") }}
+{%- endmacro %}
+
+{% macro date_span(record) -%}
+{%- if record.get("start_date") or record.get("end_date") -%}
+{{ record.get("start_date") | date_range(record.get("end_date")) }}
+{%- endif -%}
+{%- endmacro %}
+
+{% macro publication_item(publication) %}
+{{ anchor(publication) }}
+- **{{ publication.title | markdown_link(publication.url) }}**. {{ publication.authors | join(", ") }}. *{{ publication.venue }}*{% if publication.publication_date %}, {{ publication.publication_date }}{% endif %}.
+  {% if publication.doi %}- DOI: {{ publication.doi | markdown_link(publication.url) }}{% endif %}
+  {% if publication.publisher %}- Publisher: {{ publication.publisher }}{% endif %}
+  {% if publication.volume or publication.article_number %}- Bibliographic data: {{ [publication.volume, publication.article_number] | compact_unique | join(", ") }}{% endif %}
+  {% if publication.type or publication.format %}- Type: {{ [publication.type, publication.format] | compact_unique | join(", ") }}{% endif %}
+  {% if publication.total_authors %}- Total authors: {{ publication.total_authors }}{% endif %}
+  {% if publication.corresponding_author is not none %}- Corresponding author: {{ publication.corresponding_author | yes_no }}{% endif %}
+  {% if publication.get("resolved", {}).get("organization_ids", []) %}- Organizations: {{ ref_list(publication, "organization_ids") }}{% endif %}
+  {% if publication.get("resolved", {}).get("software_project_ids", []) %}- Software: {{ ref_list(publication, "software_project_ids") }}{% endif %}
+  {% if publication.get("resolved", {}).get("research_project_ids", []) %}- Research projects: {{ ref_anchor_list(publication, "research_project_ids") }}{% endif %}
+  {% if publication.get("resolved", {}).get("position_ids", []) %}- Positions: {{ ref_anchor_list(publication, "position_ids") }}{% endif %}
+  {% if publication.get("resolved", {}).get("stay_ids", []) %}- Research stays: {{ ref_anchor_list(publication, "stay_ids") }}{% endif %}
+  {% if publication.get("resolved", {}).get("grant_ids", []) %}- Grants: {{ ref_anchor_list(publication, "grant_ids") }}{% endif %}
+{% endmacro %}
+
+# {{ profile.person.full_name }}
+
+{% if profile.research_profile.summary %}
+{{ profile.research_profile.summary }}
+{% endif %}
+
+{% set contact_parts = [] %}
+{% if profile.contact.email %}{% set _ = contact_parts.append(profile.contact.email | markdown_link("mailto:" ~ profile.contact.email)) %}{% endif %}
+{% if profile.contact.phone %}{% set _ = contact_parts.append(profile.contact.phone) %}{% endif %}
+{% if profile.contact.city %}{% set _ = contact_parts.append(profile.contact.city ~ ", " ~ profile.contact.country) %}{% endif %}
+{{ contact_parts | join(" | ") }}
+
+{% set profile_links = [] %}
+{% if profile.person.identifiers.orcid %}{% set _ = profile_links.append("ORCID" | markdown_link("https://orcid.org/" ~ profile.person.identifiers.orcid)) %}{% endif %}
+{% if profile.links.linkedin %}{% set _ = profile_links.append("LinkedIn" | markdown_link(profile.links.linkedin)) %}{% endif %}
+{% if profile.links.github %}{% set _ = profile_links.append("GitHub" | markdown_link(profile.links.github)) %}{% endif %}
+{% if profile.links.docker_hub %}{% set _ = profile_links.append("Docker Hub" | markdown_link(profile.links.docker_hub)) %}{% endif %}
+{% if profile_links %}
+Profiles: {{ profile_links | join(" | ") }}
+{% endif %}
+
+{% set personal_parts = [] %}
+{% if profile.person.nationality %}{% set _ = personal_parts.append("Nationality: " ~ profile.person.nationality) %}{% endif %}
+{% if profile.person.date_of_birth %}{% set _ = personal_parts.append("Date of birth: " ~ profile.person.date_of_birth) %}{% endif %}
+{% if profile.person.birth_place.city %}{% set _ = personal_parts.append("Birth place: " ~ profile.person.birth_place.city ~ ", " ~ profile.person.birth_place.country) %}{% endif %}
+{% if personal_parts %}
+{{ personal_parts | join(" | ") }}
+{% endif %}
+
+{% if profile.research_profile.areas %}
+Research areas: {{ profile.research_profile.areas | join(", ") }}
+{% endif %}
+
+{% if "current_positions" in sections %}
+## Current Activity
+
+{% for position in profile.current_positions %}
+- **{{ position | anchor_link }}**, {{ organization_names(position) }}{% if date_span(position) %} ({{ date_span(position) }}){% endif %}
+{% endfor %}
+{% for stay in profile.current_stays %}
+- **{{ stay | anchor_link }}**, {{ organization_names(stay) }}{% if date_span(stay) %} ({{ date_span(stay) }}){% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "degrees" in sections %}
+## Education
+
+{% for degree in degrees %}
+{{ anchor(degree) }}
+- **{{ degree.title }}**, {{ organization_names(degree) }}{% if degree.date_awarded %} ({{ degree.date_awarded }}){% elif date_span(degree) %} ({{ date_span(degree) }}){% endif %}
+  {% if degree.program %}- Program: {{ degree.program }}{% endif %}
+  {% if degree.grade %}- Grade: {{ degree.grade }}{% endif %}
+  {% if degree.average_mark %}- Average mark: {{ degree.average_mark }}{% endif %}
+  {% if degree.get("resolved", {}).get("grant_ids", []) %}- Grants: {{ ref_anchor_list(degree, "grant_ids") }}{% endif %}
+  {% if degree.related_honors %}- Honors: {{ degree.related_honors | anchor_links }}{% endif %}
+  {% if degree.thesis and degree.thesis.title %}- {{ degree.thesis.type }}: {{ degree.thesis.title }}{% if degree.thesis.area %} ({{ degree.thesis.area }}){% endif %}{% endif %}
+{% for activity in degree.activities %}
+  - Activity: {{ activity }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+
+{% if "certifications" in sections %}
+## Certifications and Training
+
+{% for certification in certifications %}
+{{ anchor(certification) }}
+- **{{ certification.title }}**, {{ organization_names(certification) or certification.issuer }}{% if certification.issue_date %} ({{ certification.issue_date }}){% endif %}
+  {% if date_span(certification) %}- Period: {{ date_span(certification) }}{% endif %}
+  {% if certification.duration_hours %}- Duration: {{ certification.duration_hours }} hours{% endif %}
+  {% if certification.credential_id %}- Credential ID: {{ certification.credential_id }}{% endif %}
+  {% if certification.notes %}- {{ certification.notes }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "experience" in sections %}
+## Experience
+
+{% for position in experience %}
+{{ anchor(position) }}
+- **{{ position.title }}**, {{ organization_names(position) }}{% if date_span(position) %} ({{ date_span(position) }}){% endif %}
+  {% if position.location %}- Location: {{ position.location }}{% endif %}
+  {% if position.employment_type or position.dedication or position.work_mode %}- Type: {{ [position.employment_type, position.dedication, position.work_mode] | compact_unique | join(", ") }}{% endif %}
+  {% if position.department %}- Department: {{ position.department }}{% endif %}
+  {% if position.group %}- Group: {{ position.group }}{% endif %}
+  {% if position.related_grants %}- Grants: {{ position.related_grants | anchor_links }}{% endif %}
+{% if options.include_descriptions and position.tasks %}
+  - Tasks:
+{% for task in position.tasks %}
+    - {{ task }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "research_stays" in sections %}
+## Research Stays
+
+{% for stay in research_stays %}
+{{ anchor(stay) }}
+- **{{ stay.title }}**, {{ organization_names(stay) }}{% if date_span(stay) %} ({{ date_span(stay) }}){% endif %}
+  {% if stay.location.city %}- Location: {{ stay.location.city }}, {{ stay.location.country }}{% endif %}
+  {% if stay.host_group %}- Host group: {{ stay.host_group }}{% endif %}
+  {% if stay.purpose or stay.type %}- Purpose: {{ [stay.purpose, stay.type] | compact_unique | join(", ") }}{% endif %}
+  {% if stay.employment_type or stay.work_mode %}- Type: {{ [stay.employment_type, stay.work_mode] | compact_unique | join(", ") }}{% endif %}
+  {% if stay.related_grants %}- Grants: {{ stay.related_grants | anchor_links }}{% elif stay.get("resolved", {}).get("grant_ids", []) %}- Grants: {{ ref_anchor_list(stay, "grant_ids") }}{% endif %}
+  {% if stay.description %}- {{ stay.description }}{% endif %}
+{% for task in stay.tasks %}
+  - Task: {{ task }}
+{% endfor %}
+  {% if stay.notes %}- Notes: {{ stay.notes }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "publications" in sections %}
+## Publications
+
+### Journal Papers
+
+{% for publication in publication_groups.journal_papers %}
+{{ publication_item(publication) }}
+{% endfor %}
+
+### Conference Papers
+
+{% for publication in publication_groups.conference_papers %}
+{{ publication_item(publication) }}
+{% endfor %}
+{% endif %}
+
+{% if "software_projects" in sections %}
+## Software Projects
+
+{% for project in software_projects %}
+{{ anchor(project) }}
+- **{{ project | record_link }}**{% if project.full_name %} ({{ project.full_name }}){% endif %}
+  {% if project.type %}- Type: {{ project.type }}{% endif %}
+  {% if project.description %}- {{ project.description }}{% endif %}
+  {% if project.domains %}- Domains: {{ project.domains | join(", ") }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "software_packages" in sections %}
+## Software Packages
+
+{% for package in software_packages %}
+{{ anchor(package) }}
+- **{{ package.name }}**, {{ package.ecosystem }}
+  {% if package.get("package_name") %}- Package name: `{{ package.package_name }}`{% endif %}
+  {% if package.get("group_id") %}- Maven coordinate: `{{ package.group_id }}:{{ package.artifact_id }}`{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "research_projects" in sections %}
+## Research Projects
+
+{% for project in research_projects.funded_projects %}
+{{ anchor(project) }}
+- **{{ project.acronym }}**: {{ project.title }}{% if date_span(project) %} ({{ date_span(project) }}){% endif %}
+  {% if project.code %}- Code: {{ project.code }}{% endif %}
+  {% if project.get("resolved", {}).get("organization_ids", []) %}- Organization: {{ ref_list(project, "organization_ids") }}{% endif %}
+  {% if project.principal_investigators %}- Principal investigators: {{ project.principal_investigators | join(", ") }}{% endif %}
+  {% if project.funders %}- Funders: {{ project.funders | join(", ") }}{% endif %}
+  {% if project.participation %}- Participation: {{ project.participation }}{% endif %}
+  {% if project.total_amount_eur %}- Total amount: {{ project.total_amount_eur }} EUR{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "teaching" in sections %}
+## Teaching
+
+### University Classes
+
+{% for course in teaching.university_classes %}
+{{ anchor(course) }}
+- **{{ course.name }}**, {{ course.degree }}{% if course.academic_year %} ({{ course.academic_year }}){% endif %}
+  {% if date_span(course) %}- Period: {{ date_span(course) }}{% endif %}
+  {% if course.department %}- Department: {{ course.department }}{% endif %}
+  {% if course.get("resolved", {}).get("organization_ids", []) %}- Organization: {{ ref_list(course, "organization_ids") }}{% endif %}
+{% endfor %}
+
+### Academic Supervision
+
+{% for supervision_group in teaching.academic_supervision | groupby("type") %}
+#### {{ supervision_group.grouper }}
+
+{% for supervision in supervision_group.list %}
+{{ anchor(supervision) }}
+- **{{ supervision.title | markdown_link(supervision.url) }}**, {{ supervision.student }}{% if supervision.academic_year %} ({{ supervision.academic_year }}){% endif %}
+  {% if supervision.degree %}- Degree: {{ supervision.degree }}{% endif %}
+  {% if supervision.role %}- Role: {{ supervision.role }}{% endif %}
+  {% if supervision.date %}- Date: {{ supervision.date }}{% endif %}
+  {% if supervision.workload_hours %}- Workload: {{ supervision.workload_hours }} hours{% endif %}
+  {% if supervision.modality %}- Modality: {{ supervision.modality }}{% endif %}
+  {% if supervision.repository_url %}- Repository: {{ supervision.repository_url | markdown_link(supervision.repository_url) }}{% endif %}
+  {% if supervision.get("resolved", {}).get("organization_ids", []) %}- Organization: {{ ref_list(supervision, "organization_ids") }}{% endif %}
+{% endfor %}
+{% endfor %}
+
+### Teaching Innovation
+
+{% for project in teaching.teaching_innovation_projects %}
+{{ anchor(project) }}
+- **{{ project.code }}**: {{ project.title }}{% if date_span(project) %} ({{ date_span(project) }}){% endif %}
+  {% if project.participation %}- Participation: {{ project.participation }}{% endif %}
+  {% if project.relationship %}- Relationship: {{ project.relationship }}{% endif %}
+  {% if project.funding_entity %}- Funding entity: {{ project.funding_entity }}{% endif %}
+  {% if project.get("resolved", {}).get("organization_ids", []) %}- Organization: {{ ref_list(project, "organization_ids") }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "dissemination" in sections and options.include_dissemination %}
+## Dissemination
+
+### Scientific Dissemination Articles
+
+{% for article in dissemination.scientific_articles %}
+{{ anchor(article) }}
+- **{{ article.title | markdown_link(article.url) }}**, {{ article.outlet }}{% if article.issue %} {{ article.issue }}{% endif %}{% if article.date %} ({{ article.date }}){% endif %}
+  {% if article.get("resolved", {}).get("publication_ids", []) %}- Publications: {{ ref_anchor_list(article, "publication_ids") }}{% endif %}
+  {% if article.get("resolved", {}).get("software_package_ids", []) %}- Software packages: {{ ref_anchor_list(article, "software_package_ids") }}{% endif %}
+{% endfor %}
+
+### Presentations
+
+{% for presentation in dissemination.presentations %}
+{{ anchor(presentation) }}
+- **{{ presentation.title }}**, {{ presentation.event }}{% if date_span(presentation) %} ({{ date_span(presentation) }}){% endif %}
+  {% if presentation.type %}- Type: {{ presentation.type }}{% endif %}
+  {% if presentation.location %}- Location: {{ presentation.location }}{% endif %}
+  {% if presentation.authors %}- Authors: {{ presentation.authors | join(", ") }}{% endif %}
+  {% if presentation.corresponding_author is not none %}- Corresponding author: {{ presentation.corresponding_author | yes_no }}{% endif %}
+  {% if presentation.get("resolved", {}).get("publication_ids", []) %}- Publications: {{ ref_anchor_list(presentation, "publication_ids") }}{% endif %}
+  {% if presentation.get("resolved", {}).get("software_package_ids", []) %}- Software packages: {{ ref_anchor_list(presentation, "software_package_ids") }}{% endif %}
+{% endfor %}
+
+### Press
+
+{% for item in dissemination.press %}
+{{ anchor(item) }}
+- **{{ item.title | markdown_link(item.url) }}**, {{ item.outlet }}{% if item.date %} ({{ item.date }}){% endif %}
+  {% if item.language or item.country %}- Scope: {{ [item.language, item.country] | compact_unique | join(", ") }}{% endif %}
+  {% if item.get("resolved", {}).get("publication_ids", []) %}- Publications: {{ ref_anchor_list(item, "publication_ids") }}{% endif %}
+{% endfor %}
+
+### Social Media
+
+{% for item in dissemination.social_media %}
+{{ anchor(item) }}
+- **{{ item.platform | markdown_link(item.url) }}**{% if item.date %} ({{ item.date }}){% endif %}
+  {% if item.accounts %}- Accounts: {{ item.accounts | join(", ") }}{% endif %}
+  {% if item.views %}- Views: {{ item.views }}{% endif %}
+  {% if item.description %}- {{ item.description }}{% endif %}
+  {% if item.get("resolved", {}).get("publication_ids", []) %}- Publications: {{ ref_anchor_list(item, "publication_ids") }}{% endif %}
+{% endfor %}
+
+### TV Media
+
+{% for item in dissemination.tv_media %}
+{{ anchor(item) }}
+- **{{ item.program | markdown_link(item.url) }}**, {{ item.channel }}{% if item.date %} ({{ item.date }}){% endif %}
+  {% if item.description %}- {{ item.description }}{% endif %}
+  {% if item.get("resolved", {}).get("publication_ids", []) %}- Publications: {{ ref_anchor_list(item, "publication_ids") }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "reviewing" in sections %}
+## Reviewing
+
+{% for item in reviewing %}
+{{ anchor(item) }}
+- **{{ item.journal }}**: {{ item.manuscripts_reviewed }} manuscripts reviewed{% if item.last_updated %} (updated {{ item.last_updated }}){% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "honors" in sections %}
+## Honors
+
+{% for honor in honors %}
+{{ anchor(honor) }}
+- **{{ honor.title }}**{% if honor.issue_date %} ({{ honor.issue_date }}){% endif %}
+  {% if honor.awarding_entities %}- Awarding entities: {{ honor.awarding_entities | join(", ") }}{% endif %}
+  {% if honor.context %}- {{ honor.context }}{% endif %}
+  {% if honor.get("resolved", {}).get("degree_ids", []) %}- Related education: {{ ref_anchor_list(honor, "degree_ids") }}{% endif %}
+{% endfor %}
+{% endif %}
+
+{% if "grants" in sections %}
+## Grants
+
+{% for grant in grants %}
+{{ anchor(grant) }}
+- **{{ grant.name }}**{% if grant.issue_date %} ({{ grant.issue_date }}){% endif %}{% if date_span(grant) %} - {{ date_span(grant) }}{% endif %}
+  {% if grant.awarding_entity %}- Awarding entity: {{ grant.awarding_entity }}{% endif %}
+  {% if grant.purpose %}- Purpose: {{ grant.purpose }}{% endif %}
+  {% if grant.get("resolved", {}).get("position_ids", []) %}- Positions: {{ ref_anchor_list(grant, "position_ids") }}{% endif %}
+  {% if grant.get("resolved", {}).get("stay_ids", []) %}- Research stays: {{ ref_anchor_list(grant, "stay_ids") }}{% endif %}
+  {% if grant.notes %}- {{ grant.notes }}{% endif %}
+{% endfor %}
+{% endif %}

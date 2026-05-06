@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ profile.person.full_name }} | Academic Portfolio</title>
+    <meta name="description" content="{{ profile.research_profile.summary }}">
+    <link rel="stylesheet" href="assets/site.css">
+  </head>
+  <body>
+    {% macro org_links(record) -%}
+      {%- for organization in record.get("resolved", {}).get("organization_ids", []) -%}
+        <a href="{{ organization.website }}">{{ organization.name }}</a>{% if not loop.last %}, {% endif %}
+      {%- endfor -%}
+    {%- endmacro %}
+
+    {% macro date_span(record) -%}
+      {%- if record.get("start_date") or record.get("end_date") -%}
+        {{ record.get("start_date") | date_range(record.get("end_date")) }}
+      {%- endif -%}
+    {%- endmacro %}
+
+    {% macro linked_records(records) -%}
+      {%- for record in records -%}
+        {%- set url = record.get("url") or record.get("website") or record.get("urls", {}).get("github") -%}
+        {%- if url -%}<a href="{{ url }}">{{ record | record_name }}</a>{%- else -%}{{ record | record_name }}{%- endif -%}{% if not loop.last %}, {% endif %}
+      {%- endfor -%}
+    {%- endmacro %}
+
+    {% macro publication_card(publication) %}
+    <article class="record-card">
+      <div class="record-topline">
+        <span class="kind-dot {{ publication.publication_kind }}"></span>
+        <span>{{ "Journal paper" if publication.publication_kind == "journal" else "Conference paper" }}</span>
+        {% if publication.publication_date %}<time>{{ publication.publication_date }}</time>{% endif %}
+      </div>
+      <h3><a href="{{ publication.url }}">{{ publication.title }}</a></h3>
+      <p>{{ publication.authors | join(", ") }}</p>
+      <p><strong>{{ publication.venue }}</strong>{% if publication.publisher %} · {{ publication.publisher }}{% endif %}</p>
+      <ul class="meta-list">
+        {% if publication.doi %}<li>DOI: <a href="{{ publication.url }}">{{ publication.doi }}</a></li>{% endif %}
+        {% if publication.get("resolved", {}).get("organization_ids", []) %}<li>Organizations: {{ org_links(publication) }}</li>{% endif %}
+        {% if publication.get("resolved", {}).get("position_ids", []) %}<li>Positions: {{ linked_records(publication.resolved.position_ids) }}</li>{% endif %}
+        {% if publication.get("resolved", {}).get("stay_ids", []) %}<li>Research stays: {{ linked_records(publication.resolved.stay_ids) }}</li>{% endif %}
+        {% if publication.get("resolved", {}).get("grant_ids", []) %}<li>Grants: {{ linked_records(publication.resolved.grant_ids) }}</li>{% endif %}
+        {% if publication.get("resolved", {}).get("software_project_ids", []) %}
+        <li>Software:
+          {% for software in publication.resolved.software_project_ids %}
+          <a href="{{ software.urls.github }}">{{ software.name }}</a>{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </li>
+        {% endif %}
+      </ul>
+    </article>
+    {% endmacro %}
+
+    <header class="site-header">
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#profile">Profile</a>
+        <a href="#overview">Overview</a>
+        <a href="#collaborations">Collaborations</a>
+        <a href="#publications">Publications</a>
+        <a href="#software">Software</a>
+        <a href="#career">Career</a>
+        <a href="#teaching">Teaching</a>
+        <a href="#dissemination">Dissemination</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="profile">
+        <div class="hero-copy">
+          <p class="eyebrow">Academic Portfolio</p>
+          <h1>{{ profile.person.full_name }}</h1>
+          <p class="lead">{{ profile.research_profile.summary }}</p>
+
+          <div class="current-activity" aria-label="Current activity">
+            {% for position in profile.current_positions %}
+            <article class="current-card">
+              <span>Current position</span>
+              <strong>{{ position.title }}</strong>
+              <p>{{ org_links(position) }}{% if date_span(position) %} · {{ date_span(position) }}{% endif %}</p>
+            </article>
+            {% endfor %}
+            {% for stay in profile.current_stays %}
+            <article class="current-card">
+              <span>Current stay</span>
+              <strong>{{ stay.title }}</strong>
+              <p>{{ org_links(stay) }}{% if date_span(stay) %} · {{ date_span(stay) }}{% endif %}</p>
+            </article>
+            {% endfor %}
+          </div>
+
+          <div class="profile-links" aria-label="Profile links">
+            {% if profile.person.identifiers.orcid %}
+            <a href="https://orcid.org/{{ profile.person.identifiers.orcid }}">ORCID</a>
+            {% endif %}
+            {% if profile.links.linkedin %}
+            <a href="{{ profile.links.linkedin }}">LinkedIn</a>
+            {% endif %}
+            {% if profile.links.github %}
+            <a href="{{ profile.links.github }}">GitHub</a>
+            {% endif %}
+            {% if profile.links.docker_hub %}
+            <a href="{{ profile.links.docker_hub }}">Docker Hub</a>
+            {% endif %}
+            <a href="mailto:{{ profile.contact.email }}">{{ profile.contact.email }}</a>
+          </div>
+        </div>
+
+        <aside class="hero-panel" aria-label="Research focus">
+          <h2>Research Focus</h2>
+          <div class="focus-list">
+            {% for area in research_focus %}
+            <span>{{ area }}</span>
+            {% endfor %}
+          </div>
+        </aside>
+      </section>
+
+      <section class="section overview" id="overview">
+        <div class="overview-copy">
+          <div class="section-heading">
+            <p class="eyebrow">At a Glance</p>
+            <h2>Research, Software, Teaching, and Dissemination</h2>
+          </div>
+
+          <div class="narrative">
+            <p>
+              My research activity is focused on artificial intelligence and bioinformatics,
+              with particular attention to gene regulatory network inference, evolutionary
+              biclustering, biomedical data analysis, and the integration of domain knowledge
+              into computational methods. This work has resulted in
+              <strong>{{ metrics.journal_papers }} journal papers</strong> and
+              <strong>{{ metrics.conference_papers }} conference paper</strong>, supported by
+              open research software and reproducible computational assets.
+            </p>
+            <p>
+              The technological output of this portfolio includes
+              <strong>{{ metrics.software_projects }} software projects</strong> and
+              <strong>{{ metrics.software_packages }} software packages</strong>. Scientific
+              dissemination includes <strong>{{ metrics.scientific_dissemination_articles }}
+              scientific dissemination articles</strong>, <strong>{{ metrics.presentations }}
+              presentations</strong>, <strong>{{ metrics.press_items }} press items</strong>,
+              <strong>{{ metrics.social_media_items }} social media items</strong>, and
+              <strong>{{ metrics.tv_media_items }} TV media item</strong>.
+            </p>
+            <p>
+              Teaching activity includes <strong>{{ metrics.courses }} university courses</strong>
+              and <strong>{{ metrics.supervisions }} academic supervision activities</strong>.
+              The academic trajectory includes <strong>{{ metrics.honors }} honors</strong>,
+              <strong>{{ metrics.grants }} grants</strong>, and
+              <strong>{{ metrics.research_stays }} international research stays</strong>.
+            </p>
+          </div>
+        </div>
+
+        <aside class="metric-grid" aria-label="Portfolio metrics">
+          <article class="metric-card"><strong>{{ metrics.journal_papers }}</strong><span>Journal papers</span></article>
+          <article class="metric-card"><strong>{{ metrics.conference_papers }}</strong><span>Conference papers</span></article>
+          <article class="metric-card"><strong>{{ metrics.software_projects }}</strong><span>Software projects</span></article>
+          <article class="metric-card"><strong>{{ metrics.software_packages }}</strong><span>Software packages</span></article>
+          <article class="metric-card"><strong>{{ metrics.courses }}</strong><span>Courses taught</span></article>
+          <article class="metric-card"><strong>{{ metrics.reviewed_manuscripts }}</strong><span>Reviewed manuscripts</span></article>
+          <article class="metric-card"><strong>{{ metrics.press_items }}</strong><span>Press items</span></article>
+          <article class="metric-card"><strong>{{ metrics.social_media_items }}</strong><span>Social media items</span></article>
+        </aside>
+      </section>
+
+      <section class="content-section" id="collaborations">
+        <div class="section-heading">
+          <p class="eyebrow">Collaborations</p>
+          <h2>Research Stays and Publication Cities</h2>
+        </div>
+        <div class="collaboration-layout">
+          <article class="collaboration-map-card">
+            <div class="collaboration-map" data-collaboration-map role="img" aria-label="World map of research stays and publication collaborations">
+              <span class="map-loading">Loading world map</span>
+            </div>
+            <div class="map-legend" aria-label="Map legend">
+              <span><i class="legend-publication"></i> Publication city</span>
+              <span><i class="legend-stay"></i> Research stay</span>
+            </div>
+            <script type="application/json" id="collaboration-map-data">{{ collaborations.map_data | tojson }}</script>
+          </article>
+
+          <aside class="collaboration-panel">
+            <div class="collaboration-metric-block">
+              <h3>Publications</h3>
+              <div class="collaboration-metrics">
+                <div><strong>{{ collaborations.metrics.total_papers }}</strong><span>Total papers</span></div>
+                <div><strong>{{ collaborations.metrics.international_papers }}</strong><span>International papers</span></div>
+                <div><strong>{{ collaborations.metrics.publication_countries }}</strong><span>Countries in papers</span></div>
+              </div>
+            </div>
+            <div class="collaboration-metric-block">
+              <h3>Research Stays</h3>
+              <div class="collaboration-metrics">
+                <div><strong>{{ collaborations.metrics.stay_cities }}</strong><span>Cities</span></div>
+                <div><strong>{{ collaborations.metrics.stay_countries }}</strong><span>Countries</span></div>
+                <div><strong>{{ collaborations.metrics.research_stays }}</strong><span>Stays</span></div>
+                <div><strong>{{ collaborations.metrics.stay_months }}</strong><span>Months abroad</span></div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="content-section" id="publications">
+        <div class="section-heading">
+          <p class="eyebrow">Research Output</p>
+          <h2>Publications</h2>
+        </div>
+        <div class="chart-card publication-chart-card">
+          <div class="section-heading compact">
+            <p class="eyebrow">Output</p>
+            <h2>Publications by Year</h2>
+          </div>
+          <div class="chart-legend">
+            <span><i class="kind-dot journal"></i> Journal paper</span>
+            <span><i class="kind-dot conference"></i> Conference paper</span>
+          </div>
+          <div class="bar-chart" aria-label="Publications by year">
+            {% for item in publication_chart %}
+            <div class="bar-item">
+              <div class="bar-track">
+                <div class="bar-stack" style="height: {{ item.height }}%">
+                  <span class="bar-segment journal" style="height: {{ item.journal_share }}%"></span>
+                  <span class="bar-segment conference" style="height: {{ item.conference_share }}%"></span>
+                </div>
+              </div>
+              <strong>{{ item.total }}</strong>
+              <span>{{ item.year }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="record-grid">
+          {% for publication in publications %}
+          {{ publication_card(publication) }}
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="content-section" id="software">
+        <div class="section-heading">
+          <p class="eyebrow">Open Research Software</p>
+          <h2>Software</h2>
+        </div>
+        <h3 class="subsection-title">Software Projects</h3>
+        {% if software_timeline.rows %}
+        <div class="software-visual-grid">
+          <article class="chart-card software-timeline-card">
+            <div class="section-heading compact">
+              <p class="eyebrow">Repositories</p>
+              <h2>Commit Activity</h2>
+            </div>
+            <div class="timeline-years" style="grid-template-columns: repeat({{ software_timeline.years | length }}, minmax(0, 1fr))">
+              {% for year in software_timeline.years %}
+              <span>{{ year }}</span>
+              {% endfor %}
+            </div>
+            <div class="timeline-rows">
+              {% for item in software_timeline.rows %}
+              {% set github = item.project.get("github") %}
+              <div class="timeline-row" style="--language-color: {{ item.color }};">
+                <a class="timeline-label" href="{{ item.project.urls.github }}">{{ item.project.name }}</a>
+                <div class="timeline-track">
+                  {% for month in item.months %}
+                  <span class="activity-pulse" style="--left: {{ month.left }}%; --width: {{ month.width }}%; --height: {{ month.height }}px;" title="{{ month.count }} {{ "commit" if month.count == 1 else "commits" }} in {{ month.month }}"></span>
+                  {% endfor %}
+                  {% if item.created_left is not none %}<span class="timeline-marker created" style="--left: {{ item.created_left }}%;" title="Repository created: {{ github.created_at[:10] }}"></span>{% endif %}
+                  {% if item.pushed_left is not none %}<span class="timeline-marker pushed" style="--left: {{ item.pushed_left }}%;" title="Last push: {{ github.pushed_at[:10] }}"></span>{% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </article>
+
+          {% if software_language_chart %}
+          <article class="chart-card language-card">
+            <div class="section-heading compact">
+              <p class="eyebrow">Codebase</p>
+              <h2>Languages</h2>
+            </div>
+            <div class="language-stack" aria-label="Aggregated repository languages">
+              {% for language in software_language_chart %}
+              <span style="width: {{ language.share }}%; background: {{ language.color }};" title="{{ language.name }}: {{ language.share }}%"></span>
+              {% endfor %}
+            </div>
+            <div class="language-list">
+              {% for language in software_language_chart %}
+              <div>
+                <span><i style="background: {{ language.color }};"></i>{{ language.name }}</span>
+                <strong>{{ language.share }}%</strong>
+              </div>
+              {% endfor %}
+            </div>
+          </article>
+          {% endif %}
+        </div>
+        {% endif %}
+        <div class="software-layout">
+          <aside class="software-snapshot" aria-label="Software portfolio metrics">
+            <div class="section-heading compact">
+              <p class="eyebrow">Snapshot</p>
+              <h3>Software Index</h3>
+            </div>
+            <div class="snapshot-grid">
+              <div><strong>{{ metrics.software_projects }}</strong><span>Repos</span></div>
+              <div><strong>{{ metrics.software_packages }}</strong><span>Packages</span></div>
+              {% if software_github.repositories_with_stats %}
+              <div><strong>{{ software_github.total_stars }}</strong><span>Stars</span></div>
+              <div><strong>{{ software_github.total_forks }}</strong><span>Forks</span></div>
+              {% endif %}
+            </div>
+            {% if software_github.repositories_with_stats %}
+            <div class="snapshot-detail">
+              <span>Latest push</span>
+              <strong>{{ software_github.last_push_date }}</strong>
+            </div>
+            {% endif %}
+            {% if software_language_chart %}
+            <div class="snapshot-detail">
+              <span>Dominant language</span>
+              <strong>{{ software_language_chart[0].name }}</strong>
+            </div>
+            <div class="snapshot-language-key">
+              {% for language in software_language_chart[:5] %}
+              <span><i style="background: {{ language.color }};"></i>{{ language.name }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </aside>
+          <div class="repo-list">
+            {% for project in software_projects %}
+            {% set github = project.get("github") %}
+            <article class="repo-row">
+              <div class="repo-identity">
+                <div class="software-meta">
+                  <span>{{ project.type }}</span>
+                </div>
+                <h3>{% if project.urls.github %}<a href="{{ project.urls.github }}">{{ project.name }}</a>{% else %}{{ project.name }}{% endif %}</h3>
+                {% if project.full_name %}<p>{{ project.full_name }}</p>{% endif %}
+              </div>
+              <div class="repo-summary">
+                {% if project.description %}<p>{{ project.description }}</p>{% endif %}
+                <div class="repo-tags">
+                  {% for domain in project.domains %}
+                  <span>{{ domain }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% if github %}
+              <div class="repo-stats">
+                <div class="repo-statline">
+                  {% if github.language %}<span>{{ github.language }}</span>{% endif %}
+                  {% if github.license %}<span>{{ github.license }}</span>{% endif %}
+                  <span>{{ github.stargazers_count }} stars</span>
+                  <span>{{ github.forks_count }} forks</span>
+                  <span>{{ github.open_issues_count }} open</span>
+                  {% if github.commits_count is not none %}<span>{{ github.commits_count }} commits</span>{% endif %}
+                </div>
+                {% if github.first_commit_at or github.last_commit_at or github.pushed_at %}
+                <div class="repo-dates">
+                  {% if github.first_commit_at and github.last_commit_at %}
+                  <span>Commits {{ github.first_commit_at[:10] }} - {{ github.last_commit_at[:10] }}</span>
+                  {% endif %}
+                  {% if github.pushed_at %}
+                  <span>Push {{ github.pushed_at[:10] }}</span>
+                  {% endif %}
+                </div>
+                {% endif %}
+              </div>
+              {% endif %}
+            </article>
+            {% endfor %}
+          </div>
+        </div>
+        <h3 class="subsection-title">Software Packages</h3>
+        <div class="package-grid">
+          {% for package in software_packages %}
+          {% set stats = package.get("package_stats", {}) %}
+          <article class="package-card">
+            <div class="software-meta"><span>{{ package.ecosystem }}</span>{% if package.get("package_name") %}<span>{{ package.package_name }}</span>{% endif %}{% if package.get("group_id") %}<span>{{ package.group_id }}:{{ package.artifact_id }}</span>{% endif %}</div>
+            <h3><a href="{{ stats.get("package_url") or stats.get("mvnrepository_url") or package.get("url", "#") }}">{{ package.name }}</a></h3>
+            {% if stats.get("summary") %}<p>{{ stats.summary }}</p>{% endif %}
+
+            {% if package.ecosystem == "PyPI" and stats %}
+            <div class="package-stat-grid">
+              <div><strong>{{ stats.total_downloads | number }}</strong><span>Total downloads</span></div>
+              <div><strong>{{ stats.latest_version }}</strong><span>Latest version</span></div>
+              <div><strong>{{ stats.release_count }}</strong><span>Releases</span></div>
+              <div><strong>{{ stats.requires_python or "n/a" }}</strong><span>Python</span></div>
+            </div>
+            {% if stats.download_chart %}
+            {% set chart_points = stats.download_chart[-18:] %}
+            {% set max_downloads = chart_points | map(attribute="downloads") | max %}
+            <div class="package-download-chart" aria-label="{{ package.name }} monthly downloads by version">
+              <div class="chart-y-axis">
+                <span>{{ max_downloads | number }}</span>
+                <span>{{ (max_downloads / 2) | round | int | number }}</span>
+                <span>0</span>
+              </div>
+              <div class="chart-plot">
+                <div class="chart-grid-line top"></div>
+                <div class="chart-grid-line middle"></div>
+                <div class="package-bars">
+                  {% for point in chart_points %}
+                  <div class="package-bar" style="height: {{ ((point.downloads / max_downloads) * 100) | round }}%" title="{{ point.label }} · {{ point.downloads | number }} downloads">
+                    {% for segment in point.segments %}
+                    <span style="height: {{ segment.share }}%; background: {{ segment.color }};" title="{{ point.label }} · {{ segment.version }} · {{ segment.downloads | number }} downloads"></span>
+                    {% endfor %}
+                  </div>
+                  {% endfor %}
+                </div>
+                <div class="chart-x-axis">
+                  {% for point in chart_points %}
+                  <span>{{ point.label.split(" ")[0] }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            <div class="package-splits">
+              <div>
+                <h4>Versions</h4>
+                <div class="package-scroll-list">
+                  {% for item in stats.downloads_by_version %}
+                  <p><span><i style="background: {{ item.color }};"></i>{{ item.version }}</span><strong>{{ item.downloads | number }}</strong></p>
+                  {% endfor %}
+                </div>
+              </div>
+              <div>
+                <h4>Countries</h4>
+                <div class="package-scroll-list">
+                  {% for item in stats.downloads_by_country %}
+                  <p><span>{{ item.country_code }}</span><strong>{{ item.downloads | number }}</strong></p>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <p class="tags"><a href="{{ stats.clickpy_url }}">ClickPy dashboard</a></p>
+            {% elif package.ecosystem == "Maven" and stats %}
+            <div class="package-stat-grid">
+              <div><strong>{{ stats.latest_version }}</strong><span>Latest version</span></div>
+              <div><strong>{{ stats.release_count }}</strong><span>Releases</span></div>
+              <div><strong>{{ stats.dependency_count }}</strong><span>Dependencies</span></div>
+              <div><strong>{{ stats.java_release or "n/a" }}</strong><span>Java release</span></div>
+            </div>
+            <ul class="meta-list">
+              {% if stats.license %}<li>License: {{ stats.license }}</li>{% endif %}
+              {% if stats.last_updated %}<li>Last updated: {{ stats.last_updated }}</li>{% endif %}
+              {% if stats.project_url %}<li>Project: <a href="{{ stats.project_url }}">{{ stats.project_url }}</a></li>{% endif %}
+            </ul>
+            {% if stats.artifact_files %}
+            <div class="artifact-list">
+              {% for artifact in stats.artifact_files %}
+              <a href="{{ artifact.url }}"><span>{{ artifact.kind }}</span><strong>{{ (artifact.size_bytes / 1024) | round | int }} KB</strong></a>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <p class="tags"><a href="{{ stats.mvnrepository_url }}">MvnRepository</a></p>
+            {% else %}
+            <p class="tags">
+              {% if package.get("package_name") %}Package: {{ package.package_name }}{% endif %}
+              {% if package.get("group_id") %}Coordinate: {{ package.group_id }}:{{ package.artifact_id }}{% endif %}
+            </p>
+            {% endif %}
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="content-section" id="career">
+        <div class="section-heading">
+          <p class="eyebrow">Career</p>
+          <h2>Education, Experience, Stays, Honors, and Grants</h2>
+        </div>
+        <div class="split-sections">
+          <section>
+            <h3 class="subsection-title">Education</h3>
+            {% for degree in career.degrees %}
+            <article class="record-row">
+              <h3>{{ degree.title }}</h3>
+              <p>{{ org_links(degree) }} · {{ degree.start_date | date_range(degree.end_date) }}</p>
+              {% if degree.grade %}<p>{{ degree.grade }}</p>{% endif %}
+              {% if degree.get("resolved", {}).get("grant_ids", []) %}<p>Grants: {{ linked_records(degree.resolved.grant_ids) }}</p>{% endif %}
+              {% if degree.thesis.title %}<p>{{ degree.thesis.type }}: {{ degree.thesis.title }}</p>{% endif %}
+              {% if degree.thesis.area %}<p class="tags">{{ degree.thesis.area }}</p>{% endif %}
+            </article>
+            {% endfor %}
+          </section>
+          <section>
+            <h3 class="subsection-title">Experience</h3>
+            {% for position in career.experience %}
+            <article class="record-row">
+              <h3>{{ position.title }}</h3>
+              <p>{{ org_links(position) }} · {{ date_span(position) }}</p>
+              <ul class="meta-list">
+                {% if position.location %}<li>Location: {{ position.location }}</li>{% endif %}
+                {% if position.employment_type or position.dedication or position.work_mode %}<li>Type: {{ [position.employment_type, position.dedication, position.work_mode] | select | unique | join(", ") }}</li>{% endif %}
+                {% if position.department %}<li>Department: {{ position.department }}</li>{% endif %}
+                {% if position.group %}<li>Group: {{ position.group }}</li>{% endif %}
+              </ul>
+              {% if position.tasks %}
+              <ul class="meta-list">
+                {% for task in position.tasks %}
+                <li>{{ task }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </article>
+            {% endfor %}
+          </section>
+          <section>
+            <h3 class="subsection-title">Research Stays</h3>
+            {% for stay in career.research_stays %}
+            <article class="record-row">
+              <h3>{{ stay.title }}</h3>
+              <p>{{ org_links(stay) }} · {{ date_span(stay) }}</p>
+              <p>{{ stay.description }}</p>
+              <ul class="meta-list">
+                {% if stay.location.city %}<li>Location: {{ stay.location.city }}, {{ stay.location.country }}</li>{% endif %}
+                {% if stay.host_group %}<li>Host group: {{ stay.host_group }}</li>{% endif %}
+                {% if stay.purpose or stay.type %}<li>Purpose: {{ [stay.purpose, stay.type] | select | join(", ") }}</li>{% endif %}
+                {% if stay.get("resolved", {}).get("grant_ids", []) %}<li>Grants: {{ linked_records(stay.resolved.grant_ids) }}</li>{% endif %}
+                {% for task in stay.tasks %}<li>{{ task }}</li>{% endfor %}
+              </ul>
+            </article>
+            {% endfor %}
+          </section>
+          <section>
+            <h3 class="subsection-title">Certifications</h3>
+            {% for certification in career.certifications %}
+            <article class="record-row">
+              <h3>{{ certification.title }}</h3>
+              <p>{{ org_links(certification) }}{% if certification.issue_date %} · {{ certification.issue_date }}{% endif %}</p>
+              <ul class="meta-list">
+                {% if certification.duration_hours %}<li>{{ certification.duration_hours }} hours</li>{% endif %}
+                {% if certification.credential_id %}<li>Credential ID: {{ certification.credential_id }}</li>{% endif %}
+                {% if certification.notes %}<li>{{ certification.notes }}</li>{% endif %}
+              </ul>
+            </article>
+            {% endfor %}
+          </section>
+          <section>
+            <h3 class="subsection-title">Honors</h3>
+            {% for honor in career.honors %}
+            <article class="record-row">
+              <h3>{{ honor.title }}</h3>
+              <p>{{ honor.issue_date }} · {{ honor.awarding_entities | join(", ") }}</p>
+              <p>{{ honor.context }}</p>
+            </article>
+            {% endfor %}
+          </section>
+          <section>
+            <h3 class="subsection-title">Grants</h3>
+            {% for grant in career.grants %}
+            <article class="record-row">
+              <h3>{{ grant.name }}</h3>
+              <p>{{ grant.issue_date }} · {{ grant.awarding_entity }}</p>
+              <p>{{ grant.purpose }}</p>
+              {% if date_span(grant) %}<p class="tags">{{ date_span(grant) }}</p>{% endif %}
+              {% if grant.notes %}<p>{{ grant.notes }}</p>{% endif %}
+            </article>
+            {% endfor %}
+          </section>
+        </div>
+      </section>
+
+      <section class="content-section" id="research-projects">
+        <div class="section-heading">
+          <p class="eyebrow">Research Activity</p>
+          <h2>Projects and Reviewing</h2>
+        </div>
+        <div class="record-grid compact-grid">
+          {% for project in research_projects %}
+          <article class="record-card">
+            <div class="record-topline"><span>{{ project.code }}</span>{% if date_span(project) %}<time>{{ date_span(project) }}</time>{% endif %}</div>
+            <h3>{{ project.acronym }}: {{ project.title }}</h3>
+            <p>{{ org_links(project) }}</p>
+            <p>Principal investigators: {{ project.principal_investigators | join(", ") }}</p>
+            <ul class="meta-list">
+              {% if project.funders %}<li>Funders: {{ project.funders | join(", ") }}</li>{% endif %}
+              {% if project.participation %}<li>Participation: {{ project.participation }}</li>{% endif %}
+              {% if project.total_amount_eur %}<li>Total amount: {{ project.total_amount_eur }} EUR</li>{% endif %}
+            </ul>
+          </article>
+          {% endfor %}
+          {% for item in reviewing %}
+          <article class="record-card">
+            <div class="record-topline"><span>Reviewing</span><time>{{ item.last_updated }}</time></div>
+            <h3>{{ item.journal }}</h3>
+            <p>{{ item.manuscripts_reviewed }} manuscripts reviewed</p>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="content-section" id="teaching">
+        <div class="section-heading">
+          <p class="eyebrow">Teaching</p>
+          <h2>Classes, Supervision, and Teaching Innovation</h2>
+        </div>
+        <div class="record-grid compact-grid">
+          {% for course in teaching.university_classes %}
+          <article class="record-card">
+            <div class="record-topline"><span>University class</span><time>{{ course.academic_year }}</time></div>
+            <h3>{{ course.name }}</h3>
+            <p>{{ course.degree }}</p>
+            <p>{{ org_links(course) }}</p>
+            <p class="tags">{{ course.start_date | date_range(course.end_date) }}{% if course.department %} · {{ course.department }}{% endif %}</p>
+          </article>
+          {% endfor %}
+          {% for supervision in teaching.academic_supervision %}
+          <article class="record-card">
+            <div class="record-topline"><span>{{ supervision.type }}</span><time>{{ supervision.date }}</time></div>
+            <h3>{% if supervision.url %}<a href="{{ supervision.url }}">{{ supervision.title }}</a>{% else %}{{ supervision.title }}{% endif %}</h3>
+            <p>{{ supervision.student }} · {{ supervision.degree }}</p>
+            <p>{{ supervision.role }} · {{ org_links(supervision) }}</p>
+            {% if supervision.workload_hours %}<p>{{ supervision.workload_hours }} hours</p>{% endif %}
+            {% if supervision.repository_url %}<p><a href="{{ supervision.repository_url }}">Repository</a></p>{% endif %}
+          </article>
+          {% endfor %}
+          {% for project in teaching.teaching_innovation_projects %}
+          <article class="record-card">
+            <div class="record-topline"><span>Teaching innovation</span><time>{{ date_span(project) }}</time></div>
+            <h3>{{ project.code }}: {{ project.title }}</h3>
+            <p>{{ project.participation }} · {{ project.funding_entity }}</p>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="content-section" id="dissemination">
+        <div class="section-heading">
+          <p class="eyebrow">Knowledge Transfer</p>
+          <h2>Dissemination and Media</h2>
+        </div>
+        <div class="record-grid compact-grid">
+          {% for article in dissemination.scientific_articles %}
+          <article class="record-card">
+            <div class="record-topline"><span>Scientific dissemination article</span><time>{{ article.date }}</time></div>
+            <h3><a href="{{ article.url }}">{{ article.title }}</a></h3>
+            <p>{{ article.outlet }}{% if article.issue %} · {{ article.issue }}{% endif %}</p>
+            {% if article.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(article.resolved.publication_ids) }}</p>{% endif %}
+            {% if article.get("resolved", {}).get("software_package_ids", []) %}<p class="tags">Software packages: {{ linked_records(article.resolved.software_package_ids) }}</p>{% endif %}
+          </article>
+          {% endfor %}
+          {% for presentation in dissemination.presentations %}
+          <article class="record-card">
+            <div class="record-topline"><span>{{ presentation.type }}</span><time>{{ date_span(presentation) }}</time></div>
+            <h3>{{ presentation.title }}</h3>
+            <p>{{ presentation.event }} · {{ presentation.location }}</p>
+            {% if presentation.authors %}<p class="tags">{{ presentation.authors | join(", ") }}</p>{% endif %}
+            {% if presentation.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(presentation.resolved.publication_ids) }}</p>{% endif %}
+          </article>
+          {% endfor %}
+          {% for item in dissemination.press %}
+          <article class="record-card">
+            <div class="record-topline"><span>Press</span><time>{{ item.date }}</time></div>
+            <h3><a href="{{ item.url }}">{{ item.title }}</a></h3>
+            <p>{{ item.outlet }} · {{ item.language }} · {{ item.country }}</p>
+            {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(item.resolved.publication_ids) }}</p>{% endif %}
+          </article>
+          {% endfor %}
+          {% for item in dissemination.social_media %}
+          <article class="record-card">
+            <div class="record-topline"><span>{{ item.platform }}</span><time>{{ item.date }}</time></div>
+            <h3><a href="{{ item.url }}">{{ item.platform }} item</a></h3>
+            <p>{{ item.accounts | join(", ") }}</p>
+            {% if item.views %}<p>{{ item.views }} views</p>{% endif %}
+            {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+            {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(item.resolved.publication_ids) }}</p>{% endif %}
+          </article>
+          {% endfor %}
+          {% for item in dissemination.tv_media %}
+          <article class="record-card">
+            <div class="record-topline"><span>TV media</span><time>{{ item.date }}</time></div>
+            <h3><a href="{{ item.url }}">{{ item.program }}</a></h3>
+            <p>{{ item.channel }}</p>
+            {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+            {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(item.resolved.publication_ids) }}</p>{% endif %}
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="content-section" id="organizations">
+        <div class="section-heading">
+          <p class="eyebrow">Entities</p>
+          <h2>Organizations</h2>
+        </div>
+        <div class="organization-list">
+          {% for organization in organizations %}
+          <a href="{{ organization.website }}">
+            <strong>{{ organization.name }}</strong>
+            <span>{{ organization.full_name }}</span>
+            <span>{{ organization.type }}{% if organization.abbreviation %} · {{ organization.abbreviation }}{% endif %}</span>
+            <span>{% if organization.location.city %}{{ organization.location.city }}, {% endif %}{{ organization.location.country }}</span>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+    <script src="assets/collaborations.js"></script>
+  </body>
+</html>
