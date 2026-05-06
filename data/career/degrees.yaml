@@ -2,10 +2,7 @@ degrees:
 - id: degree_01
   level: BSc
   title: Bachelor's Degree in Health Engineering, Bioinformatics
-  field: Health Engineering, Bioinformatics
   program: null
-  institution: Universidad de Málaga
-  institution_type: University
   organization_ids:
   - organization_01
   - organization_02
@@ -15,7 +12,7 @@ degrees:
   date_awarded: '2021-07-08'
   grade: 8.89/10 (With Honors in 17 subjects)
   average_mark: 8.89/10
-  funding: null
+  grant_ids: []
   activities:
   - Internships and final degree project at the Cancer Molecular Biology Laboratory
     (CIMES)
@@ -23,14 +20,10 @@ degrees:
     type: Final Degree Project
     title: Design of a workflow for the analysis of massive sequencing data
     area: Massive sequencing data analysis
-  outputs: []
 - id: degree_02
   level: MSc
   title: Master's degree in Software Engineering and Artificial Intelligence
-  field: Software Engineering and Artificial Intelligence
   program: null
-  institution: Universidad de Málaga
-  institution_type: University
   organization_ids:
   - organization_01
   start_date: 2021-10
@@ -38,21 +31,17 @@ degrees:
   date_awarded: '2022-07-21'
   grade: 9.67/10 (With Honors in 6 subjects)
   average_mark: 9.67/10
-  funding: null
+  grant_ids: []
   activities: []
   thesis:
     type: Final Master Project
     title: New advances in evolutionary machine learning for gene regulatory network
       inference
     area: Evolutionary machine learning for gene regulatory network inference
-  outputs: []
 - id: degree_03
   level: PhD
   title: Ph.D. in Computer Science, Bioinformatics
-  field: Computer Science, Bioinformatics
   program: Programa Oficial de Doctorado en Tecnologías Informáticas
-  institution: Universidad de Málaga
-  institution_type: University
   organization_ids:
   - organization_01
   start_date: 2022-10
@@ -60,16 +49,11 @@ degrees:
   date_awarded: '2025-12-05'
   grade: Outstanding (Cum Laude) with International Mention
   average_mark: null
-  funding: FPU
+  grant_ids:
+  - grant_01
   activities: []
   thesis:
     type: Doctoral thesis
     title: Context-Guided Computational Methods for the Consensus Inference of Gene
       Regulatory Networks and the Detection of Co-expression Patterns
     area: Context-guided computational methods for biomedical data analysis
-  outputs:
-  - 3 D1 papers
-  - 1 Q1 paper
-  - 1 Q2 paper
-  - 1 international conference paper
-  - 1 regional congress contribution

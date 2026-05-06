@@ -14,9 +14,6 @@ positions:
   dedication: null
   start_date: 2021-03
   end_date: 2021-06
-  duration: 4 months
-  current: false
-  project_context: null
   tasks:
   - Developed an automated NGS analysis pipeline for tumor samples on the Picasso
     supercomputer.
@@ -40,9 +37,6 @@ positions:
   dedication: Full-time
   start_date: 2021-07
   end_date: 2022-12
-  duration: 1 year 6 months
-  current: false
-  project_context: EnBiC2-Lab
   tasks:
   - Developed Progressive Web Applications with Next.js and MongoDB for crop sample
     data recording and analysis.
@@ -66,9 +60,6 @@ positions:
   dedication: Part-time
   start_date: 2022-12
   end_date: 2025-12
-  duration: 3 years 1 month
-  current: false
-  project_context: null
   tasks:
   - Developed a workflow orchestration tool in Go with SQLite storage, JSON/YAML component
     definitions, and Kubernetes and Nomad execution support.
@@ -94,9 +85,6 @@ positions:
   dedication: Full-time
   start_date: 2022-12
   end_date: 2025-12
-  duration: 3 years 1 month
-  current: false
-  project_context: FPU Fellowship
   tasks:
   - Designed evolutionary algorithms and hybrid artificial intelligence methods for
     bioinformatics problems.
@@ -123,12 +111,7 @@ positions:
   dedication: Part-time
   start_date: 2025-12
   end_date: null
-  duration: 6 months
-  current: true
-  project_context: null
-  tasks:
-  - Technical coordination of computational and research software activities.
-  - Coordination support for project design, implementation, and maintenance.
+  tasks: []
 - id: position_06
   title: Postdoctoral researcher - FPU-POP Fellowship
   institution: Universidad de Málaga
@@ -143,15 +126,4 @@ positions:
   dedication: Full-time
   start_date: 2025-12
   end_date: null
-  duration: 6 months
-  current: true
-  project_context: FPU-POP
-  tasks:
-  - Postdoctoral research in artificial intelligence and bioinformatics.
-  - Teaching and academic tutoring within the Department of Languages and Computer
-    Science.
-professional_activity:
-  summary: Research, teaching, software engineering, technical coordination, and computational
-    infrastructure work across bioinformatics and environmental data projects.
-  collaborations:
-  - Khaos Research projects including Aether, KOSMOS, Tropical-IA, and 5G+TACTILE
+  tasks: []

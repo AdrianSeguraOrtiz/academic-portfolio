@@ -18,7 +18,7 @@ funded_projects:
 - id: research_project_02
   acronym: Aether
   title: >-
-    Una aproximación holística de smart data para el análisis de datos guiado por el contexto: null
+    Una aproximación holística de smart data para el análisis de datos guiado por el contexto:
     explotación de semántica y contexto
   code: PID2020-112540RB-C41
   institution: Universidad de Málaga
@@ -71,22 +71,3 @@ funded_projects:
   total_amount_eur: 132000
   organization_ids:
   - organization_01
-collaborations:
-- id: collaboration_01
-  institution: Universidad de Valencia
-  topic: >-
-    Omic analysis and artificial intelligence techniques for fibromyalgia and myalgic encephalomyelitis
-  start_date: null
-  end_date: null
-  collaborators: null
-additional_project_mentions:
-- id: project_mention_01
-  name: Tropical-IA
-  start_date: null
-  end_date: null
-  context: Mentioned as a Khaos Research collaboration; no further details provided.
-- id: project_mention_02
-  name: 5G+TACTILE
-  start_date: null
-  end_date: null
-  context: Mentioned as a Khaos Research collaboration; no further details provided.

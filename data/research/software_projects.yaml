@@ -3,15 +3,9 @@ projects:
   name: DNATranslatorAnalyzer
   full_name: null
   type: Software project
-  start_date: 2021-01
-  end_date: 2021-06
-  current: false
   description: >-
     DNA sequence analyzer for reverse and reverse-complement construction, nucleotide frequency
     calculation, six-frame translation, and stop-codon fragment detection.
-  skills:
-  - Java
-  - Bioinformatics
   domains:
   - DNA sequence analysis
   - Bioinformatics
@@ -21,13 +15,7 @@ projects:
   name: KmerCounter
   full_name: null
   type: Software project
-  start_date: 2021-01
-  end_date: 2021-06
-  current: false
   description: Java project for k-mer frequency analysis in FASTA and multi-FASTA files.
-  skills:
-  - Java
-  - Bioinformatics
   domains:
   - K-mer analysis
   - Bioinformatics
@@ -37,15 +25,9 @@ projects:
   name: PrimerDesigner
   full_name: null
   type: Software project
-  start_date: 2021-01
-  end_date: 2021-06
-  current: false
   description: >-
     Program for designing an optimal universal primer with maximum hybridization over aligned
     FASTA sequences.
-  skills:
-  - Java
-  - Bioinformatics
   domains:
   - Primer design
   - Bioinformatics
@@ -54,32 +36,22 @@ projects:
 - id: software_04
   name: PsycoTreat
   full_name: null
-  type: Software application
-  start_date: 2021-01
-  end_date: 2021-06
-  current: false
+  type: Software project
   description: >-
     Application for registration and treatment workflows for patients associated with mental
     health centers, including roles, appointments, diagnoses, medication search, and messaging.
-  skills: []
   domains:
   - Health software
   - Patient management
   urls:
-    github: null
+    github: https://github.com/AdrianSeguraOrtiz/PsycoTreat
 - id: software_05
   name: Single-GENECI
   full_name: Single-Objective GEne NEtwork Consensus Inference
   type: Research software project
-  start_date: 2022-01
-  end_date: 2022-07
-  current: false
   description: >-
     Software project implementing an evolutionary algorithm to determine an optimal ensemble
     of machine learning techniques for gene regulatory network inference.
-  skills:
-  - Java
-  - Python
   domains:
   - Gene regulatory network inference
   - Evolutionary machine learning
@@ -89,16 +61,10 @@ projects:
 - id: software_06
   name: Hector
   full_name: Software tool for workflow orchestration
-  type: Workflow orchestrator
-  start_date: 2022-01
-  end_date: 2022-06
-  current: false
+  type: Software project
   description: >-
     Workflow orchestrator that records grouped topological order for workflows and controls
     execution from component and definition specifications.
-  skills:
-  - Go
-  - Kubernetes
   domains:
   - Workflow orchestration
   - Research software
@@ -108,15 +74,9 @@ projects:
   name: MO-GENECI
   full_name: Multi-Objective GEne NEtwork Consensus Inference
   type: Research software project
-  start_date: 2022-09
-  end_date: 2023-07
-  current: false
   description: >-
     Software project for multi-objective consensus inference of gene regulatory networks using
     confidence levels, topology, and recurrent biological motifs.
-  skills:
-  - Java
-  - Python
   domains:
   - Gene regulatory network inference
   - Multi-objective optimization
@@ -128,15 +88,9 @@ projects:
   full_name: >-
     Biologically Informed Optimizator - INtegrating Software to Infer Grns by Holistic Thinking
   type: Research software project
-  start_date: 2024-01
-  end_date: 2025-03
-  current: false
   description: >-
     Software project for biologically informed consensus inference of gene regulatory networks
     using many-objective evolutionary optimization.
-  skills:
-  - Java
-  - Python
   domains:
   - Gene regulatory network inference
   - Evolutionary algorithms
@@ -147,15 +101,9 @@ projects:
   name: Memetic-GENECI
   full_name: Memetic GEne NEtwork Consensus Inference
   type: Research software project
-  start_date: 2024-01
-  end_date: 2024-03
-  current: false
   description: >-
     Software project derived from Single-GENECI with a local search phase guided by known
     interactions.
-  skills:
-  - Java
-  - Memetic Algorithm
   domains:
   - Gene regulatory network inference
   - Memetic algorithms
@@ -165,16 +113,10 @@ projects:
 - id: software_10
   name: MOEBA-BIO
   full_name: Multi-Objective Evolutionary Biclustering Algorithm for BIOmedical applications
-  type: Software project
-  start_date: 2024-04
-  end_date: 2024-12
-  current: false
+  type: Research software project
   description: >-
     Java framework for evolutionary biclustering in biomedical data with domain-knowledge
     integration and self-configuration of biclustering parameters.
-  skills:
-  - Automated Clustering
-  - Java
   domains:
   - Evolutionary biclustering
   - Biomedical data
@@ -184,16 +126,10 @@ projects:
 - id: software_11
   name: PBEvoGen
   full_name: Preference-Based Evolutionary Gene Network Inference
-  type: Software framework
-  start_date: 2024-12
-  end_date: 2025-02
-  current: false
+  type: Research software project
   description: >-
     Preference-guided multi-objective consensus optimization framework for gene regulatory
     network inference.
-  skills:
-  - Java
-  - Evolutionary Algorithms
   domains:
   - Gene regulatory network inference
   - Preference-based optimization
@@ -203,14 +139,10 @@ projects:
 - id: software_12
   name: GENECI
   full_name: GEne NEtwork Consensus Inference
-  type: Software repository
-  start_date: null
-  end_date: null
-  current: null
+  type: Research software project
   description: >-
     Repository for the GENECI software ecosystem for consensus inference of gene regulatory
     networks.
-  skills: []
   domains:
   - Gene regulatory network inference
   - Bioinformatics

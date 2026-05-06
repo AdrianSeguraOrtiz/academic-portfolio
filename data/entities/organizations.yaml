@@ -7,6 +7,9 @@ organizations:
   location:
     city: Málaga
     country: Spain
+    coordinates:
+      latitude: 36.7213
+      longitude: -4.4214
   website: https://www.uma.es/
 - id: organization_02
   name: Laboratorio de Biología Molecular del Cáncer
@@ -16,6 +19,9 @@ organizations:
   location:
     city: Málaga
     country: Spain
+    coordinates:
+      latitude: 36.7213
+      longitude: -4.4214
   website: https://www.uma.es/sala-de-prensa/noticias/el-laboratorio-de-biologia-molecular-del-cancer-de-la-uma-referente-en-tecnicas-moleculares-de-vanguardia/
 - id: organization_03
   name: Khaos Research
@@ -25,6 +31,9 @@ organizations:
   location:
     city: Málaga
     country: Spain
+    coordinates:
+      latitude: 36.7213
+      longitude: -4.4214
   website: https://khaos.uma.es/
 - id: organization_04
   name: Université de Lille
@@ -34,6 +43,9 @@ organizations:
   location:
     city: Lille
     country: France
+    coordinates:
+      latitude: 50.6292
+      longitude: 3.0573
   website: https://www.univ-lille.fr/en/
 - id: organization_05
   name: Athena Research Center
@@ -43,6 +55,9 @@ organizations:
   location:
     city: Marousi
     country: Greece
+    coordinates:
+      latitude: 38.0548
+      longitude: 23.8077
   website: https://www.athenarc.gr/en/
 - id: organization_06
   name: ITIS
@@ -52,6 +67,9 @@ organizations:
   location:
     city: Málaga
     country: Spain
+    coordinates:
+      latitude: 36.7213
+      longitude: -4.4214
   website: https://itis.uma.es/
 - id: organization_07
   name: IBIMA Plataforma BIONAND
@@ -61,6 +79,9 @@ organizations:
   location:
     city: Málaga
     country: Spain
+    coordinates:
+      latitude: 36.7213
+      longitude: -4.4214
   website: https://ibima.eu/
 - id: organization_08
   name: CRIStAL
@@ -68,8 +89,11 @@ organizations:
   abbreviation: CRIStAL
   type: Research laboratory
   location:
-    city: Villeneuve-d'Ascq
+    city: Lille
     country: France
+    coordinates:
+      latitude: 50.6292
+      longitude: 3.0573
   website: https://www.cristal.univ-lille.fr/
 - id: organization_09
   name: INFINITE
@@ -79,6 +103,9 @@ organizations:
   location:
     city: Lille
     country: France
+    coordinates:
+      latitude: 50.6292
+      longitude: 3.0573
   website: https://lille-inflammation-research.org/en/
 - id: organization_10
   name: Universidad Católica de Valencia San Vicente Mártir
@@ -88,6 +115,9 @@ organizations:
   location:
     city: Valencia
     country: Spain
+    coordinates:
+      latitude: 39.4699
+      longitude: -0.3763
   website: https://www.ucv.es/
 - id: organization_11
   name: ORKAD
@@ -95,8 +125,11 @@ organizations:
   abbreviation: ORKAD
   type: Research team
   location:
-    city: Villeneuve-d'Ascq
+    city: Lille
     country: France
+    coordinates:
+      latitude: 50.6292
+      longitude: 3.0573
   website: https://orkad.univ-lille.fr/
 - id: organization_12
   name: CIMES
@@ -106,6 +139,9 @@ organizations:
   location:
     city: Málaga
     country: Spain
+    coordinates:
+      latitude: 36.7213
+      longitude: -4.4214
   website: https://cimes.es/
 - id: organization_13
   name: University of Cambridge
@@ -115,6 +151,9 @@ organizations:
   location:
     city: Cambridge
     country: United Kingdom
+    coordinates:
+      latitude: 52.2053
+      longitude: 0.1218
   website: https://www.cam.ac.uk/
 - id: organization_14
   name: ESESA
@@ -124,6 +163,9 @@ organizations:
   location:
     city: Málaga
     country: Spain
+    coordinates:
+      latitude: 36.7213
+      longitude: -4.4214
   website: https://esesa.eu/
 - id: organization_15
   name: IMFAHE
@@ -133,4 +175,7 @@ organizations:
   location:
     city: null
     country: United States
+    coordinates:
+      latitude: null
+      longitude: null
   website: https://www.imfahe.org/

@@ -12,7 +12,6 @@ grants:
   issue_date: 2022-12
   start_date: 2022-12
   end_date: null
-  duration: 4 years
   notes: Merit-based grant supporting doctoral research and its postdoctoral orientation
     phase.
 - id: grant_02
@@ -26,5 +25,4 @@ grants:
   issue_date: '2024-03-30'
   start_date: null
   end_date: '2024-06-28'
-  duration: null
   notes: null

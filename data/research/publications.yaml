@@ -1,4 +1,4 @@
-publications:
+journal_papers:
 - id: publication_01
   title: >-
     GENECI: A novel evolutionary machine learning consensus-based approach for the inference
@@ -26,38 +26,6 @@ publications:
   - organization_07
   software_project_ids:
   - software_05
-  research_project_ids: []
-  position_ids:
-  - position_04
-  stay_ids: []
-  grant_ids:
-  - grant_01
-- id: publication_02
-  title: >-
-    Exploiting medical-expert knowledge via a novel memetic algorithm for the inference of
-    gene regulatory networks
-  authors:
-  - Adrián Segura Ortiz
-  - José Manuel García Nieto
-  - José Francisco Aldana Montes
-  venue: International Conference on Computational Science
-  publisher: Springer Nature Switzerland
-  volume: null
-  article_number: null
-  publication_date: '2024-06-28'
-  type: Scientific paper
-  format: Conference proceeding
-  doi: 10.1007/978-3-031-63772-8_1
-  url: https://doi.org/10.1007/978-3-031-63772-8_1
-  total_authors: 3
-  corresponding_author: null
-  organization_ids:
-  - organization_03
-  - organization_06
-  - organization_01
-  - organization_07
-  software_project_ids:
-  - software_09
   research_project_ids: []
   position_ids:
   - position_04
@@ -197,6 +165,39 @@ publications:
   - organization_07
   software_project_ids:
   - software_11
+  research_project_ids: []
+  position_ids:
+  - position_04
+  stay_ids: []
+  grant_ids:
+  - grant_01
+conference_papers:
+- id: publication_02
+  title: >-
+    Exploiting medical-expert knowledge via a novel memetic algorithm for the inference of
+    gene regulatory networks
+  authors:
+  - Adrián Segura Ortiz
+  - José Manuel García Nieto
+  - José Francisco Aldana Montes
+  venue: International Conference on Computational Science
+  publisher: Springer Nature Switzerland
+  volume: null
+  article_number: null
+  publication_date: '2024-06-28'
+  type: Scientific paper
+  format: Conference proceeding
+  doi: 10.1007/978-3-031-63772-8_1
+  url: https://doi.org/10.1007/978-3-031-63772-8_1
+  total_authors: 3
+  corresponding_author: null
+  organization_ids:
+  - organization_03
+  - organization_06
+  - organization_01
+  - organization_07
+  software_project_ids:
+  - software_09
   research_project_ids: []
   position_ids:
   - position_04

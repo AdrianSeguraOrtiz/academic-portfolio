@@ -54,8 +54,15 @@ type: University
 location:
   city: Málaga
   country: Spain
+  coordinates:
+    latitude: 36.7213
+    longitude: -4.4214
 website: https://www.uma.es/
 ```
+
+`location.coordinates` stores decimal latitude and longitude when the location is
+known. Site generators use these coordinates for collaboration map views; leave
+both values as `null` only when the organization location is not specific enough.
 
 ## IDs
 
@@ -104,13 +111,14 @@ Allowed relationship fields are intentionally limited by record type:
 | `activities/teaching/university_classes.yaml` / `university_classes` | `organization_ids` |
 | `activities/teaching/academic_supervision.yaml` / `academic_supervision` | `organization_ids` |
 | `activities/teaching/teaching_innovation_projects.yaml` / `teaching_innovation_projects` | `organization_ids` |
-| `career/degrees.yaml` / `degrees` | `organization_ids` |
+| `career/degrees.yaml` / `degrees` | `organization_ids`, `grant_ids` |
 | `career/certifications.yaml` / `certifications` | `organization_ids` |
 | `career/experience.yaml` / `positions` | `organization_ids` |
-| `career/research_stays.yaml` / `stays` | `organization_ids` |
+| `career/research_stays.yaml` / `stays` | `organization_ids`, `grant_ids` |
 | `career/honors.yaml` / `honors` | `degree_ids` |
 | `career/grants.yaml` / `grants` | `position_ids`, `stay_ids` |
-| `research/publications.yaml` / `publications` | `organization_ids`, `software_project_ids`, `research_project_ids`, `position_ids`, `stay_ids`, `grant_ids` |
+| `research/publications.yaml` / `journal_papers` | `organization_ids`, `software_project_ids`, `research_project_ids`, `position_ids`, `stay_ids`, `grant_ids` |
+| `research/publications.yaml` / `conference_papers` | `organization_ids`, `software_project_ids`, `research_project_ids`, `position_ids`, `stay_ids`, `grant_ids` |
 | `research/research_projects.yaml` / `funded_projects` | `organization_ids` |
 | `research/reviewing.yaml` / `reviewing` | none |
 | `research/software_packages.yaml` / `software_packages` | none |
@@ -118,6 +126,58 @@ Allowed relationship fields are intentionally limited by record type:
 
 Organizations are stored in `data/entities/organizations.yaml` and referenced by ID from other files.
 Records should not reference themselves; inverse relationships should be derived by scripts instead of duplicated manually.
+
+## Software Projects
+
+Software project records keep only curated portfolio information. GitHub-derived
+metadata is collected dynamically by the website generator and cached under
+`build/cache/`, so do not duplicate repository activity fields in YAML.
+
+Use these fields consistently:
+
+```yaml
+id: software_01
+name: GENECI
+full_name: GEne NEtwork Consensus Inference
+type: Research software project
+description: Short curated description.
+domains:
+- Gene regulatory network inference
+- Bioinformatics
+urls:
+  github: https://github.com/owner/repository
+```
+
+Repository dates, commit activity, languages, stars, forks, issues, license, and
+last push are derived from GitHub when generating the website.
+
+## Software Packages
+
+Software package records keep only registry identifiers. Registry metadata,
+release information, and package analytics are derived dynamically by the
+website generator and cached under `build/cache/`.
+
+Use ecosystem-specific identifiers:
+
+```yaml
+id: package_01
+name: GENECI
+ecosystem: PyPI
+package_name: geneci
+```
+
+```yaml
+id: package_02
+name: MOEBA-BIO
+ecosystem: Maven
+group_id: io.github.adrianseguraortiz
+artifact_id: moeba-bio
+```
+
+For PyPI, total downloads, time series, versions, countries, Python versions,
+systems, and file types are derived from PyPI and ClickPy/ClickHouse. For Maven,
+versions, POM metadata, dependencies, and published artifacts are derived from
+Maven Central.
 
 ## Validation
 

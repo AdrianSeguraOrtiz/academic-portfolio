@@ -11,15 +11,18 @@ stays:
     city: Lille
     region: Hauts-de-France
     country: France
+    coordinates:
+      latitude: 50.6292
+      longitude: 3.0573
   start_date: 2024-04
   end_date: 2024-06
-  duration: 3 months
   employment_type: Full-time
   work_mode: On-site
   purpose: Doctorate
   type: International stay
   host_group: ORKAD research group, CRIStAL centre
-  funding: FPU mobility grant
+  grant_ids:
+  - grant_02
   tasks:
   - Designed an evolutionary biclustering framework specialised in biomedical data
     and guided by domain context.
@@ -36,15 +39,17 @@ stays:
     city: Athens
     region: Attiki
     country: Greece
+    coordinates:
+      latitude: 37.9838
+      longitude: 23.7275
   start_date: 2026-04
   end_date: 2026-06
-  duration: 3 months
   employment_type: Full-time
   work_mode: On-site
   purpose: Postdoctoral research
   type: International stay
   host_group: null
-  funding: null
+  grant_ids: []
   tasks: []
   description: Postdoctoral international research stay.
   notes: null

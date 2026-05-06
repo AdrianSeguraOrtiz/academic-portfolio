@@ -74,7 +74,7 @@ GROUP_REFERENCE_FIELDS = {
     "grants" => %w[position_ids stay_ids]
   },
   "career/degrees.yaml" => {
-    "degrees" => %w[organization_ids]
+    "degrees" => %w[organization_ids grant_ids]
   },
   "career/certifications.yaml" => {
     "certifications" => %w[organization_ids]
@@ -83,10 +83,13 @@ GROUP_REFERENCE_FIELDS = {
     "positions" => %w[organization_ids]
   },
   "career/research_stays.yaml" => {
-    "stays" => %w[organization_ids]
+    "stays" => %w[organization_ids grant_ids]
   },
   "research/publications.yaml" => {
-    "publications" => %w[
+    "journal_papers" => %w[
+      organization_ids software_project_ids research_project_ids position_ids stay_ids grant_ids
+    ],
+    "conference_papers" => %w[
       organization_ids software_project_ids research_project_ids position_ids stay_ids grant_ids
     ]
   },
@@ -111,7 +114,6 @@ DATE_CHECKS = {
   "career/research_stays.yaml" => { "stays" => "start_date" },
   "career/honors.yaml" => { "honors" => "issue_date" },
   "career/grants.yaml" => { "grants" => "issue_date" },
-  "research/software_projects.yaml" => { "projects" => "start_date" },
   "research/software_packages.yaml" => { "software_packages" => "id" },
   "research/research_projects.yaml" => { "funded_projects" => "start_date" },
   "research/reviewing.yaml" => { "reviewing" => "last_updated" },
@@ -123,7 +125,10 @@ DATE_CHECKS = {
   "activities/dissemination/social_media.yaml" => { "social_media_items" => "id" },
   "activities/dissemination/tv_media.yaml" => { "tv_items" => "date" },
   "activities/dissemination/scientific_dissemination_articles.yaml" => { "scientific_dissemination_articles" => "date" },
-  "research/publications.yaml" => { "publications" => "publication_date" }
+  "research/publications.yaml" => {
+    "journal_papers" => "publication_date",
+    "conference_papers" => "publication_date"
+  }
 }.freeze
 
 def fail_with(message)

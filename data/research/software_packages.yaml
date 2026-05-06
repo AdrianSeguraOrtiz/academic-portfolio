@@ -2,31 +2,12 @@ software_packages:
 - id: package_01
   name: GENECI
   ecosystem: PyPI
-  package_type: Python package
-  description: Software package for the GENECI ecosystem for gene regulatory network inference.
-  url: https://pypi.org/project/geneci/
-  downloads_dashboard: https://clickpy.clickhouse.com/dashboard/geneci
-  releases:
-  - version: 1.0.2
-    url: https://pypi.org/project/GENECI/1.0.2/
-    docker_tag: 1.0.0
-  - version: 1.5.2
-    url: https://pypi.org/project/GENECI/1.5.2/
-    docker_tag: 1.5.1
-  - version: 2.0.2
-    url: https://pypi.org/project/GENECI/2.0.2/
-    docker_tag: 2.0.0
-  - version: 2.5.1
-    url: https://pypi.org/project/GENECI/2.5.1/
-    docker_tag: 2.5.1
-  - version: 3.0.1
-    url: https://pypi.org/project/GENECI/3.0.1/
-    docker_tag: 3.0.0
+  package_name: geneci
+  group_id: null
+  artifact_id: null
 - id: package_02
   name: MOEBA-BIO
   ecosystem: Maven
-  package_type: Java package
-  description: Maven package for MOEBA-BIO evolutionary biclustering software.
-  url: https://mvnrepository.com/artifact/io.github.adrianseguraortiz/moeba-bio
-  downloads_dashboard: null
-  releases: []
+  package_name: null
+  group_id: io.github.adrianseguraortiz
+  artifact_id: moeba-bio
