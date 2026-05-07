@@ -1,20 +1,95 @@
+const CAREER_SELECTORS = {
+  container: "[data-career-timeline]",
+  data: "career-timeline-data",
+  filter: "[data-career-filter]",
+  loading: ".map-loading",
+  reset: "[data-career-reset]",
+  scroller: ".career-timeline-scroll",
+};
+
+const CAREER_MESSAGES = {
+  dataUnavailable: "Career timeline data unavailable",
+  dependencyUnavailable: "Career timeline library unavailable",
+};
+
+// Layout constants keep the SVG timeline stable while making visual tuning explicit.
+const TIMELINE_MIN_WIDTH = 1280;
+const TIMELINE_WIDTH_PER_YEAR = 170;
+const TIMELINE_HEIGHT = 820;
+const TIMELINE_MARGIN = { top: 26, right: 42, bottom: 46, left: 110 };
+const TIMELINE_BASELINE = 360;
+const TIMELINE_FALLBACK_YEAR_SPAN = 8;
+const TIMELINE_MIN_YEAR_SPAN = 6;
+const TIMELINE_RESET_DURATION = 250;
+const TIMELINE_ZOOM_EXTENT = [1, 7];
+const AXIS_TOP_OFFSET = 310;
+const AXIS_BOTTOM_OFFSET = 380;
+const AXIS_YEAR_LABEL_OFFSET = 30;
+const PAST_PADDING_MONTHS = 4;
+const FUTURE_PADDING_MONTHS = 10;
+const FUTURE_LABEL_MONTHS = 4;
+const FUTURE_LABEL_X_FALLBACK = 20;
+const BLOCK_HEIGHT = 26;
+const BLOCK_RADIUS = 9;
+const BLOCK_MIN_WIDTH = 14;
+const BLOCK_INNER_LABEL_X = 8;
+const BLOCK_INNER_LABEL_Y = 17;
+const BLOCK_EDGE_TOP_Y = -3;
+const BLOCK_EDGE_BOTTOM_Y = 29;
+const BLOCK_LABEL_SIDE_PADDING = 16;
+const BLOCK_LABEL_MIN_WIDTH = 44;
+const EXPERIENCE_LANE_OFFSET = -46;
+const EXPERIENCE_LANE_STEP = 92;
+const EDUCATION_LANE_OFFSET = 44;
+const EDUCATION_LANE_STEP = 38;
+const STAY_LANE_OFFSET = 300;
+const STAY_LANE_STEP = 72;
+const MARKER_LABEL_X = 10;
+const MARKER_LABEL_Y_OFFSET = -5;
+const MARKER_LINE_GAP = 10;
+const MARKER_TOP_BASE_Y = 34;
+const MARKER_BOTTOM_BASELINE_OFFSET = 216;
+const MARKER_TOP_LANE_STEP = 70;
+const MARKER_BOTTOM_LANE_STEP = 66;
+const MARKER_LABEL_WIDTH = 190;
+const STACK_COLLISION_GAP = 24;
+const APPROX_CHAR_WIDTH = 6.3;
+const ELLIPSIS_LENGTH = 3;
+const DATE_ISO_LENGTH = 10;
+const LANE_LABELS = [
+  { text: "Certifications", y: 42 },
+  { text: "Experience", baselineOffset: -92 },
+  { text: "Education", baselineOffset: 88 },
+  { text: "Honors", baselineOffset: 210 },
+  { text: "Research Stays", baselineOffset: 344 },
+];
 const LABEL_LINE_HEIGHT = 12;
 const LABEL_BLOCK_GAP = 14;
 const LABEL_PIECE_GAP = 8;
 const LABEL_STACK_GAP = 14;
 const LABEL_WIDTH = 178;
-const FUTURE_PADDING_MONTHS = 10;
-const FUTURE_LABEL_MONTHS = 4;
+const LABEL_MAX_CHARS = {
+  block: 30,
+  grant: 29,
+  marker: 28,
+};
+const LABEL_MAX_LINES = {
+  block: 4,
+  subtitle: 2,
+};
 
 class CareerTimeline {
   constructor(container, data, activeFilters) {
     this.container = container;
     this.data = data;
     this.activeFilters = activeFilters;
-    this.width = Math.max(1280, (this.yearSpan() + 1) * 170);
-    this.height = 820;
-    this.margin = { top: 26, right: 42, bottom: 46, left: 110 };
-    this.baseline = 360;
+    this.width = Math.max(
+      TIMELINE_MIN_WIDTH,
+      (this.yearSpan() + 1) * TIMELINE_WIDTH_PER_YEAR,
+    );
+    this.height = TIMELINE_HEIGHT;
+    this.margin = TIMELINE_MARGIN;
+    this.baseline = TIMELINE_BASELINE;
     this.container.style.width = `${this.width}px`;
     this.svg = window.d3
       .select(container)
@@ -25,7 +100,7 @@ class CareerTimeline {
     this.root = this.svg.append("g").attr("class", "career-root");
     this.zoom = window.d3
       .zoom()
-      .scaleExtent([1, 7])
+      .scaleExtent(TIMELINE_ZOOM_EXTENT)
       .translateExtent([
         [0, 0],
         [this.width, this.height],
@@ -38,23 +113,23 @@ class CareerTimeline {
   }
 
   yearSpan() {
-    const startYear = Number((this.data.range.start || "").slice(0, 4));
-    const endYear = Number((this.data.range.end || "").slice(0, 4));
+    const startYear = Number((this.data.range?.start || "").slice(0, 4));
+    const endYear = Number((this.data.range?.end || "").slice(0, 4));
     if (!startYear || !endYear) {
-      return 8;
+      return TIMELINE_FALLBACK_YEAR_SPAN;
     }
-    return Math.max(endYear - startYear, 6);
+    return Math.max(endYear - startYear, TIMELINE_MIN_YEAR_SPAN);
   }
 
   render() {
     this.root.selectAll("*").remove();
 
-    const items = this.data.items.filter((item) => this.activeFilters.has(item.type));
-    const markers = this.data.markers.filter((marker) => this.activeFilters.has(marker.type));
+    const items = (this.data.items || []).filter((item) => this.activeFilters.has(item.type));
+    const markers = (this.data.markers || []).filter((marker) => this.activeFilters.has(marker.type));
     const x = window.d3
       .scaleTime()
       .domain([
-        offsetDate(parseCareerDate(this.data.range.start), -4),
+        offsetDate(parseCareerDate(this.data.range.start), -PAST_PADDING_MONTHS),
         offsetDate(parseCareerDate(this.data.range.end), FUTURE_PADDING_MONTHS),
       ])
       .range([this.margin.left, this.width - this.margin.right]);
@@ -66,7 +141,10 @@ class CareerTimeline {
   }
 
   resetZoom() {
-    this.svg.transition().duration(250).call(this.zoom.transform, window.d3.zoomIdentity);
+    this.svg
+      .transition()
+      .duration(TIMELINE_RESET_DURATION)
+      .call(this.zoom.transform, window.d3.zoomIdentity);
   }
 
   drawAxis(x) {
@@ -86,30 +164,27 @@ class CareerTimeline {
       .join("line")
       .attr("x1", (tick) => x(tick))
       .attr("x2", (tick) => x(tick))
-      .attr("y1", this.baseline - 310)
-      .attr("y2", this.baseline + 380);
+      .attr("y1", this.baseline - AXIS_TOP_OFFSET)
+      .attr("y2", this.baseline + AXIS_BOTTOM_OFFSET);
     tickGroup
       .selectAll("text")
       .data(ticks)
       .join("text")
       .attr("x", (tick) => x(tick))
-      .attr("y", this.baseline + 30)
+      .attr("y", this.baseline + AXIS_YEAR_LABEL_OFFSET)
       .text((tick) => tick.getFullYear());
   }
 
   drawLaneLabels(x) {
-    const labels = [
-      { text: "Certifications", y: 42 },
-      { text: "Experience", y: this.baseline - 92 },
-      { text: "Education", y: this.baseline + 88 },
-      { text: "Honors", y: this.baseline + 210 },
-      { text: "Research Stays", y: this.baseline + 344 },
-    ];
+    const labels = LANE_LABELS.map((label) => ({
+      ...label,
+      y: label.y ?? this.baseline + label.baselineOffset,
+    }));
     const futureLabelX = x(
       offsetDate(parseCareerDate(this.data.range.end), FUTURE_LABEL_MONTHS),
     );
     const positionedLabels = labels.flatMap((label) => [
-      { ...label, x: 20, anchor: "start" },
+      { ...label, x: FUTURE_LABEL_X_FALLBACK, anchor: "start" },
       { ...label, x: futureLabelX, anchor: "start" },
     ]);
     this.root
@@ -129,9 +204,18 @@ class CareerTimeline {
     const experience = assignLanes(items.filter((item) => item.type === "experience"));
     const stays = assignLanes(items.filter((item) => item.type === "stay"));
     const blockData = [
-      ...experience.map((item) => ({ ...item, y: this.baseline - 46 - item.lane * 92 })),
-      ...education.map((item) => ({ ...item, y: this.baseline + 44 + item.lane * 38 })),
-      ...stays.map((item) => ({ ...item, y: this.baseline + 300 + item.lane * 72 })),
+      ...experience.map((item) => ({
+        ...item,
+        y: this.baseline + EXPERIENCE_LANE_OFFSET - item.lane * EXPERIENCE_LANE_STEP,
+      })),
+      ...education.map((item) => ({
+        ...item,
+        y: this.baseline + EDUCATION_LANE_OFFSET + item.lane * EDUCATION_LANE_STEP,
+      })),
+      ...stays.map((item) => ({
+        ...item,
+        y: this.baseline + STAY_LANE_OFFSET + item.lane * STAY_LANE_STEP,
+      })),
     ];
     const blocks = this.root
       .append("g")
@@ -145,8 +229,8 @@ class CareerTimeline {
     blocks
       .append("rect")
       .attr("width", (item) => blockWidth(item, x))
-      .attr("height", 26)
-      .attr("rx", 9);
+      .attr("height", BLOCK_HEIGHT)
+      .attr("rx", BLOCK_RADIUS);
 
     blocks
       .filter((item) => item.grants.length > 0)
@@ -160,8 +244,8 @@ class CareerTimeline {
     blocks
       .append("text")
       .attr("class", "career-block-inner-label")
-      .attr("x", 8)
-      .attr("y", 17)
+      .attr("x", BLOCK_INNER_LABEL_X)
+      .attr("y", BLOCK_INNER_LABEL_Y)
       .text((item) => innerBlockLabel(item, blockWidth(item, x)));
 
     const labelStacks = placeStacks(
@@ -218,7 +302,9 @@ class CareerTimeline {
       .attr("x2", 0)
       .attr("y1", this.baseline)
       .attr("y2", (marker) =>
-        marker.type === "honor" ? marker.yAnchor - 10 : marker.yAnchor + 10,
+        marker.type === "honor"
+          ? marker.yAnchor - MARKER_LINE_GAP
+          : marker.yAnchor + MARKER_LINE_GAP,
       );
 
     markerGroups
@@ -235,7 +321,10 @@ class CareerTimeline {
         .select(this)
         .append("g")
         .attr("class", "career-marker-label")
-        .attr("transform", `translate(10,${marker.yAnchor - 5})`);
+        .attr(
+          "transform",
+          `translate(${MARKER_LABEL_X},${marker.yAnchor + MARKER_LABEL_Y_OFFSET})`,
+        );
       appendWrappedText(labelGroup, markerLabelLines(marker), 0, 0);
     });
 
@@ -243,7 +332,7 @@ class CareerTimeline {
   }
 
   scrollToLatest() {
-    const scroller = this.container.closest(".career-timeline-scroll");
+    const scroller = this.container.closest(CAREER_SELECTORS.scroller);
     if (scroller) {
       scroller.scrollLeft = scroller.scrollWidth;
     }
@@ -252,7 +341,7 @@ class CareerTimeline {
 
 function parseCareerDate(value) {
   const text = String(value || "");
-  return new Date(`${text.slice(0, 10)}T00:00:00`);
+  return new Date(`${text.slice(0, DATE_ISO_LENGTH)}T00:00:00`);
 }
 
 function offsetDate(value, months) {
@@ -280,35 +369,35 @@ function assignLanes(items) {
 
 function assignMarkerLanes(markers, x, side, baseline) {
   const lanes = [];
-  const baseY = side === "top" ? 34 : baseline + 216;
-  const laneStep = side === "top" ? 70 : 66;
+  const baseY =
+    side === "top" ? MARKER_TOP_BASE_Y : baseline + MARKER_BOTTOM_BASELINE_OFFSET;
+  const laneStep = side === "top" ? MARKER_TOP_LANE_STEP : MARKER_BOTTOM_LANE_STEP;
   return [...markers]
     .sort((a, b) => parseCareerDate(a.date) - parseCareerDate(b.date))
     .map((marker) => {
       const xPosition = x(parseCareerDate(marker.date));
-      const labelWidth = 190;
-      const lane = lanes.findIndex((laneEnd) => xPosition >= laneEnd + 24);
+      const lane = lanes.findIndex((laneEnd) => xPosition >= laneEnd + STACK_COLLISION_GAP);
       if (lane === -1) {
-        lanes.push(xPosition + labelWidth);
+        lanes.push(xPosition + MARKER_LABEL_WIDTH);
         return { ...marker, yAnchor: baseY + lanes.length * laneStep - laneStep };
       }
-      lanes[lane] = xPosition + labelWidth;
+      lanes[lane] = xPosition + MARKER_LABEL_WIDTH;
       return { ...marker, yAnchor: baseY + lane * laneStep };
     });
 }
 
 function blockWidth(item, x) {
-  return Math.max(x(parseCareerDate(item.end)) - x(parseCareerDate(item.start)), 14);
+  return Math.max(x(parseCareerDate(item.end)) - x(parseCareerDate(item.start)), BLOCK_MIN_WIDTH);
 }
 
 function textFits(value, width) {
-  return String(value || "").length * 6.3 <= width;
+  return String(value || "").length * APPROX_CHAR_WIDTH <= width;
 }
 
 function innerBlockLabel(item, width) {
-  const availableWidth = width - 16;
+  const availableWidth = width - BLOCK_LABEL_SIDE_PADDING;
   const label = item.subtitle ? `${item.title} · ${item.subtitle}` : item.title;
-  if (availableWidth < 44) {
+  if (availableWidth < BLOCK_LABEL_MIN_WIDTH) {
     return "";
   }
   if (textFits(label, availableWidth)) {
@@ -319,8 +408,8 @@ function innerBlockLabel(item, width) {
 
 function truncateToWidth(value, width) {
   const text = String(value || "");
-  const maxLength = Math.max(Math.floor(width / 6.3) - 3, 0);
-  if (text.length <= maxLength + 3) {
+  const maxLength = Math.max(Math.floor(width / APPROX_CHAR_WIDTH) - ELLIPSIS_LENGTH, 0);
+  if (text.length <= maxLength + ELLIPSIS_LENGTH) {
     return text;
   }
   return `${text.slice(0, maxLength)}...`;
@@ -328,12 +417,12 @@ function truncateToWidth(value, width) {
 
 function needsExternalBlockLabel(item, x) {
   const label = item.subtitle ? `${item.title} · ${item.subtitle}` : item.title;
-  return !textFits(label, blockWidth(item, x) - 16);
+  return !textFits(label, blockWidth(item, x) - BLOCK_LABEL_SIDE_PADDING);
 }
 
 function edgeY(item) {
   const bottomEdge = item.type === "education" || item.type === "stay";
-  return bottomEdge ? 29 : -3;
+  return bottomEdge ? BLOCK_EDGE_BOTTOM_Y : BLOCK_EDGE_TOP_Y;
 }
 
 function itemLabelStacks(item, x) {
@@ -409,7 +498,7 @@ function buildLabelStack(item, x, side, pieces) {
     });
     stack.pieces.reverse();
   } else {
-    let cursor = item.y + 26 + LABEL_BLOCK_GAP;
+    let cursor = item.y + BLOCK_HEIGHT + LABEL_BLOCK_GAP;
     pieces.forEach((piece) => {
       stack.pieces.push({ ...piece, y: cursor });
       cursor += piece.lines.length * LABEL_LINE_HEIGHT + LABEL_PIECE_GAP;
@@ -432,7 +521,7 @@ function placeStacks(stacks) {
     .sort((a, b) => a.band.localeCompare(b.band) || a.x - b.x)
     .map((stack) => {
       const laneEnds = laneEndsByBand.get(stack.band) || [];
-      const lane = laneEnds.findIndex((laneEnd) => stack.x >= laneEnd + 24);
+      const lane = laneEnds.findIndex((laneEnd) => stack.x >= laneEnd + STACK_COLLISION_GAP);
       const laneIndex = lane === -1 ? laneEnds.length : lane;
       laneEnds[laneIndex] = stack.x + stack.width;
       laneEndsByBand.set(stack.band, laneEnds);
@@ -472,17 +561,19 @@ function wrapLabel(value, maxChars, maxLines) {
 
 function blockLabelLines(item, x) {
   if (!needsExternalBlockLabel(item, x) && item.subtitle) {
-    return wrapLabel(item.subtitle, 30, 2);
+    return wrapLabel(item.subtitle, LABEL_MAX_CHARS.block, LABEL_MAX_LINES.subtitle);
   }
-  return wrapDetails(item.title, item.subtitle, 30, 4);
+  return wrapDetails(item.title, item.subtitle, LABEL_MAX_CHARS.block, LABEL_MAX_LINES.block);
 }
 
 function grantLabelLines(item) {
-  return item.grants.flatMap((grant) => wrapDetails(grant.title, grant.subtitle, 29, 4));
+  return item.grants.flatMap((grant) =>
+    wrapDetails(grant.title, grant.subtitle, LABEL_MAX_CHARS.grant, LABEL_MAX_LINES.block),
+  );
 }
 
 function markerLabelLines(marker) {
-  return wrapDetails(marker.title, marker.subtitle, 28, 4);
+  return wrapDetails(marker.title, marker.subtitle, LABEL_MAX_CHARS.marker, LABEL_MAX_LINES.block);
 }
 
 function wrapDetails(title, subtitle, maxChars, maxLines) {
@@ -496,10 +587,10 @@ function wrapDetails(title, subtitle, maxChars, maxLines) {
 
 function truncateLine(value, maxChars) {
   const text = String(value || "");
-  if (text.length <= maxChars - 3) {
+  if (text.length <= maxChars - ELLIPSIS_LENGTH) {
     return `${text}...`;
   }
-  return `${text.slice(0, maxChars - 3)}...`;
+  return `${text.slice(0, maxChars - ELLIPSIS_LENGTH)}...`;
 }
 
 function appendWrappedText(group, lines, x, y) {
@@ -508,7 +599,7 @@ function appendWrappedText(group, lines, x, y) {
     text
       .append("tspan")
       .attr("x", x)
-      .attr("dy", index === 0 ? 0 : 12)
+      .attr("dy", index === 0 ? 0 : LABEL_LINE_HEIGHT)
       .text(line);
   });
   return text;
@@ -532,18 +623,50 @@ function markerTitle(marker) {
   return [marker.title, marker.date_label, marker.subtitle].filter(Boolean).join("\n");
 }
 
-(() => {
-  const container = document.querySelector("[data-career-timeline]");
-  const dataElement = document.getElementById("career-timeline-data");
+function readTimelineData(element) {
+  try {
+    const data = JSON.parse(element.textContent || "{}");
+    if (!data.range?.start || !data.range?.end || !Array.isArray(data.filters)) {
+      return null;
+    }
+    return {
+      ...data,
+      items: Array.isArray(data.items) ? data.items : [],
+      markers: Array.isArray(data.markers) ? data.markers : [],
+    };
+  } catch {
+    return null;
+  }
+}
 
-  if (!container || !dataElement || !window.d3) {
+function setTimelineStatus(container, message) {
+  const status = container.querySelector(CAREER_SELECTORS.loading);
+  if (status) {
+    status.textContent = message;
+  }
+}
+
+function initCareerTimeline() {
+  const container = document.querySelector(CAREER_SELECTORS.container);
+  const dataElement = document.getElementById(CAREER_SELECTORS.data);
+
+  if (!container || !dataElement) {
+    return;
+  }
+  if (!window.d3) {
+    setTimelineStatus(container, CAREER_MESSAGES.dependencyUnavailable);
     return;
   }
 
-  const data = JSON.parse(dataElement.textContent);
+  const data = readTimelineData(dataElement);
+  if (!data) {
+    setTimelineStatus(container, CAREER_MESSAGES.dataUnavailable);
+    return;
+  }
+
   const state = new Set(data.filters.map((filter) => filter.id));
-  const resetButton = document.querySelector("[data-career-reset]");
-  const filterButtons = document.querySelectorAll("[data-career-filter]");
+  const resetButton = document.querySelector(CAREER_SELECTORS.reset);
+  const filterButtons = document.querySelectorAll(CAREER_SELECTORS.filter);
   const timeline = new CareerTimeline(container, data, state);
 
   filterButtons.forEach((button) => {
@@ -565,4 +688,6 @@ function markerTitle(marker) {
   resetButton?.addEventListener("click", () => timeline.resetZoom());
   timeline.render();
   window.requestAnimationFrame(() => timeline.scrollToLatest());
-})();
+}
+
+initCareerTimeline();

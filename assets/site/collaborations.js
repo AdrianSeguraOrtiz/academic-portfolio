@@ -1,14 +1,63 @@
-(() => {
-  const mapElement = document.querySelector("[data-collaboration-map]");
-  const dataElement = document.getElementById("collaboration-map-data");
+const COLLABORATION_SELECTORS = {
+  data: "collaboration-map-data",
+  loading: ".map-loading",
+  map: "[data-collaboration-map]",
+};
 
-  if (!mapElement || !dataElement || !window.d3 || !window.topojson) {
+const WORLD_ATLAS_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+
+// Layout constants keep the collaboration map visually stable across rebuilds.
+const MAP_LAYOUT = {
+  height: 500,
+  width: 960,
+  projectionPadding: {
+    bottom: 18,
+    left: 14,
+    right: 14,
+    top: 18,
+  },
+  pointFitMaxScale: 7.5,
+  pointFitPadding: 86,
+  stayMarker: {
+    circleRadius: 5.4,
+    circleY: -27,
+    labelX: 8,
+    labelY: -24,
+    stemY: -22,
+  },
+  zoomExtentFactor: 2,
+  zoomMax: 10,
+  zoomMin: 1,
+};
+
+const MAP_MESSAGES = {
+  dataUnavailable: "Map data unavailable",
+  dependencyUnavailable: "Map libraries unavailable",
+};
+
+function initCollaborationMap() {
+  const mapElement = document.querySelector(COLLABORATION_SELECTORS.map);
+  const dataElement = document.getElementById(COLLABORATION_SELECTORS.data);
+
+  if (!mapElement || !dataElement) {
+    return;
+  }
+  if (!window.d3 || !window.topojson || !window.fetch) {
+    setMapStatus(mapElement, MAP_MESSAGES.dependencyUnavailable);
     return;
   }
 
-  const data = JSON.parse(dataElement.textContent);
-  const width = 960;
-  const height = 500;
+  const data = readJsonScript(dataElement);
+  if (!data) {
+    setMapStatus(mapElement, MAP_MESSAGES.dataUnavailable);
+    return;
+  }
+
+  renderCollaborationMap(mapElement, data);
+}
+
+function renderCollaborationMap(mapElement, data) {
+  const { height, width } = MAP_LAYOUT;
   const svg = window.d3
     .select(mapElement)
     .append("svg")
@@ -16,44 +65,20 @@
     .attr("aria-hidden", "true");
   const baseLayer = svg.append("g").attr("class", "map-base-layer");
   const pointLayer = svg.append("g").attr("class", "map-point-layer");
-
-  const projection = window.d3.geoNaturalEarth1().fitExtent(
-    [
-      [14, 18],
-      [width - 14, height - 18],
-    ],
-    { type: "Sphere" },
-  );
+  const projection = buildProjection();
   const geoPath = window.d3.geoPath(projection);
   const graticule = window.d3.geoGraticule10();
-  const publicationNodes = prepareMapNodes(data.publication_nodes || [], projection);
-  const stayNodes = prepareMapNodes(data.stay_nodes || [], projection);
-  const zoomBehavior = window.d3
-    .zoom()
-    .scaleExtent([1, 10])
-    .translateExtent([
-      [-width, -height],
-      [width * 2, height * 2],
-    ])
-    .on("zoom", (event) => applyMapTransform(baseLayer, pointLayer, event.transform));
+  const publicationNodes = prepareMapNodes(asArray(data.publication_nodes), projection);
+  const stayNodes = prepareMapNodes(asArray(data.stay_nodes), projection);
+  const zoomBehavior = buildZoomBehavior(baseLayer, pointLayer);
 
   svg.call(zoomBehavior);
   baseLayer.append("path").datum({ type: "Sphere" }).attr("class", "map-sphere").attr("d", geoPath);
   baseLayer.append("path").datum(graticule).attr("class", "map-graticule").attr("d", geoPath);
 
-  fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
-    .then((response) => response.json())
-    .then((world) => {
-      const countries = window.topojson.feature(world, world.objects.countries);
-      baseLayer
-        .append("g")
-        .attr("class", "map-countries")
-        .selectAll("path")
-        .data(countries.features)
-        .join("path")
-        .attr("class", "map-country")
-        .attr("d", geoPath);
-
+  loadCountries()
+    .then((countries) => {
+      drawCountries(baseLayer, countries, geoPath);
       drawPublicationNodes(pointLayer, publicationNodes);
       drawStayMarkers(pointLayer, stayNodes);
       svg.call(
@@ -62,10 +87,71 @@
       );
       mapElement.classList.add("loaded");
     })
-    .catch(() => {
-      mapElement.querySelector(".map-loading").textContent = "Map data unavailable";
-    });
-})();
+    .catch(() => setMapStatus(mapElement, MAP_MESSAGES.dataUnavailable));
+}
+
+function readJsonScript(element) {
+  try {
+    return JSON.parse(element.textContent || "{}");
+  } catch {
+    return null;
+  }
+}
+
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function setMapStatus(mapElement, message) {
+  const status = mapElement.querySelector(COLLABORATION_SELECTORS.loading);
+  if (status) {
+    status.textContent = message;
+  }
+}
+
+function buildProjection() {
+  const { height, projectionPadding, width } = MAP_LAYOUT;
+  return window.d3.geoNaturalEarth1().fitExtent(
+    [
+      [projectionPadding.left, projectionPadding.top],
+      [width - projectionPadding.right, height - projectionPadding.bottom],
+    ],
+    { type: "Sphere" },
+  );
+}
+
+function buildZoomBehavior(baseLayer, pointLayer) {
+  const { height, width, zoomExtentFactor, zoomMax, zoomMin } = MAP_LAYOUT;
+  return window.d3
+    .zoom()
+    .scaleExtent([zoomMin, zoomMax])
+    .translateExtent([
+      [-width, -height],
+      [width * zoomExtentFactor, height * zoomExtentFactor],
+    ])
+    .on("zoom", (event) => applyMapTransform(baseLayer, pointLayer, event.transform));
+}
+
+function loadCountries() {
+  return window.fetch(WORLD_ATLAS_URL).then((response) => {
+    if (!response.ok) {
+      throw new Error(`World atlas request failed: ${response.status}`);
+    }
+    return response.json();
+  });
+}
+
+function drawCountries(baseLayer, world, geoPath) {
+  const countries = window.topojson.feature(world, world.objects.countries);
+  baseLayer
+    .append("g")
+    .attr("class", "map-countries")
+    .selectAll("path")
+    .data(countries.features)
+    .join("path")
+    .attr("class", "map-country")
+    .attr("d", geoPath);
+}
 
 function prepareMapNodes(nodes, projection) {
   return nodes
@@ -81,7 +167,7 @@ function fitPointsTransform(nodes, width, height) {
     return window.d3.zoomIdentity;
   }
 
-  const padding = 86;
+  const { pointFitMaxScale, pointFitPadding } = MAP_LAYOUT;
   const minX = window.d3.min(nodes, (node) => node.x);
   const maxX = window.d3.max(nodes, (node) => node.x);
   const minY = window.d3.min(nodes, (node) => node.y);
@@ -90,7 +176,10 @@ function fitPointsTransform(nodes, width, height) {
   const dy = Math.max(maxY - minY, 1);
   const scale = Math.max(
     1,
-    Math.min(7.5, Math.min((width - padding * 2) / dx, (height - padding * 2) / dy)),
+    Math.min(
+      pointFitMaxScale,
+      Math.min((width - pointFitPadding * 2) / dx, (height - pointFitPadding * 2) / dy),
+    ),
   );
   const x = width / 2 - scale * ((minX + maxX) / 2);
   const y = height / 2 - scale * ((minY + maxY) / 2);
@@ -134,6 +223,7 @@ function drawPublicationNodes(layer, nodes) {
 }
 
 function drawStayMarkers(layer, nodes) {
+  const { circleRadius, circleY, labelX, labelY, stemY } = MAP_LAYOUT.stayMarker;
   const markers = layer
     .append("g")
     .attr("class", "stay-layer")
@@ -149,20 +239,20 @@ function drawStayMarkers(layer, nodes) {
     .attr("x1", 0)
     .attr("y1", 0)
     .attr("x2", 0)
-    .attr("y2", -22);
+    .attr("y2", stemY);
   markers
     .append("line")
     .attr("class", "stay-stem")
     .attr("x1", 0)
     .attr("y1", 0)
     .attr("x2", 0)
-    .attr("y2", -22);
-  markers.append("circle").attr("cx", 0).attr("cy", -27).attr("r", 5.4);
+    .attr("y2", stemY);
+  markers.append("circle").attr("cx", 0).attr("cy", circleY).attr("r", circleRadius);
   markers
     .append("text")
     .attr("class", "stay-month-label")
-    .attr("x", 8)
-    .attr("y", -24)
+    .attr("x", labelX)
+    .attr("y", labelY)
     .text((node) => `${node.months} mo`);
   markers
     .append("title")
@@ -173,3 +263,5 @@ function drawStayMarkers(layer, nodes) {
         } in research stay`,
     );
 }
+
+initCollaborationMap();
