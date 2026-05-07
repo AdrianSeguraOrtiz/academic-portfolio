@@ -211,7 +211,9 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert (tmp_path / "assets" / "collaborations.js").exists()
     assert (tmp_path / "assets" / "career-timeline.js").exists()
     assert (tmp_path / "assets" / "dissemination.js").exists()
+    assert (tmp_path / "assets" / "profile.jpg").exists()
     assert "Adrián Segura Ortiz" in output.content
+    assert 'class="profile-photo"' in output.content
     assert "Journal papers" in output.content
     assert "Conference papers" in output.content
     assert "Research Stays and Publication Cities" in output.content

@@ -111,8 +111,8 @@ h3 {
 /* Profile hero */
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.75fr);
-  gap: 28px;
+  grid-template-columns: minmax(0, 2.1fr) minmax(240px, 0.55fr);
+  gap: 24px;
   max-width: 1180px;
   min-height: 560px;
   margin: 0 auto;
@@ -123,6 +123,27 @@ h3 {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.hero-identity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.profile-photo {
+  width: clamp(104px, 12vw, 148px);
+  aspect-ratio: 1;
+  border: 4px solid var(--surface);
+  border-radius: 50%;
+  box-shadow: 0 12px 28px rgba(27, 38, 35, 0.18);
+  object-fit: cover;
+}
+
+.hero-identity .eyebrow {
+  margin-bottom: 10px;
 }
 
 .lead {
@@ -2594,6 +2615,15 @@ h3 {
   .hero {
     min-height: auto;
     padding-top: 46px;
+  }
+
+  .hero-identity {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .profile-photo {
+    width: 112px;
   }
 
   h1 {

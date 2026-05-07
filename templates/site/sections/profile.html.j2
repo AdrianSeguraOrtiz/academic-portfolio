@@ -1,8 +1,13 @@
 {% import "macros/common.html.j2" as common %}
 <section class="hero" id="profile">
   <div class="hero-copy">
-    <p class="eyebrow">Academic Portfolio</p>
-    <h1>{{ profile.person.full_name }}</h1>
+    <div class="hero-identity">
+      <img class="profile-photo" src="assets/profile.jpg" alt="Portrait of {{ profile.person.full_name }}">
+      <div>
+        <p class="eyebrow">Academic Portfolio</p>
+        <h1>{{ profile.person.full_name }}</h1>
+      </div>
+    </div>
     <p class="lead">{{ profile.research_profile.summary }}</p>
 
     <div class="current-activity" aria-label="Current activity">
