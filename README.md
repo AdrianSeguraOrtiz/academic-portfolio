@@ -1,10 +1,13 @@
 # Academic Portfolio
 
-Structured academic portfolio data for CV generation, personal websites, and academic application workflows.
+Structured academic portfolio data for CV generation, static personal websites,
+and academic application workflows.
 
-The repository stores the portfolio as normalized YAML records under `data/`. Records use stable IDs and explicit cross-references so scripts can generate different outputs without duplicating information.
+The repository keeps curated information in normalized YAML files under `data/`.
+Records use stable IDs and explicit relationships so generators can build
+different outputs without duplicating content.
 
-## Structure
+## Repository Layout
 
 ```text
 data/
@@ -14,18 +17,20 @@ data/
   research/
   activities/
 
+assets/site/
+cv_models/
 scripts/
-  validate_data.rb
-
-src/
-  academic_portfolio/
+src/academic_portfolio/
+templates/
+tests/
 
 SCHEMA.md
 ```
 
-`SCHEMA.md` documents the data layout, ID conventions, allowed relationship fields, and validation rules.
+`SCHEMA.md` is the data contract. When changing YAML structure, update the
+schema, validator, tests, and templates in the same change.
 
-## Python Environment
+## Setup
 
 Install the Python tooling in a virtual environment:
 
@@ -33,84 +38,168 @@ Install the Python tooling in a virtual environment:
 make install
 ```
 
-If `uv` is available, the command uses `uv sync --dev`. Otherwise it creates `.venv/` with `python3 -m venv` and installs the project with development dependencies.
+If `uv` is available, this runs `uv sync --dev`. Otherwise it creates `.venv/`
+and installs the project with development dependencies.
 
-## Validation
+## Daily Workflow
 
-Run the data validator before using the data in generation scripts:
+Use this loop when editing portfolio data or generators:
 
 ```bash
 make validate-data
+make test
+make lint
+make site
+make cv
 ```
 
-This runs:
+For JavaScript-only changes, also run:
 
 ```bash
-ruby scripts/validate_data.rb
+node --check assets/site/dissemination.js
+node --check assets/site/collaborations.js
+node --check assets/site/career-timeline.js
 ```
 
-The validator checks YAML syntax, duplicate IDs, ID format, allowed relationship fields, unresolved references, deprecated relationship blocks, self-references, and chronological ordering.
+Before committing, keep whitespace clean:
+
+```bash
+git diff --check
+```
 
 ## Data Inspection
 
-After installing the Python environment, inspect the loaded YAML files with:
+Inspect loaded YAML files:
 
 ```bash
 make data-summary
 ```
 
-Resolve a record and inspect its outgoing references with:
+Resolve a record and inspect its outgoing references:
 
 ```bash
 make data-resolve ID=publication_04
 ```
 
-Run the Python test and lint checks with:
-
-```bash
-make test
-make lint
-```
-
 ## CV Generation
 
-Generate the first Markdown CV from the academic full model:
+Generate the academic full Markdown CV:
 
 ```bash
 make cv MODEL=academic_full FORMAT=md
 ```
 
-The generated file is written to `build/cv/academic_full.md`.
+The output is written to `build/cv/academic_full.md`.
+
+CV models live in `cv_models/`. The current generator writes Markdown; later
+PDF-specific renderers should reuse the same YAML data and model definitions.
 
 ## Static Website
 
-Generate the first static personal website:
+Generate the static site:
 
 ```bash
 make site
 ```
 
-The generated homepage is written to `build/site/index.html`, with static assets under
+The site is written to `build/site/index.html`, with copied assets under
 `build/site/assets/`.
 
-The homepage derives collaboration maps from organization coordinates, research
-stays, and publication organization references. Add `location.coordinates` to new
-organizations when they should appear in map-based views. The map is rendered in
-the browser with D3, TopoJSON, and the public World Atlas dataset.
+`make site` refreshes dynamic GitHub and package data by default. To render from
+YAML and cached data without network refresh:
 
-The website generator enriches software projects with public GitHub metadata by default.
-Repository metrics and monthly commit activity are cached in `build/cache/` to reduce API
-usage. Set `GITHUB_TOKEN` before running `make site` if you need a higher GitHub API limit.
+```bash
+make site SITE_ARGS="--no-refresh-github --no-refresh-packages"
+```
 
-Software package cards are also enriched dynamically. PyPI packages use PyPI metadata plus
-ClickPy/ClickHouse download analytics, while Maven packages use Maven Central metadata and
-published artifact data. These results are cached in `build/cache/software_packages.json`.
+Use custom cache paths when needed:
 
-## Editing Guidelines
+```bash
+make site SITE_ARGS="--github-cache-path build/cache/github_repositories.json --package-cache-path build/cache/software_packages.json"
+```
 
-- Keep lists ordered from oldest to newest.
-- Add new records with the next available stable ID for that type.
-- Store relationships as explicit `*_ids` fields only where allowed by `SCHEMA.md`.
-- Avoid reverse relationships that can be derived by scripts.
-- Use URLs instead of embedding documents.
+Set `GITHUB_TOKEN` before `make site` for a higher GitHub API limit.
+
+## Dynamic Data Sources
+
+The YAML stores curated facts and registry identifiers. The website enriches
+some sections dynamically:
+
+- GitHub repositories: repository metadata, stars, forks, open issues, license,
+  primary language, language breakdown, commit counts, first and last commit,
+  latest push, and monthly commit activity. Source: GitHub REST API.
+- PyPI packages: package metadata and releases from the PyPI JSON API; total
+  downloads, monthly downloads, version splits, countries, Python versions,
+  operating systems, and file types from ClickPy/ClickHouse public data.
+- Maven packages: versions, latest release metadata, POM metadata,
+  dependencies, Java release, licenses, and published artifacts from Maven
+  Central.
+- Collaboration map: generated from `location.coordinates` in organizations,
+  publication organization references, and research-stay organization
+  references. The browser renders the map with D3, TopoJSON, and the public
+  World Atlas dataset.
+
+Dynamic caches:
+
+```text
+build/cache/github_repositories.json
+build/cache/software_packages.json
+```
+
+These files are generated artifacts and can be removed to force a clean refresh.
+
+## Adding Records
+
+General rules:
+
+- Add records to the appropriate YAML group in `data/`.
+- Keep each list ordered from oldest to newest.
+- Use the next available ID for the record type.
+- Use only relationship fields allowed by `SCHEMA.md`.
+- Add organizations first, then reference them from other records.
+- Do not duplicate inverse relationships; generators derive them.
+- Use URLs for external documents and pages.
 - Keep descriptions concise and factual.
+- Run `make validate-data`, `make test`, and the relevant generator.
+
+Major record types:
+
+- Organization: add it to `data/entities/organizations.yaml`; include
+  `name`, `full_name`, `abbreviation`, `type`, `parent_organization_id`,
+  `location`, coordinates when known, and `website`.
+- Degree or certification: add it under `data/career/`; link institutions with
+  `organization_ids`; link degree funding with `grant_ids` when applicable.
+- Position or research stay: add it under `data/career/`; link organizations
+  with `organization_ids`; link grants with `grant_ids` for stays or through
+  grant `position_ids`.
+- Honor or grant: add it under `data/career/`; honors link to `degree_ids`;
+  grants link to `position_ids` and/or `stay_ids`.
+- Publication: add journal papers or conference papers under
+  `data/research/publications.yaml`; link organizations, software projects,
+  research projects, positions, stays, and grants only when directly relevant.
+- Research or teaching innovation project: add it under `data/research/` or
+  `data/activities/teaching/`; link only `organization_ids`.
+- Software project: add curated metadata and the GitHub URL under
+  `data/research/software_projects.yaml`; do not store GitHub statistics in
+  YAML.
+- Software package: add the registry identifiers under
+  `data/research/software_packages.yaml`; do not store registry statistics in
+  YAML.
+- Dissemination or media item: add it under
+  `data/activities/dissemination/`; press, social media, and TV media link only
+  `publication_ids`; scientific dissemination articles and presentations may
+  also link `software_package_ids`.
+- Teaching class or supervision: add it under `data/activities/teaching/`; link
+  only `organization_ids`.
+
+## Validation
+
+Run:
+
+```bash
+make validate-data
+```
+
+The validator checks YAML syntax, duplicate IDs, ID format, allowed relationship
+fields, unresolved references, self-references, consistent fields within each
+group, and chronological ordering for dated lists.

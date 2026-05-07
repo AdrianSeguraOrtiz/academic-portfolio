@@ -48,18 +48,16 @@ model we actually want to maintain.
 
 Tasks:
 
-- Review redundant fields currently duplicated by `organization_ids`, especially:
-  - `institution`
-  - `institution_type`
-- Decide whether templates still need fallback fields before removing them.
+- Review redundant fields currently duplicated by canonical relationship fields.
+- Keep templates aligned with the current schema.
 - Update `SCHEMA.md` and `scripts/validate_data.rb` together.
-- Add validation rules for any field that should be deprecated.
+- Remove obsolete fields directly from data, schema, templates, and generators.
 - Keep IDs, relationships, and chronological ordering validated.
 
 Acceptance criteria:
 
-- No deprecated field remains unless explicitly documented.
-- Validator fails clearly if deprecated fields are reintroduced.
+- No obsolete fallback path remains in the validator, templates, or generators.
+- The current schema is the only supported data contract.
 - CV and website still render after schema cleanup.
 
 ## Phase 2: Shared View Helpers
@@ -270,8 +268,7 @@ Purpose: make cleanup safer by catching regressions earlier.
 
 Tasks:
 
-- Add tests for schema constraints that have caused previous issues:
-  - Deprecated fields.
+- Add tests for current schema constraints that are easy to break:
   - Invalid relationship fields.
   - Broken parent organization links.
   - Missing dynamic metadata fallbacks.
@@ -282,7 +279,7 @@ Tasks:
 Acceptance criteria:
 
 - Tests cover new validation rules.
-- A future accidental reintroduction of deprecated fields fails fast.
+- Invalid relationship fields, broken references, and ordering mistakes fail fast.
 - Organization and publication aggregation behavior is protected.
 
 ## Phase 9: Documentation and Developer Workflow

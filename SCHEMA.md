@@ -41,6 +41,23 @@ data/
 
 `entities/` contains reusable lookup records. The other folders group CV sections by domain. `activities/dissemination/` contains outreach and media activity; `activities/teaching/` contains teaching activity.
 
+## Profile
+
+`data/profile.yaml` stores personal details, contact information, external
+profile links, current activity references, and research areas.
+
+Current activity is stored only as IDs:
+
+```yaml
+current_position_ids:
+- position_05
+current_stay_ids:
+- stay_02
+```
+
+The referenced records live in `career/experience.yaml` and
+`career/research_stays.yaml`.
+
 ## Organizations
 
 Organizations are standalone lookup records. They should not contain reverse links or relationship fields to publications, projects, awards, or other records. Use these fields consistently:
@@ -133,6 +150,20 @@ Allowed relationship fields are intentionally limited by record type:
 Organizations are stored in `data/entities/organizations.yaml` and referenced by ID from other files.
 Records should not reference themselves; inverse relationships should be derived by scripts instead of duplicated manually.
 
+Record-level organization names and organization types are resolved through
+`organization_ids`. Names, abbreviations, websites, locations, and types live in
+`data/entities/organizations.yaml`.
+
+## Field Consistency
+
+Items inside the same top-level YAML group must use the same fields. Use `null`
+or an empty list when a field is not applicable for a specific record. This keeps
+scripts simple and avoids ad hoc field checks.
+
+Lists with date-bearing records are ordered from oldest to newest. Output
+generators can reverse, group, or filter records for a specific CV or website
+view.
+
 ## Software Projects
 
 Software project records keep only curated portfolio information. GitHub-derived
@@ -185,6 +216,22 @@ systems, and file types are derived from PyPI and ClickPy/ClickHouse. For Maven,
 versions, POM metadata, dependencies, and published artifacts are derived from
 Maven Central.
 
+## Dynamic Website Metadata
+
+Dynamic data is generated for the website only and is not written back to YAML.
+
+| Source | Used for | Cache |
+| --- | --- | --- |
+| GitHub REST API | Repository metadata, language breakdown, commit counts, commit activity, stars, forks, issues, license, first/last commit, latest push | `build/cache/github_repositories.json` |
+| PyPI JSON API | Package metadata and releases for PyPI packages | `build/cache/software_packages.json` |
+| ClickPy / ClickHouse public data | PyPI downloads, monthly time series, versions, countries, Python versions, operating systems, file types | `build/cache/software_packages.json` |
+| Maven Central | Maven versions, POM metadata, dependencies, licenses, published artifacts | `build/cache/software_packages.json` |
+| World Atlas, D3, TopoJSON | Browser-rendered collaboration map | Browser runtime |
+
+The site CLI supports `--refresh-github/--no-refresh-github`,
+`--refresh-packages/--no-refresh-packages`, `--github-cache-path`, and
+`--package-cache-path`.
+
 ## Validation
 
 Run:
@@ -195,4 +242,6 @@ make validate-data
 
 This delegates to `ruby scripts/validate_data.rb`.
 
-The validator checks YAML syntax, duplicate IDs, ID format, allowed relationship fields, unresolved references, deprecated `associated_with` blocks, self-references, and chronological order for dated lists.
+The validator checks YAML syntax, duplicate IDs, ID format, allowed relationship
+fields, unresolved references, self-references, consistent fields within each
+top-level group, and chronological order for dated lists.

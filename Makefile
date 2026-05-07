@@ -4,6 +4,7 @@ PYTHON ?= python3
 VENV ?= .venv
 MODEL ?= academic_full
 FORMAT ?= md
+SITE_ARGS ?=
 
 install:
 	@if command -v uv >/dev/null 2>&1; then \
@@ -40,9 +41,9 @@ cv:
 
 site:
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run portfolio site generate; \
+		uv run portfolio site generate $(SITE_ARGS); \
 	else \
-		$(VENV)/bin/portfolio site generate; \
+		$(VENV)/bin/portfolio site generate $(SITE_ARGS); \
 	fi
 
 test:
