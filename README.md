@@ -148,6 +148,31 @@ build/cache/software_packages.json
 
 These files are generated artifacts and can be removed to force a clean refresh.
 
+## GitHub Pages Deployment
+
+The repository includes `.github/workflows/deploy-site.yml`. On every push to
+`main`, GitHub Actions installs the project, validates the YAML data, runs tests
+and linting, generates the static site with `make site`, and deploys
+`build/site/` to GitHub Pages.
+
+To enable deployment for this repository:
+
+1. Push `main` to GitHub.
+2. Open the repository on GitHub.
+3. Go to `Settings` > `Pages`.
+4. Set `Build and deployment` > `Source` to `GitHub Actions`.
+5. Run the workflow manually from the `Actions` tab, or push to `main`.
+
+For this project repository, the default URL is:
+
+```text
+https://AdrianSeguraOrtiz.github.io/academic-portfolio/
+```
+
+For a root personal website at `https://AdrianSeguraOrtiz.github.io`, create a
+repository named `AdrianSeguraOrtiz.github.io` and reuse the same generated
+`build/site/` deployment target there.
+
 ## Adding Records
 
 General rules:
