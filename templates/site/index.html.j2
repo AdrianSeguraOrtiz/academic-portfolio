@@ -27,6 +27,23 @@
       {%- endfor -%}
     {%- endmacro %}
 
+    {% macro relationship_node(node, relationship_id) %}
+    <article class="relationship-node depth-{{ node.depth }} rel-scope-{{ relationship_id }} {{ node.size_class }}" style="{{ node.style }}" title="{{ node.tooltip }}">
+      <div class="relationship-node-label">
+        {% if node.website %}<a href="{{ node.website }}">{{ node.label }}</a>{% else %}<span>{{ node.label }}</span>{% endif %}
+        <small>{{ node.value_label }}</small>
+      </div>
+      <div class="relationship-node-bar" aria-hidden="true"></div>
+      {% if node.children %}
+      <div class="relationship-child-stack" style="{{ node.children_style }}">
+        {% for child in node.children %}
+        {{ relationship_node(child, relationship_id) }}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </article>
+    {% endmacro %}
+
     {% macro publication_card(publication) %}
     <article class="record-card">
       <div class="record-topline">
@@ -62,8 +79,10 @@
         <a href="#publications">Publications</a>
         <a href="#software">Software</a>
         <a href="#career">Career</a>
+        <a href="#research-projects">Projects</a>
         <a href="#teaching">Teaching</a>
         <a href="#dissemination">Dissemination</a>
+        <a href="#organizations">Organizations</a>
       </nav>
     </header>
 
@@ -161,7 +180,7 @@
           <article class="metric-card"><strong>{{ metrics.software_projects }}</strong><span>Software projects</span></article>
           <article class="metric-card"><strong>{{ metrics.software_packages }}</strong><span>Software packages</span></article>
           <article class="metric-card"><strong>{{ metrics.courses }}</strong><span>Courses taught</span></article>
-          <article class="metric-card"><strong>{{ metrics.reviewed_manuscripts }}</strong><span>Reviewed manuscripts</span></article>
+          <article class="metric-card"><strong>{{ metrics.projects }}</strong><span>Projects</span></article>
           <article class="metric-card"><strong>{{ metrics.press_items }}</strong><span>Press items</span></article>
           <article class="metric-card"><strong>{{ metrics.social_media_items }}</strong><span>Social media items</span></article>
         </aside>
@@ -477,11 +496,46 @@
           <p class="eyebrow">Career</p>
           <h2>Education, Experience, Stays, Honors, and Grants</h2>
         </div>
-        <div class="split-sections">
-          <section>
-            <h3 class="subsection-title">Education</h3>
+        <div class="career-timeline-card">
+          <div class="career-timeline-toolbar" aria-label="Career timeline filters">
+            {% for filter in career_timeline.filters %}
+            <button type="button" class="career-filter active" data-career-filter="{{ filter.id }}" aria-pressed="true">{{ filter.label }}</button>
+            {% endfor %}
+            <button type="button" class="career-reset" data-career-reset>Reset zoom</button>
+          </div>
+          <div class="career-timeline-scroll">
+            <div class="career-timeline" data-career-timeline role="img" aria-label="Career timeline visualization">
+              <span class="map-loading">Loading career timeline</span>
+            </div>
+          </div>
+          <div class="career-timeline-legend" aria-label="Career timeline legend">
+            <span><i class="legend-education"></i> Education</span>
+            <span><i class="legend-experience"></i> Experience</span>
+            <span><i class="legend-stay-block"></i> Research stay</span>
+            <span><i class="legend-certification"></i> Certification</span>
+            <span><i class="legend-honor"></i> Honor</span>
+            <span><i class="legend-grant"></i> Grant-linked block</span>
+          </div>
+          <script type="application/json" id="career-timeline-data">{{ career_timeline | tojson }}</script>
+        </div>
+        <div class="career-detail-tabs" aria-label="Career detail categories">
+          <a href="#career-education"><span>{{ career.degrees | length }}</span> Education</a>
+          <a href="#career-experience"><span>{{ career.experience | length }}</span> Experience</a>
+          <a href="#career-stays"><span>{{ career.research_stays | length }}</span> Stays</a>
+          <a href="#career-certifications"><span>{{ career.certifications | length }}</span> Certifications</a>
+          <a href="#career-honors"><span>{{ career.honors | length }}</span> Honors</a>
+          <a href="#career-grants"><span>{{ career.grants | length }}</span> Grants</a>
+        </div>
+        <div class="career-detail-sections">
+          <section id="career-education" class="career-detail-section education">
+            <div class="career-detail-heading">
+              <p class="eyebrow">Education</p>
+              <h3>Degrees</h3>
+            </div>
+            <div class="career-card-grid">
             {% for degree in career.degrees %}
-            <article class="record-row">
+            <article class="career-card education">
+              <div class="record-topline"><span>{{ degree.level }}</span><time>{{ degree.start_date | date_range(degree.end_date) }}</time></div>
               <h3>{{ degree.title }}</h3>
               <p>{{ org_links(degree) }} · {{ degree.start_date | date_range(degree.end_date) }}</p>
               {% if degree.grade %}<p>{{ degree.grade }}</p>{% endif %}
@@ -490,11 +544,17 @@
               {% if degree.thesis.area %}<p class="tags">{{ degree.thesis.area }}</p>{% endif %}
             </article>
             {% endfor %}
+            </div>
           </section>
-          <section>
-            <h3 class="subsection-title">Experience</h3>
+          <section id="career-experience" class="career-detail-section experience">
+            <div class="career-detail-heading">
+              <p class="eyebrow">Experience</p>
+              <h3>Positions</h3>
+            </div>
+            <div class="career-card-grid experience-grid">
             {% for position in career.experience %}
-            <article class="record-row">
+            <article class="career-card experience">
+              <div class="record-topline"><span>{{ position.employment_type or position.dedication or "Position" }}</span><time>{{ date_span(position) }}</time></div>
               <h3>{{ position.title }}</h3>
               <p>{{ org_links(position) }} · {{ date_span(position) }}</p>
               <ul class="meta-list">
@@ -504,19 +564,28 @@
                 {% if position.group %}<li>Group: {{ position.group }}</li>{% endif %}
               </ul>
               {% if position.tasks %}
-              <ul class="meta-list">
-                {% for task in position.tasks %}
-                <li>{{ task }}</li>
-                {% endfor %}
-              </ul>
+              <details class="task-details">
+                <summary>Tasks ({{ position.tasks | length }})</summary>
+                <ul class="meta-list">
+                  {% for task in position.tasks %}
+                  <li>{{ task }}</li>
+                  {% endfor %}
+                </ul>
+              </details>
               {% endif %}
             </article>
             {% endfor %}
+            </div>
           </section>
-          <section>
-            <h3 class="subsection-title">Research Stays</h3>
+          <section id="career-stays" class="career-detail-section stay">
+            <div class="career-detail-heading">
+              <p class="eyebrow">Research Stays</p>
+              <h3>International Mobility</h3>
+            </div>
+            <div class="career-card-grid">
             {% for stay in career.research_stays %}
-            <article class="record-row">
+            <article class="career-card stay">
+              <div class="record-topline"><span>{{ stay.type or "Research stay" }}</span><time>{{ date_span(stay) }}</time></div>
               <h3>{{ stay.title }}</h3>
               <p>{{ org_links(stay) }} · {{ date_span(stay) }}</p>
               <p>{{ stay.description }}</p>
@@ -529,11 +598,17 @@
               </ul>
             </article>
             {% endfor %}
+            </div>
           </section>
-          <section>
-            <h3 class="subsection-title">Certifications</h3>
+          <section id="career-certifications" class="career-detail-section certification">
+            <div class="career-detail-heading">
+              <p class="eyebrow">Certifications</p>
+              <h3>Credentials</h3>
+            </div>
+            <div class="career-card-grid compact-career-grid">
             {% for certification in career.certifications %}
-            <article class="record-row">
+            <article class="career-card certification">
+              <div class="record-topline"><span>Certification</span>{% if certification.issue_date %}<time>{{ certification.issue_date }}</time>{% endif %}</div>
               <h3>{{ certification.title }}</h3>
               <p>{{ org_links(certification) }}{% if certification.issue_date %} · {{ certification.issue_date }}{% endif %}</p>
               <ul class="meta-list">
@@ -543,21 +618,33 @@
               </ul>
             </article>
             {% endfor %}
+            </div>
           </section>
-          <section>
-            <h3 class="subsection-title">Honors</h3>
+          <section id="career-honors" class="career-detail-section honor">
+            <div class="career-detail-heading">
+              <p class="eyebrow">Honors</p>
+              <h3>Awards</h3>
+            </div>
+            <div class="career-card-grid compact-career-grid">
             {% for honor in career.honors %}
-            <article class="record-row">
+            <article class="career-card honor">
+              <div class="record-topline"><span>Honor</span><time>{{ honor.issue_date }}</time></div>
               <h3>{{ honor.title }}</h3>
               <p>{{ honor.issue_date }} · {{ honor.awarding_entities | join(", ") }}</p>
               <p>{{ honor.context }}</p>
             </article>
             {% endfor %}
+            </div>
           </section>
-          <section>
-            <h3 class="subsection-title">Grants</h3>
+          <section id="career-grants" class="career-detail-section grant">
+            <div class="career-detail-heading">
+              <p class="eyebrow">Grants</p>
+              <h3>Funding</h3>
+            </div>
+            <div class="career-card-grid compact-career-grid">
             {% for grant in career.grants %}
-            <article class="record-row">
+            <article class="career-card grant">
+              <div class="record-topline"><span>{{ grant.awarding_entity_type }}</span><time>{{ grant.issue_date }}</time></div>
               <h3>{{ grant.name }}</h3>
               <p>{{ grant.issue_date }} · {{ grant.awarding_entity }}</p>
               <p>{{ grant.purpose }}</p>
@@ -565,34 +652,37 @@
               {% if grant.notes %}<p>{{ grant.notes }}</p>{% endif %}
             </article>
             {% endfor %}
+            </div>
           </section>
         </div>
       </section>
 
       <section class="content-section" id="research-projects">
         <div class="section-heading">
-          <p class="eyebrow">Research Activity</p>
-          <h2>Projects and Reviewing</h2>
+          <p class="eyebrow">Projects</p>
+          <h2>Research and Teaching Innovation Projects</h2>
         </div>
-        <div class="record-grid compact-grid">
-          {% for project in research_projects %}
-          <article class="record-card">
-            <div class="record-topline"><span>{{ project.code }}</span>{% if date_span(project) %}<time>{{ date_span(project) }}</time>{% endif %}</div>
-            <h3>{{ project.acronym }}: {{ project.title }}</h3>
+        <div class="project-role-legend" aria-label="Project role legend">
+          <span><i class="role-working"></i> Working team member</span>
+          <span><i class="role-research"></i> Research team member</span>
+          <span><i class="role-lead"></i> PI / Co-PI</span>
+        </div>
+        <div class="project-grid">
+          {% for project in projects %}
+          <article class="project-card type-{{ project.project_type }} role-{{ project.participation_class }}">
+            <div class="record-topline project-topline">
+              <span class="project-type-label">{{ project.project_type_label }}</span>
+              {% if project.get("code") %}<span>{{ project.code }}</span>{% endif %}
+              {% if date_span(project) %}<time>{{ date_span(project) }}</time>{% endif %}
+            </div>
+            <h3>{{ project.display_title }}</h3>
             <p>{{ org_links(project) }}</p>
-            <p>Principal investigators: {{ project.principal_investigators | join(", ") }}</p>
+            {% if project.get("principal_investigators") %}<p>Principal investigators: {{ project.principal_investigators | join(", ") }}</p>{% endif %}
             <ul class="meta-list">
-              {% if project.funders %}<li>Funders: {{ project.funders | join(", ") }}</li>{% endif %}
-              {% if project.participation %}<li>Participation: {{ project.participation }}</li>{% endif %}
-              {% if project.total_amount_eur %}<li>Total amount: {{ project.total_amount_eur }} EUR</li>{% endif %}
+              {% if project.project_funders %}<li>Funders: {{ project.project_funders | join(", ") }}</li>{% endif %}
+              {% if project.get("participation") %}<li>Participation: {{ project.participation }}</li>{% endif %}
+              {% if project.get("total_amount_eur") %}<li>Total amount: {{ project.total_amount_eur }} EUR</li>{% endif %}
             </ul>
-          </article>
-          {% endfor %}
-          {% for item in reviewing %}
-          <article class="record-card">
-            <div class="record-topline"><span>Reviewing</span><time>{{ item.last_updated }}</time></div>
-            <h3>{{ item.journal }}</h3>
-            <p>{{ item.manuscripts_reviewed }} manuscripts reviewed</p>
           </article>
           {% endfor %}
         </div>
@@ -601,35 +691,41 @@
       <section class="content-section" id="teaching">
         <div class="section-heading">
           <p class="eyebrow">Teaching</p>
-          <h2>Classes, Supervision, and Teaching Innovation</h2>
+          <h2>Classes and Supervision</h2>
         </div>
-        <div class="record-grid compact-grid">
-          {% for course in teaching.university_classes %}
-          <article class="record-card">
-            <div class="record-topline"><span>University class</span><time>{{ course.academic_year }}</time></div>
-            <h3>{{ course.name }}</h3>
-            <p>{{ course.degree }}</p>
-            <p>{{ org_links(course) }}</p>
-            <p class="tags">{{ course.start_date | date_range(course.end_date) }}{% if course.department %} · {{ course.department }}{% endif %}</p>
+        <div class="teaching-layout">
+          <article class="teaching-timeline-card">
+            <div class="teaching-timeline-legends">
+              <div class="teaching-organization-legend" aria-label="Teaching institution color legend">
+                {% for organization in teaching_timeline.legend %}
+                <span><i style="--org-color: {{ organization.color }}"></i>{{ organization.label }}</span>
+                {% endfor %}
+              </div>
+              <div class="teaching-type-legend" aria-label="Teaching item type legend">
+                <span><i class="type-class"></i> Class</span>
+                <span><i class="type-supervision"></i> Supervision</span>
+              </div>
+            </div>
+            <div class="teaching-timeline-scroll">
+              <div class="teaching-timeline-stage" style="{{ teaching_timeline.axis_style }}">
+                <div class="teaching-axis"></div>
+                {% for tick in teaching_timeline.year_ticks %}
+                <span class="teaching-year-tick" style="--tick-top: {{ tick.top }}px">{{ tick.year }}</span>
+                {% endfor %}
+                {% for event in teaching_timeline.events %}
+                <span class="teaching-timeline-connector side-{{ event.side }}" style="{{ event.connector_style }}"></span>
+                <article class="teaching-timeline-item type-{{ event.type }} side-{{ event.side }}" style="{{ event.style }}">
+                  <div class="teaching-event-kind">{{ event.type_label }}</div>
+                  <h3>{% if event.url %}<a href="{{ event.url }}">{{ event.title }}</a>{% else %}{{ event.title }}{% endif %}</h3>
+                  <p>{{ event.subtitle }}</p>
+                  {% for detail in event.detail_lines %}<p>{{ detail }}</p>{% endfor %}
+                  {% if event.repository_url %}<p><a href="{{ event.repository_url }}">Repository</a></p>{% endif %}
+                  <time>{{ event.date_label }}</time>
+                </article>
+                {% endfor %}
+              </div>
+            </div>
           </article>
-          {% endfor %}
-          {% for supervision in teaching.academic_supervision %}
-          <article class="record-card">
-            <div class="record-topline"><span>{{ supervision.type }}</span><time>{{ supervision.date }}</time></div>
-            <h3>{% if supervision.url %}<a href="{{ supervision.url }}">{{ supervision.title }}</a>{% else %}{{ supervision.title }}{% endif %}</h3>
-            <p>{{ supervision.student }} · {{ supervision.degree }}</p>
-            <p>{{ supervision.role }} · {{ org_links(supervision) }}</p>
-            {% if supervision.workload_hours %}<p>{{ supervision.workload_hours }} hours</p>{% endif %}
-            {% if supervision.repository_url %}<p><a href="{{ supervision.repository_url }}">Repository</a></p>{% endif %}
-          </article>
-          {% endfor %}
-          {% for project in teaching.teaching_innovation_projects %}
-          <article class="record-card">
-            <div class="record-topline"><span>Teaching innovation</span><time>{{ date_span(project) }}</time></div>
-            <h3>{{ project.code }}: {{ project.title }}</h3>
-            <p>{{ project.participation }} · {{ project.funding_entity }}</p>
-          </article>
-          {% endfor %}
         </div>
       </section>
 
@@ -638,52 +734,62 @@
           <p class="eyebrow">Knowledge Transfer</p>
           <h2>Dissemination and Media</h2>
         </div>
-        <div class="record-grid compact-grid">
-          {% for article in dissemination.scientific_articles %}
-          <article class="record-card">
-            <div class="record-topline"><span>Scientific dissemination article</span><time>{{ article.date }}</time></div>
-            <h3><a href="{{ article.url }}">{{ article.title }}</a></h3>
-            <p>{{ article.outlet }}{% if article.issue %} · {{ article.issue }}{% endif %}</p>
-            {% if article.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(article.resolved.publication_ids) }}</p>{% endif %}
-            {% if article.get("resolved", {}).get("software_package_ids", []) %}<p class="tags">Software packages: {{ linked_records(article.resolved.software_package_ids) }}</p>{% endif %}
+        <div class="dissemination-summary">
+          <article class="dissemination-total">
+            <strong>{{ dissemination_hub.total }}</strong>
+            <span>Total dissemination items</span>
           </article>
+          <div class="channel-mix" aria-label="Dissemination channel mix">
+            {% for category in dissemination_hub.categories %}
+            <div class="channel-row category-{{ category.id }}">
+              <span>{{ category.label }}</span>
+              <div class="channel-track"><i style="width: {{ category.share }}%"></i></div>
+              <strong>{{ category.count }}</strong>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="dissemination-filters" data-dissemination-filters aria-label="Dissemination filters">
+          <button type="button" class="active" data-filter="all" aria-pressed="true">All</button>
+          {% for category in dissemination_hub.categories %}
+          <button type="button" class="category-{{ category.id }}" data-filter="{{ category.id }}" aria-pressed="false">{{ category.label }}</button>
           {% endfor %}
-          {% for presentation in dissemination.presentations %}
-          <article class="record-card">
-            <div class="record-topline"><span>{{ presentation.type }}</span><time>{{ date_span(presentation) }}</time></div>
-            <h3>{{ presentation.title }}</h3>
-            <p>{{ presentation.event }} · {{ presentation.location }}</p>
-            {% if presentation.authors %}<p class="tags">{{ presentation.authors | join(", ") }}</p>{% endif %}
-            {% if presentation.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(presentation.resolved.publication_ids) }}</p>{% endif %}
-          </article>
-          {% endfor %}
-          {% for item in dissemination.press %}
-          <article class="record-card">
-            <div class="record-topline"><span>Press</span><time>{{ item.date }}</time></div>
-            <h3><a href="{{ item.url }}">{{ item.title }}</a></h3>
-            <p>{{ item.outlet }} · {{ item.language }} · {{ item.country }}</p>
-            {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(item.resolved.publication_ids) }}</p>{% endif %}
-          </article>
-          {% endfor %}
-          {% for item in dissemination.social_media %}
-          <article class="record-card">
-            <div class="record-topline"><span>{{ item.platform }}</span><time>{{ item.date }}</time></div>
-            <h3><a href="{{ item.url }}">{{ item.platform }} item</a></h3>
-            <p>{{ item.accounts | join(", ") }}</p>
-            {% if item.views %}<p>{{ item.views }} views</p>{% endif %}
-            {% if item.description %}<p>{{ item.description }}</p>{% endif %}
-            {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(item.resolved.publication_ids) }}</p>{% endif %}
-          </article>
-          {% endfor %}
-          {% for item in dissemination.tv_media %}
-          <article class="record-card">
-            <div class="record-topline"><span>TV media</span><time>{{ item.date }}</time></div>
-            <h3><a href="{{ item.url }}">{{ item.program }}</a></h3>
-            <p>{{ item.channel }}</p>
-            {% if item.description %}<p>{{ item.description }}</p>{% endif %}
-            {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(item.resolved.publication_ids) }}</p>{% endif %}
-          </article>
-          {% endfor %}
+        </div>
+
+        <div class="dissemination-layout">
+          <aside class="publication-impact">
+            <h3>By Research Output</h3>
+            <div class="publication-impact-list">
+              {% for group in dissemination_hub.publication_groups %}
+              <article>
+                <strong>{% if group.publication.url %}<a href="{{ group.publication.url }}">{{ group.publication | record_name }}</a>{% else %}{{ group.publication | record_name }}{% endif %}</strong>
+                <div class="impact-badges">
+                  {% for badge in group.badges %}
+                  <span class="category-{{ badge.category }}">{{ badge.count }} {{ badge.label }}</span>
+                  {% endfor %}
+                </div>
+              </article>
+              {% endfor %}
+            </div>
+          </aside>
+
+          <div class="media-grid" data-dissemination-items>
+            {% for item in dissemination_hub["items"] %}
+            <article class="media-card category-{{ item.category }}" data-category="{{ item.category }}">
+              <div class="record-topline">
+                <span>{{ item.type_label }}</span>
+                {% if item.date_label %}<time>{{ item.date_label }}</time>{% endif %}
+              </div>
+              <h3>{% if item.url %}<a href="{{ item.url }}">{{ item.display_title }}</a>{% else %}{{ item.display_title }}{% endif %}</h3>
+              {% if item.source %}<p class="media-source">{{ item.source }}</p>{% endif %}
+              {% for line in item.detail_lines %}<p>{{ line }}</p>{% endfor %}
+              {% if item.description and item.description != item.display_title %}<p>{{ item.description }}</p>{% endif %}
+              {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ linked_records(item.resolved.publication_ids) }}</p>{% endif %}
+              {% if item.get("resolved", {}).get("software_package_ids", []) %}<p class="tags">Software packages: {{ linked_records(item.resolved.software_package_ids) }}</p>{% endif %}
+            </article>
+            {% endfor %}
+          </div>
         </div>
       </section>
 
@@ -692,14 +798,89 @@
           <p class="eyebrow">Entities</p>
           <h2>Organizations</h2>
         </div>
-        <div class="organization-list">
-          {% for organization in organizations %}
-          <a href="{{ organization.website }}">
-            <strong>{{ organization.name }}</strong>
-            <span>{{ organization.full_name }}</span>
-            <span>{{ organization.type }}{% if organization.abbreviation %} · {{ organization.abbreviation }}{% endif %}</span>
-            <span>{% if organization.location.city %}{{ organization.location.city }}, {% endif %}{{ organization.location.country }}</span>
-          </a>
+        <div class="organization-summary">
+          <article>
+            <strong>{{ organization_network.metrics.organizations }}</strong>
+            <span>linked organizations</span>
+          </article>
+          <article>
+            <strong>{{ organization_network.metrics.countries }}</strong>
+            <span>countries</span>
+          </article>
+          <article>
+            <strong>{{ organization_network.metrics.cities }}</strong>
+            <span>cities</span>
+          </article>
+        </div>
+
+        <div class="organization-legend" aria-label="Organization relationship type legend">
+          {% for relationship in organization_network.relationship_types %}
+          <span><i class="rel-{{ relationship.id }}"></i>{{ relationship.label }}</span>
+          {% endfor %}
+        </div>
+
+        <div class="organization-relationship-chart" aria-label="Institutional relationships by type">
+          {% for row in organization_network.rows %}
+          <article class="organization-relationship-row rel-scope-{{ row.id }}">
+            <div class="organization-relationship-heading">
+              <div>
+                <h3>{{ row.label }}</h3>
+                <p>{{ row.total_label }}</p>
+              </div>
+              <span>{{ row.unit }}</span>
+            </div>
+            <div class="relationship-country-track" style="{{ row.track_style }}">
+              {% for country in row.countries %}
+              <section class="relationship-country-slice {{ country.size_class }}" style="{{ country.style }}" title="{{ country.country }} · {{ country.value_label }}">
+                <div class="relationship-country-label">
+                  <strong>{{ country.country }}</strong>
+                  <span>{{ country.value_label }}</span>
+                </div>
+                <div class="relationship-country-bar" aria-hidden="true"></div>
+                <div class="relationship-root-stack" style="{{ country.children_style }}">
+                  {% for node in country.nodes %}
+                  {{ relationship_node(node, row.id) }}
+                  {% endfor %}
+                </div>
+              </section>
+              {% endfor %}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+
+        <p class="organization-note">
+          Each row uses its own unit. Publications are split across the most specific organizations involved in each paper and then propagated through the institutional hierarchy. Certificates-only organizations are omitted.
+        </p>
+
+        <div class="organization-directory">
+          {% for country in organization_network.cards %}
+          <section>
+            <h3>{{ country.country }}</h3>
+            {% for city in country.cities %}
+            <div class="organization-city-group">
+              <h4>{{ city.city }}</h4>
+              <div class="organization-card-grid">
+                {% for organization in city.organizations %}
+                <article class="organization-card depth-{{ organization.depth }}">
+                  <div class="record-topline">
+                    <span>{{ organization.type }}</span>
+                    {% if organization.city %}<time>{{ organization.city }}</time>{% endif %}
+                  </div>
+                  <h3>{% if organization.website %}<a href="{{ organization.website }}">{{ organization.name }}</a>{% else %}{{ organization.name }}{% endif %}</h3>
+                  {% if organization.full_name != organization.name %}<p>{{ organization.full_name }}</p>{% endif %}
+                  <p class="tags">{{ organization.path_label }}</p>
+                  <div class="organization-card-metrics">
+                    {% for metric in organization.metrics %}
+                    <span class="rel-{{ metric.id }}">{{ metric.label }} · {{ metric.value_label }}</span>
+                    {% endfor %}
+                  </div>
+                </article>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </section>
           {% endfor %}
         </div>
       </section>
@@ -707,5 +888,7 @@
     <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
     <script src="assets/collaborations.js"></script>
+    <script src="assets/career-timeline.js"></script>
+    <script src="assets/dissemination.js"></script>
   </body>
 </html>

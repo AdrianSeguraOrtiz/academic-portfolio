@@ -8,6 +8,12 @@ import tomllib
 from academic_portfolio.loader import load_data
 from academic_portfolio.render import render_template
 from academic_portfolio.resolver import PortfolioResolver
+from academic_portfolio.view_records import (
+    attach_related_records,
+    resolved_records,
+    sort_records_by_field,
+    with_resolved_references,
+)
 
 
 @dataclass(frozen=True)
@@ -59,60 +65,60 @@ def build_cv_view(model: CVModel, resolver: PortfolioResolver) -> dict[str, Any]
     loaded_data = resolver.loaded_data
     profile = dict(loaded_data.documents["profile.yaml"])
     profile["current_positions"] = [
-        _with_resolved_references(resolver, record)
+        with_resolved_references(resolver, record)
         for record in resolver.resolve_many(profile.get("current_position_ids", []))
     ]
     profile["current_stays"] = [
-        _with_resolved_references(resolver, record)
+        with_resolved_references(resolver, record)
         for record in resolver.resolve_many(profile.get("current_stay_ids", []))
     ]
 
-    degrees = _records(
+    degrees = resolved_records(
         resolver,
         "career/degrees.yaml",
         "degrees",
         reverse=model.reverse_chronological,
     )
-    experience = _records(
+    experience = resolved_records(
         resolver,
         "career/experience.yaml",
         "positions",
         reverse=model.reverse_chronological,
     )
-    research_stays = _records(
+    research_stays = resolved_records(
         resolver,
         "career/research_stays.yaml",
         "stays",
         reverse=model.reverse_chronological,
     )
-    honors = _records(
+    honors = resolved_records(
         resolver,
         "career/honors.yaml",
         "honors",
         reverse=model.reverse_chronological,
     )
-    grants = _records(
+    grants = resolved_records(
         resolver,
         "career/grants.yaml",
         "grants",
         reverse=model.reverse_chronological,
     )
-    journal_papers = _records(
+    journal_papers = resolved_records(
         resolver,
         "research/publications.yaml",
         "journal_papers",
         reverse=model.reverse_chronological,
     )
-    conference_papers = _records(
+    conference_papers = resolved_records(
         resolver,
         "research/publications.yaml",
         "conference_papers",
         reverse=model.reverse_chronological,
     )
 
-    _attach_related_records(degrees, honors, "degree_ids", "related_honors")
-    _attach_related_records(experience, grants, "position_ids", "related_grants")
-    _attach_related_records(research_stays, grants, "stay_ids", "related_grants")
+    attach_related_records(degrees, honors, "degree_ids", "related_honors")
+    attach_related_records(experience, grants, "position_ids", "related_grants")
+    attach_related_records(research_stays, grants, "stay_ids", "related_grants")
 
     return {
         "model": model,
@@ -120,7 +126,7 @@ def build_cv_view(model: CVModel, resolver: PortfolioResolver) -> dict[str, Any]
         "options": model.options,
         "profile": profile,
         "degrees": degrees,
-        "certifications": _records(
+        "certifications": resolved_records(
             resolver,
             "career/certifications.yaml",
             "certifications",
@@ -134,51 +140,51 @@ def build_cv_view(model: CVModel, resolver: PortfolioResolver) -> dict[str, Any]
             "journal_papers": journal_papers,
             "conference_papers": conference_papers,
         },
-        "publications": _sort_records_by_field(
+        "publications": sort_records_by_field(
             journal_papers + conference_papers,
             "publication_date",
             reverse=model.reverse_chronological,
         ),
-        "software_projects": _records(
+        "software_projects": resolved_records(
             resolver,
             "research/software_projects.yaml",
             "projects",
             reverse=model.reverse_chronological,
         ),
-        "software_packages": _records(
+        "software_packages": resolved_records(
             resolver,
             "research/software_packages.yaml",
             "software_packages",
             reverse=False,
         ),
         "research_projects": {
-            "funded_projects": _records(
+            "funded_projects": resolved_records(
                 resolver,
                 "research/research_projects.yaml",
                 "funded_projects",
                 reverse=model.reverse_chronological,
             )
         },
-        "reviewing": _records(
+        "reviewing": resolved_records(
             resolver,
             "research/reviewing.yaml",
             "reviewing",
             reverse=model.reverse_chronological,
         ),
         "teaching": {
-            "university_classes": _records(
+            "university_classes": resolved_records(
                 resolver,
                 "activities/teaching/university_classes.yaml",
                 "university_classes",
                 reverse=model.reverse_chronological,
             ),
-            "academic_supervision": _records(
+            "academic_supervision": resolved_records(
                 resolver,
                 "activities/teaching/academic_supervision.yaml",
                 "academic_supervision",
                 reverse=model.reverse_chronological,
             ),
-            "teaching_innovation_projects": _records(
+            "teaching_innovation_projects": resolved_records(
                 resolver,
                 "activities/teaching/teaching_innovation_projects.yaml",
                 "teaching_innovation_projects",
@@ -186,31 +192,31 @@ def build_cv_view(model: CVModel, resolver: PortfolioResolver) -> dict[str, Any]
             ),
         },
         "dissemination": {
-            "scientific_articles": _records(
+            "scientific_articles": resolved_records(
                 resolver,
                 "activities/dissemination/scientific_dissemination_articles.yaml",
                 "scientific_dissemination_articles",
                 reverse=model.reverse_chronological,
             ),
-            "presentations": _records(
+            "presentations": resolved_records(
                 resolver,
                 "activities/dissemination/presentations.yaml",
                 "presentations",
                 reverse=model.reverse_chronological,
             ),
-            "press": _records(
+            "press": resolved_records(
                 resolver,
                 "activities/dissemination/press.yaml",
                 "press_items",
                 reverse=model.reverse_chronological,
             ),
-            "social_media": _records(
+            "social_media": resolved_records(
                 resolver,
                 "activities/dissemination/social_media.yaml",
                 "social_media_items",
                 reverse=model.reverse_chronological,
             ),
-            "tv_media": _records(
+            "tv_media": resolved_records(
                 resolver,
                 "activities/dissemination/tv_media.yaml",
                 "tv_items",
@@ -241,50 +247,3 @@ def generate_cv(
     output_path.write_text(content, encoding="utf-8")
 
     return CVOutput(model=cv_model, output_path=output_path, content=content)
-
-
-def _records(
-    resolver: PortfolioResolver,
-    file_path: str,
-    group: str,
-    *,
-    reverse: bool,
-) -> list[dict[str, Any]]:
-    records = [
-        _with_resolved_references(resolver, record)
-        for record in resolver.records_in_group(file_path, group)
-    ]
-    return list(reversed(records)) if reverse else records
-
-
-def _with_resolved_references(
-    resolver: PortfolioResolver,
-    record: dict[str, Any],
-) -> dict[str, Any]:
-    item = dict(record)
-    item["resolved"] = resolver.references_for(record)
-    return item
-
-
-def _attach_related_records(
-    records: list[dict[str, Any]],
-    related_records: list[dict[str, Any]],
-    reference_field: str,
-    target_field: str,
-) -> None:
-    for record in records:
-        record_id = record.get("id")
-        record[target_field] = [
-            related_record
-            for related_record in related_records
-            if record_id and record_id in related_record.get(reference_field, [])
-        ]
-
-
-def _sort_records_by_field(
-    records: list[dict[str, Any]],
-    field: str,
-    *,
-    reverse: bool,
-) -> list[dict[str, Any]]:
-    return sorted(records, key=lambda record: str(record.get(field) or ""), reverse=reverse)
