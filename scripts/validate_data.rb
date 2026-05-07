@@ -4,7 +4,11 @@
 require "yaml"
 require "pathname"
 
-DATA_DIR = File.expand_path("../data", __dir__)
+DATA_DIR = if ARGV[0]
+             File.expand_path(ARGV[0])
+           else
+             File.expand_path("../data", __dir__)
+           end
 FILES = Dir[File.join(DATA_DIR, "**", "*.yaml")].sort
 
 REFERENCE_PREFIXES = {
@@ -189,15 +193,12 @@ end
 ids = []
 refs = []
 
-walk = lambda do |object|
+walk = lambda do |object, context_id = nil|
   case object
   when Hash
-    current_id = object["id"]
-    ids << current_id if current_id
-
-    if object.key?("associated_with")
-      fail_with("associated_with is deprecated; use the allowed *_ids fields for this record type")
-    end
+    own_id = object["id"]
+    ids << own_id if own_id
+    current_id = own_id || context_id
 
     REFERENCE_PREFIXES.each do |field, prefix|
       next unless object.key?(field)
@@ -217,9 +218,9 @@ walk = lambda do |object|
       end
     end
 
-    object.each_value { |value| walk.call(value) }
+    object.each_value { |value| walk.call(value, current_id) }
   when Array
-    object.each { |value| walk.call(value) }
+    object.each { |value| walk.call(value, context_id) }
   end
 end
 

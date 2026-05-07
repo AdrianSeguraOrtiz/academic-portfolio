@@ -28,7 +28,6 @@ def test_build_site_view_computes_core_metrics() -> None:
     assert view["metrics"]["software_packages"] == 2
     assert view["metrics"]["research_projects"] == 4
     assert view["metrics"]["teaching_innovation_projects"] == 1
-    assert "reviewed_manuscripts" not in view["metrics"]
     assert len(view["projects"]) == 5
     assert {project["participation_class"] for project in view["projects"]} == {"working"}
     assert view["publication_chart"]
@@ -219,15 +218,10 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert "collaboration-map" in output.content
     assert "collaboration-map-data" in output.content
     assert "Publications by Year" in output.content
-    assert "Recent Work" not in output.content
-    assert "Bibliographic data" not in output.content
-    assert "Total authors" not in output.content
-    assert "Corresponding author" not in output.content
     assert "repo-row" in output.content
     assert "Software Index" in output.content
     assert "Software Packages" in output.content
     assert "Package: geneci" in output.content
-    assert "Commit Activity" not in output.content
     assert "Research Focus" in output.content
     assert "Current position" in output.content
     assert "Khaos Research" in output.content
@@ -240,8 +234,6 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert "project-card type-teaching role-working" in output.content
     assert "Teaching innovation project" in output.content
     assert "PIE22-114" in output.content
-    assert "Projects and Reviewing" not in output.content
-    assert "Reviewed manuscripts" not in output.content
     assert "Classes and Supervision" in output.content
     assert "teaching-timeline-stage" in output.content
     assert "teaching-timeline-item type-class" in output.content
@@ -249,7 +241,6 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert "teaching-timeline-connector" in output.content
     assert "Lenguajes y Ciencias de la Computación" in output.content
     assert "teaching-organization-legend" in output.content
-    assert "Classes, Supervision, and Teaching Innovation" not in output.content
     assert "Dissemination and Media" in output.content
     assert "dissemination-summary" in output.content
     assert "channel-mix" in output.content

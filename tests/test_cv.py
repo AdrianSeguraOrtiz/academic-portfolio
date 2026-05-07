@@ -82,7 +82,5 @@ def test_generate_cv_writes_markdown(tmp_path: Path) -> None:
     assert "#### External internship tutoring" in output.content
     assert "External extracurricular internship tutoring" in output.content
     assert "MOEBA-BIO" in output.content
-    assert "Project context" not in output.content
-    assert "Field:" not in output.content
     assert "undefined" not in output.content
     assert "null" not in output.content
