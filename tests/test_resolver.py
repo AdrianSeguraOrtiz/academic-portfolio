@@ -39,6 +39,15 @@ def test_resolver_resolves_publication_relationships() -> None:
     assert "organization_11" in [record["id"] for record in references["organization_ids"]]
 
 
+def test_resolver_resolves_parent_organization_relationships() -> None:
+    resolver = PortfolioResolver(load_data(Path("data")))
+    organization = resolver.resolve("organization_03")
+
+    references = resolver.references_for(organization)
+
+    assert [record["id"] for record in references["parent_organization_id"]] == ["organization_06"]
+
+
 def test_resolver_resolves_research_stay_grants() -> None:
     resolver = PortfolioResolver(load_data(Path("data")))
     stay = resolver.resolve("stay_01")

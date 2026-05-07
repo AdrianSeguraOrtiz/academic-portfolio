@@ -4,6 +4,7 @@ organizations:
   full_name: Universidad de Málaga
   abbreviation: UMA
   type: University
+  parent_organization_id: null
   location:
     city: Málaga
     country: Spain
@@ -16,6 +17,7 @@ organizations:
   full_name: Laboratorio de Biología Molecular del Cáncer
   abbreviation: LBMC
   type: Laboratory
+  parent_organization_id: organization_12
   location:
     city: Málaga
     country: Spain
@@ -28,6 +30,7 @@ organizations:
   full_name: Khaos Research Group
   abbreviation: null
   type: Research group
+  parent_organization_id: organization_06
   location:
     city: Málaga
     country: Spain
@@ -40,6 +43,7 @@ organizations:
   full_name: Université de Lille
   abbreviation: ULille
   type: University
+  parent_organization_id: null
   location:
     city: Lille
     country: France
@@ -52,6 +56,7 @@ organizations:
   full_name: Athena Research and Innovation Center in Information, Communication and Knowledge Technologies
   abbreviation: Athena RC
   type: Research center
+  parent_organization_id: null
   location:
     city: Marousi
     country: Greece
@@ -64,6 +69,7 @@ organizations:
   full_name: Instituto de Tecnología e Ingeniería del Software "José María Troya Linero"
   abbreviation: ITIS
   type: Research institute
+  parent_organization_id: organization_01
   location:
     city: Málaga
     country: Spain
@@ -76,6 +82,7 @@ organizations:
   full_name: Instituto de Investigación Biomédica de Málaga y Plataforma en Nanomedicina
   abbreviation: IBIMA
   type: Health research institute
+  parent_organization_id: organization_01
   location:
     city: Málaga
     country: Spain
@@ -88,6 +95,7 @@ organizations:
   full_name: Centre de Recherche en Informatique, Signal et Automatique de Lille
   abbreviation: CRIStAL
   type: Research laboratory
+  parent_organization_id: organization_04
   location:
     city: Lille
     country: France
@@ -100,6 +108,7 @@ organizations:
   full_name: Institute for Translational Research in Inflammation
   abbreviation: INFINITE
   type: Research unit
+  parent_organization_id: organization_04
   location:
     city: Lille
     country: France
@@ -112,6 +121,7 @@ organizations:
   full_name: Universidad Católica de Valencia San Vicente Mártir
   abbreviation: UCV
   type: University
+  parent_organization_id: null
   location:
     city: Valencia
     country: Spain
@@ -124,6 +134,7 @@ organizations:
   full_name: Operational Research, Knowledge And Data
   abbreviation: ORKAD
   type: Research team
+  parent_organization_id: organization_08
   location:
     city: Lille
     country: France
@@ -136,6 +147,7 @@ organizations:
   full_name: Centro de Investigaciones Médico-Sanitarias
   abbreviation: CIMES
   type: Biomedical research center
+  parent_organization_id: organization_01
   location:
     city: Málaga
     country: Spain
@@ -148,6 +160,7 @@ organizations:
   full_name: University of Cambridge
   abbreviation: null
   type: University
+  parent_organization_id: null
   location:
     city: Cambridge
     country: United Kingdom
@@ -160,6 +173,7 @@ organizations:
   full_name: Escuela Superior de Estudios de Empresa
   abbreviation: ESESA
   type: Business school
+  parent_organization_id: null
   location:
     city: Málaga
     country: Spain
@@ -172,6 +186,7 @@ organizations:
   full_name: International Mentoring Foundation for the Advancement of Higher Education
   abbreviation: IMFAHE
   type: Foundation
+  parent_organization_id: null
   location:
     city: null
     country: United States

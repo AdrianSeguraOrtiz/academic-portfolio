@@ -51,6 +51,7 @@ name: Universidad de Málaga
 full_name: Universidad de Málaga
 abbreviation: UMA
 type: University
+parent_organization_id: null
 location:
   city: Málaga
   country: Spain
@@ -63,6 +64,10 @@ website: https://www.uma.es/
 `location.coordinates` stores decimal latitude and longitude when the location is
 known. Site generators use these coordinates for collaboration map views; leave
 both values as `null` only when the organization location is not specific enough.
+
+`parent_organization_id` stores institutional containment, such as a research
+group belonging to an institute or a laboratory belonging to a university. Use
+`null` for root organizations.
 
 ## IDs
 
@@ -103,6 +108,7 @@ Allowed relationship fields are intentionally limited by record type:
 
 | File / group | Allowed relationship fields |
 | --- | --- |
+| `entities/organizations.yaml` / `organizations` | `parent_organization_id` |
 | `activities/dissemination/press.yaml` / `press_items` | `publication_ids` |
 | `activities/dissemination/social_media.yaml` / `social_media_items` | `publication_ids` |
 | `activities/dissemination/tv_media.yaml` / `tv_items` | `publication_ids` |

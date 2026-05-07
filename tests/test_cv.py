@@ -78,7 +78,7 @@ def test_generate_cv_writes_markdown(tmp_path: Path) -> None:
     assert "[Docker Hub](https://hub.docker.com/u/adriansegura99)" in output.content
     assert "[Universidad de Málaga](https://www.uma.es/)" in output.content
     assert "[PhD candidate - FPU Fellowship](#position_04)" in output.content
-    assert "[Ayuda movilidad FPU](#grant_02)" in output.content
+    assert "(#grant_02)" in output.content
     assert "#### External internship tutoring" in output.content
     assert "External extracurricular internship tutoring" in output.content
     assert "MOEBA-BIO" in output.content

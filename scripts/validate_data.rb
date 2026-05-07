@@ -9,6 +9,7 @@ FILES = Dir[File.join(DATA_DIR, "**", "*.yaml")].sort
 
 REFERENCE_PREFIXES = {
   "organization_ids" => "organization_",
+  "parent_organization_id" => "organization_",
   "degree_ids" => "degree_",
   "position_ids" => "position_",
   "current_position_ids" => "position_",
@@ -27,6 +28,11 @@ REFERENCE_PREFIXES = {
 }.freeze
 
 GROUP_REFERENCE_FIELDS = {
+  "entities/organizations.yaml" => {
+    "organizations" => %w[
+      parent_organization_id
+    ]
+  },
   "activities/dissemination/scientific_dissemination_articles.yaml" => {
     "scientific_dissemination_articles" => %w[
       publication_ids software_package_ids

@@ -1,7 +1,6 @@
 grants:
 - id: grant_01
-  name: Predoctoral grant (Formación del Profesorado Universitario - University Faculty
-    Training)
+  name: Predoctoral grant (FPU)
   awarding_entity: Ministry of Science, Innovation and Universities
   awarding_entity_type: Public
   position_ids:
@@ -15,7 +14,7 @@ grants:
   notes: Merit-based grant supporting doctoral research and its postdoctoral orientation
     phase.
 - id: grant_02
-  name: Ayuda movilidad FPU
+  name: FPU mobility grant
   awarding_entity: Ministerio de Ciencia e Innovación. Universidades
   awarding_entity_type: Public
   position_ids: []

@@ -10,6 +10,7 @@ from academic_portfolio.loader import LoadedData, load_data
 
 REFERENCE_PREFIXES = {
     "organization_ids": "organization_",
+    "parent_organization_id": "organization_",
     "degree_ids": "degree_",
     "position_ids": "position_",
     "current_position_ids": "position_",
