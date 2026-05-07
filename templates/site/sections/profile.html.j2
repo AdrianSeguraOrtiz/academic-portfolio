@@ -1,0 +1,50 @@
+{% import "macros/common.html.j2" as common %}
+<section class="hero" id="profile">
+  <div class="hero-copy">
+    <p class="eyebrow">Academic Portfolio</p>
+    <h1>{{ profile.person.full_name }}</h1>
+    <p class="lead">{{ profile.research_profile.summary }}</p>
+
+    <div class="current-activity" aria-label="Current activity">
+      {% for position in profile.current_positions %}
+      <article class="current-card">
+        <span>Current position</span>
+        <strong>{{ position.title }}</strong>
+        <p>{{ common.org_links(position) }}{% if common.date_span(position) %} · {{ common.date_span(position) }}{% endif %}</p>
+      </article>
+      {% endfor %}
+      {% for stay in profile.current_stays %}
+      <article class="current-card">
+        <span>Current stay</span>
+        <strong>{{ stay.title }}</strong>
+        <p>{{ common.org_links(stay) }}{% if common.date_span(stay) %} · {{ common.date_span(stay) }}{% endif %}</p>
+      </article>
+      {% endfor %}
+    </div>
+
+    <div class="profile-links" aria-label="Profile links">
+      {% if profile.person.identifiers.orcid %}
+      <a href="https://orcid.org/{{ profile.person.identifiers.orcid }}">ORCID</a>
+      {% endif %}
+      {% if profile.links.linkedin %}
+      <a href="{{ profile.links.linkedin }}">LinkedIn</a>
+      {% endif %}
+      {% if profile.links.github %}
+      <a href="{{ profile.links.github }}">GitHub</a>
+      {% endif %}
+      {% if profile.links.docker_hub %}
+      <a href="{{ profile.links.docker_hub }}">Docker Hub</a>
+      {% endif %}
+      <a href="mailto:{{ profile.contact.email }}">{{ profile.contact.email }}</a>
+    </div>
+  </div>
+
+  <aside class="hero-panel" aria-label="Research focus">
+    <h2>Research Focus</h2>
+    <div class="focus-list">
+      {% for area in research_focus %}
+      <span>{{ area }}</span>
+      {% endfor %}
+    </div>
+  </aside>
+</section>

@@ -1,0 +1,30 @@
+{% import "macros/common.html.j2" as common %}
+<section class="content-section" id="publications">
+  {{ common.section_heading("Research Output", "Publications") }}
+  <div class="chart-card publication-chart-card">
+    {{ common.section_heading("Output", "Publications by Year", compact=true) }}
+    <div class="chart-legend">
+      <span><i class="kind-dot journal"></i> Journal paper</span>
+      <span><i class="kind-dot conference"></i> Conference paper</span>
+    </div>
+    <div class="bar-chart" aria-label="Publications by year">
+      {% for item in publication_chart %}
+      <div class="bar-item">
+        <div class="bar-track">
+          <div class="bar-stack" style="height: {{ item.height }}%">
+            <span class="bar-segment journal" style="height: {{ item.journal_share }}%"></span>
+            <span class="bar-segment conference" style="height: {{ item.conference_share }}%"></span>
+          </div>
+        </div>
+        <strong>{{ item.total }}</strong>
+        <span>{{ item.year }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="record-grid">
+    {% for publication in publications %}
+    {{ common.publication_card(publication) }}
+    {% endfor %}
+  </div>
+</section>

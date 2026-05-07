@@ -1,0 +1,89 @@
+{% import "macros/common.html.j2" as common %}
+<section class="content-section" id="organizations">
+  {{ common.section_heading("Entities", "Organizations") }}
+  <div class="organization-summary">
+    <article>
+      <strong>{{ organization_network.metrics.organizations }}</strong>
+      <span>linked organizations</span>
+    </article>
+    <article>
+      <strong>{{ organization_network.metrics.countries }}</strong>
+      <span>countries</span>
+    </article>
+    <article>
+      <strong>{{ organization_network.metrics.cities }}</strong>
+      <span>cities</span>
+    </article>
+  </div>
+
+  <div class="organization-legend" aria-label="Organization relationship type legend">
+    {% for relationship in organization_network.relationship_types %}
+    <span><i class="rel-{{ relationship.id }}"></i>{{ relationship.label }}</span>
+    {% endfor %}
+  </div>
+
+  <div class="organization-relationship-chart" aria-label="Institutional relationships by type">
+    {% for row in organization_network.rows %}
+    <article class="organization-relationship-row rel-scope-{{ row.id }}">
+      <div class="organization-relationship-heading">
+        <div>
+          <h3>{{ row.label }}</h3>
+          <p>{{ row.total_label }}</p>
+        </div>
+        <span>{{ row.unit }}</span>
+      </div>
+      <div class="relationship-country-track" style="{{ row.track_style }}">
+        {% for country in row.countries %}
+        <section class="relationship-country-slice {{ country.size_class }}" style="{{ country.style }}" title="{{ country.country }} · {{ country.value_label }}">
+          <div class="relationship-country-label">
+            <strong>{{ country.country }}</strong>
+            <span>{{ country.value_label }}</span>
+          </div>
+          <div class="relationship-country-bar" aria-hidden="true"></div>
+          <div class="relationship-root-stack" style="{{ country.children_style }}">
+            {% for node in country.nodes %}
+            {{ common.relationship_node(node, row.id) }}
+            {% endfor %}
+          </div>
+        </section>
+        {% endfor %}
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  <p class="organization-note">
+    Each row uses its own unit. Publications are split across the most specific organizations involved in each paper and then propagated through the institutional hierarchy. Certificates-only organizations are omitted.
+  </p>
+
+  <div class="organization-directory">
+    {% for country in organization_network.cards %}
+    <section>
+      <h3>{{ country.country }}</h3>
+      {% for city in country.cities %}
+      <div class="organization-city-group">
+        <h4>{{ city.city }}</h4>
+        <div class="organization-card-grid">
+          {% for organization in city.organizations %}
+          <article class="organization-card depth-{{ organization.depth }}">
+            <div class="record-topline">
+              <span>{{ organization.type }}</span>
+              {% if organization.city %}<time>{{ organization.city }}</time>{% endif %}
+            </div>
+            <h3>{% if organization.website %}<a href="{{ organization.website }}">{{ organization.name }}</a>{% else %}{{ organization.name }}{% endif %}</h3>
+            {% if organization.full_name != organization.name %}<p>{{ organization.full_name }}</p>{% endif %}
+            <p class="tags">{{ organization.path_label }}</p>
+            <div class="organization-card-metrics">
+              {% for metric in organization.metrics %}
+              <span class="rel-{{ metric.id }}">{{ metric.label }} · {{ metric.value_label }}</span>
+              {% endfor %}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </section>
+    {% endfor %}
+  </div>
+</section>

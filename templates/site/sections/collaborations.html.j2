@@ -1,0 +1,36 @@
+{% import "macros/common.html.j2" as common %}
+<section class="content-section" id="collaborations">
+  {{ common.section_heading("Collaborations", "Research Stays and Publication Cities") }}
+  <div class="collaboration-layout">
+    <article class="collaboration-map-card">
+      <div class="collaboration-map" data-collaboration-map role="img" aria-label="World map of research stays and publication collaborations">
+        <span class="map-loading">Loading world map</span>
+      </div>
+      <div class="map-legend" aria-label="Map legend">
+        <span><i class="legend-publication"></i> Publication city</span>
+        <span><i class="legend-stay"></i> Research stay</span>
+      </div>
+      <script type="application/json" id="collaboration-map-data">{{ collaborations.map_data | tojson }}</script>
+    </article>
+
+    <aside class="collaboration-panel">
+      <div class="collaboration-metric-block">
+        <h3>Publications</h3>
+        <div class="collaboration-metrics">
+          <div><strong>{{ collaborations.metrics.total_papers }}</strong><span>Total papers</span></div>
+          <div><strong>{{ collaborations.metrics.international_papers }}</strong><span>International papers</span></div>
+          <div><strong>{{ collaborations.metrics.publication_countries }}</strong><span>Countries in papers</span></div>
+        </div>
+      </div>
+      <div class="collaboration-metric-block">
+        <h3>Research Stays</h3>
+        <div class="collaboration-metrics">
+          <div><strong>{{ collaborations.metrics.stay_cities }}</strong><span>Cities</span></div>
+          <div><strong>{{ collaborations.metrics.stay_countries }}</strong><span>Countries</span></div>
+          <div><strong>{{ collaborations.metrics.research_stays }}</strong><span>Stays</span></div>
+          <div><strong>{{ collaborations.metrics.stay_months }}</strong><span>Months abroad</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>

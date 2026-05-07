@@ -1,0 +1,46 @@
+{% import "macros/common.html.j2" as common %}
+<section class="section overview" id="overview">
+  <div class="overview-copy">
+    {{ common.section_heading("At a Glance", "Research, Software, Teaching, and Dissemination") }}
+
+    <div class="narrative">
+      <p>
+        My research activity is focused on artificial intelligence and bioinformatics,
+        with particular attention to gene regulatory network inference, evolutionary
+        biclustering, biomedical data analysis, and the integration of domain knowledge
+        into computational methods. This work has resulted in
+        <strong>{{ metrics.journal_papers }} journal papers</strong> and
+        <strong>{{ metrics.conference_papers }} conference paper</strong>, supported by
+        open research software and reproducible computational assets.
+      </p>
+      <p>
+        The technological output of this portfolio includes
+        <strong>{{ metrics.software_projects }} software projects</strong> and
+        <strong>{{ metrics.software_packages }} software packages</strong>. Scientific
+        dissemination includes <strong>{{ metrics.scientific_dissemination_articles }}
+        scientific dissemination articles</strong>, <strong>{{ metrics.presentations }}
+        presentations</strong>, <strong>{{ metrics.press_items }} press items</strong>,
+        <strong>{{ metrics.social_media_items }} social media items</strong>, and
+        <strong>{{ metrics.tv_media_items }} TV media item</strong>.
+      </p>
+      <p>
+        Teaching activity includes <strong>{{ metrics.courses }} university courses</strong>
+        and <strong>{{ metrics.supervisions }} academic supervision activities</strong>.
+        The academic trajectory includes <strong>{{ metrics.honors }} honors</strong>,
+        <strong>{{ metrics.grants }} grants</strong>, and
+        <strong>{{ metrics.research_stays }} international research stays</strong>.
+      </p>
+    </div>
+  </div>
+
+  <aside class="metric-grid" aria-label="Portfolio metrics">
+    <article class="metric-card"><strong>{{ metrics.journal_papers }}</strong><span>Journal papers</span></article>
+    <article class="metric-card"><strong>{{ metrics.conference_papers }}</strong><span>Conference papers</span></article>
+    <article class="metric-card"><strong>{{ metrics.software_projects }}</strong><span>Software projects</span></article>
+    <article class="metric-card"><strong>{{ metrics.software_packages }}</strong><span>Software packages</span></article>
+    <article class="metric-card"><strong>{{ metrics.courses }}</strong><span>Courses taught</span></article>
+    <article class="metric-card"><strong>{{ metrics.projects }}</strong><span>Projects</span></article>
+    <article class="metric-card"><strong>{{ metrics.press_items }}</strong><span>Press items</span></article>
+    <article class="metric-card"><strong>{{ metrics.social_media_items }}</strong><span>Social media items</span></article>
+  </aside>
+</section>

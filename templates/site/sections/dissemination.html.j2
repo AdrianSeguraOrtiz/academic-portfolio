@@ -1,0 +1,61 @@
+{% import "macros/common.html.j2" as common %}
+<section class="content-section" id="dissemination">
+  {{ common.section_heading("Knowledge Transfer", "Dissemination and Media") }}
+  <div class="dissemination-summary">
+    <article class="dissemination-total">
+      <strong>{{ dissemination_hub.total }}</strong>
+      <span>Total dissemination items</span>
+    </article>
+    <div class="channel-mix" aria-label="Dissemination channel mix">
+      {% for category in dissemination_hub.categories %}
+      <div class="channel-row category-{{ category.id }}">
+        <span>{{ category.label }}</span>
+        <div class="channel-track"><i style="width: {{ category.share }}%"></i></div>
+        <strong>{{ category.count }}</strong>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="dissemination-filters" data-dissemination-filters aria-label="Dissemination filters">
+    <button type="button" class="active" data-filter="all" aria-pressed="true">All</button>
+    {% for category in dissemination_hub.categories %}
+    <button type="button" class="category-{{ category.id }}" data-filter="{{ category.id }}" aria-pressed="false">{{ category.label }}</button>
+    {% endfor %}
+  </div>
+
+  <div class="dissemination-layout">
+    <aside class="publication-impact">
+      <h3>By Research Output</h3>
+      <div class="publication-impact-list">
+        {% for group in dissemination_hub.publication_groups %}
+        <article>
+          <strong>{% if group.publication.url %}<a href="{{ group.publication.url }}">{{ group.publication | record_name }}</a>{% else %}{{ group.publication | record_name }}{% endif %}</strong>
+          <div class="impact-badges">
+            {% for badge in group.badges %}
+            <span class="category-{{ badge.category }}">{{ badge.count }} {{ badge.label }}</span>
+            {% endfor %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </aside>
+
+    <div class="media-grid" data-dissemination-items>
+      {% for item in dissemination_hub["items"] %}
+      <article class="media-card category-{{ item.category }}" data-category="{{ item.category }}">
+        <div class="record-topline">
+          <span>{{ item.type_label }}</span>
+          {% if item.date_label %}<time>{{ item.date_label }}</time>{% endif %}
+        </div>
+        <h3>{% if item.url %}<a href="{{ item.url }}">{{ item.display_title }}</a>{% else %}{{ item.display_title }}{% endif %}</h3>
+        {% if item.source %}<p class="media-source">{{ item.source }}</p>{% endif %}
+        {% for line in item.detail_lines %}<p>{{ line }}</p>{% endfor %}
+        {% if item.description and item.description != item.display_title %}<p>{{ item.description }}</p>{% endif %}
+        {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ common.linked_records(item.resolved.publication_ids) }}</p>{% endif %}
+        {% if item.get("resolved", {}).get("software_package_ids", []) %}<p class="tags">Software packages: {{ common.linked_records(item.resolved.software_package_ids) }}</p>{% endif %}
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>

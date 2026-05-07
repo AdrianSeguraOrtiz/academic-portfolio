@@ -1,0 +1,69 @@
+{% macro org_links(record) -%}
+  {%- for organization in record.get("resolved", {}).get("organization_ids", []) -%}
+    <a href="{{ organization.website }}">{{ organization.name }}</a>{% if not loop.last %}, {% endif %}
+  {%- endfor -%}
+{%- endmacro %}
+
+{% macro date_span(record) -%}
+  {%- if record.get("start_date") or record.get("end_date") -%}
+    {{ record.get("start_date") | date_range(record.get("end_date")) }}
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro linked_records(records) -%}
+  {%- for record in records -%}
+    {%- set url = record.get("url") or record.get("website") or record.get("urls", {}).get("github") -%}
+    {%- if url -%}<a href="{{ url }}">{{ record | record_name }}</a>{%- else -%}{{ record | record_name }}{%- endif -%}{% if not loop.last %}, {% endif %}
+  {%- endfor -%}
+{%- endmacro %}
+
+{% macro section_heading(eyebrow, title, compact=false) %}
+<div class="section-heading{% if compact %} compact{% endif %}">
+  <p class="eyebrow">{{ eyebrow }}</p>
+  <h2>{{ title }}</h2>
+</div>
+{% endmacro %}
+
+{% macro relationship_node(node, relationship_id) %}
+<article class="relationship-node depth-{{ node.depth }} rel-scope-{{ relationship_id }} {{ node.size_class }}" style="{{ node.style }}" title="{{ node.tooltip }}">
+  <div class="relationship-node-label">
+    {% if node.website %}<a href="{{ node.website }}">{{ node.label }}</a>{% else %}<span>{{ node.label }}</span>{% endif %}
+    <small>{{ node.value_label }}</small>
+  </div>
+  <div class="relationship-node-bar" aria-hidden="true"></div>
+  {% if node.children %}
+  <div class="relationship-child-stack" style="{{ node.children_style }}">
+    {% for child in node.children %}
+    {{ relationship_node(child, relationship_id) }}
+    {% endfor %}
+  </div>
+  {% endif %}
+</article>
+{% endmacro %}
+
+{% macro publication_card(publication) %}
+<article class="record-card">
+  <div class="record-topline">
+    <span class="kind-dot {{ publication.publication_kind }}"></span>
+    <span>{{ "Journal paper" if publication.publication_kind == "journal" else "Conference paper" }}</span>
+    {% if publication.publication_date %}<time>{{ publication.publication_date }}</time>{% endif %}
+  </div>
+  <h3><a href="{{ publication.url }}">{{ publication.title }}</a></h3>
+  <p>{{ publication.authors | join(", ") }}</p>
+  <p><strong>{{ publication.venue }}</strong>{% if publication.publisher %} · {{ publication.publisher }}{% endif %}</p>
+  <ul class="meta-list">
+    {% if publication.doi %}<li>DOI: <a href="{{ publication.url }}">{{ publication.doi }}</a></li>{% endif %}
+    {% if publication.get("resolved", {}).get("organization_ids", []) %}<li>Organizations: {{ org_links(publication) }}</li>{% endif %}
+    {% if publication.get("resolved", {}).get("position_ids", []) %}<li>Positions: {{ linked_records(publication.resolved.position_ids) }}</li>{% endif %}
+    {% if publication.get("resolved", {}).get("stay_ids", []) %}<li>Research stays: {{ linked_records(publication.resolved.stay_ids) }}</li>{% endif %}
+    {% if publication.get("resolved", {}).get("grant_ids", []) %}<li>Grants: {{ linked_records(publication.resolved.grant_ids) }}</li>{% endif %}
+    {% if publication.get("resolved", {}).get("software_project_ids", []) %}
+    <li>Software:
+      {% for software in publication.resolved.software_project_ids %}
+      <a href="{{ software.urls.github }}">{{ software.name }}</a>{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </li>
+    {% endif %}
+  </ul>
+</article>
+{% endmacro %}

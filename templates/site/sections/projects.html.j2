@@ -1,0 +1,28 @@
+{% import "macros/common.html.j2" as common %}
+<section class="content-section" id="research-projects">
+  {{ common.section_heading("Projects", "Research and Teaching Innovation Projects") }}
+  <div class="project-role-legend" aria-label="Project role legend">
+    <span><i class="role-working"></i> Working team member</span>
+    <span><i class="role-research"></i> Research team member</span>
+    <span><i class="role-lead"></i> PI / Co-PI</span>
+  </div>
+  <div class="project-grid">
+    {% for project in projects %}
+    <article class="project-card type-{{ project.project_type }} role-{{ project.participation_class }}">
+      <div class="record-topline project-topline">
+        <span class="project-type-label">{{ project.project_type_label }}</span>
+        {% if project.get("code") %}<span>{{ project.code }}</span>{% endif %}
+        {% if common.date_span(project) %}<time>{{ common.date_span(project) }}</time>{% endif %}
+      </div>
+      <h3>{{ project.display_title }}</h3>
+      <p>{{ common.org_links(project) }}</p>
+      {% if project.get("principal_investigators") %}<p>Principal investigators: {{ project.principal_investigators | join(", ") }}</p>{% endif %}
+      <ul class="meta-list">
+        {% if project.project_funders %}<li>Funders: {{ project.project_funders | join(", ") }}</li>{% endif %}
+        {% if project.get("participation") %}<li>Participation: {{ project.participation }}</li>{% endif %}
+        {% if project.get("total_amount_eur") %}<li>Total amount: {{ project.total_amount_eur }} EUR</li>{% endif %}
+      </ul>
+    </article>
+    {% endfor %}
+  </div>
+</section>

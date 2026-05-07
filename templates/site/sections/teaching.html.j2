@@ -1,0 +1,38 @@
+{% import "macros/common.html.j2" as common %}
+<section class="content-section" id="teaching">
+  {{ common.section_heading("Teaching", "Classes and Supervision") }}
+  <div class="teaching-layout">
+    <article class="teaching-timeline-card">
+      <div class="teaching-timeline-legends">
+        <div class="teaching-organization-legend" aria-label="Teaching organization color legend">
+          {% for organization in teaching_timeline.legend %}
+          <span><i style="--org-color: {{ organization.color }}"></i>{{ organization.label }}</span>
+          {% endfor %}
+        </div>
+        <div class="teaching-type-legend" aria-label="Teaching item type legend">
+          <span><i class="type-class"></i> Class</span>
+          <span><i class="type-supervision"></i> Supervision</span>
+        </div>
+      </div>
+      <div class="teaching-timeline-scroll">
+        <div class="teaching-timeline-stage" style="{{ teaching_timeline.axis_style }}">
+          <div class="teaching-axis"></div>
+          {% for tick in teaching_timeline.year_ticks %}
+          <span class="teaching-year-tick" style="--tick-top: {{ tick.top }}px">{{ tick.year }}</span>
+          {% endfor %}
+          {% for event in teaching_timeline.events %}
+          <span class="teaching-timeline-connector side-{{ event.side }}" style="{{ event.connector_style }}"></span>
+          <article class="teaching-timeline-item type-{{ event.type }} side-{{ event.side }}" style="{{ event.style }}">
+            <div class="teaching-event-kind">{{ event.type_label }}</div>
+            <h3>{% if event.url %}<a href="{{ event.url }}">{{ event.title }}</a>{% else %}{{ event.title }}{% endif %}</h3>
+            <p>{{ event.subtitle }}</p>
+            {% for detail in event.detail_lines %}<p>{{ detail }}</p>{% endfor %}
+            {% if event.repository_url %}<p><a href="{{ event.repository_url }}">Repository</a></p>{% endif %}
+            <time>{{ event.date_label }}</time>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
