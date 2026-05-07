@@ -10,9 +10,9 @@ from academic_portfolio.render import render_template
 from academic_portfolio.resolver import PortfolioResolver
 from academic_portfolio.view_records import (
     attach_related_records,
+    profile_with_current_activity,
     resolved_records,
     sort_records_by_field,
-    with_resolved_references,
 )
 
 
@@ -62,16 +62,7 @@ def model_path_for(model: str, model_dir: Path | str = "cv_models") -> Path:
 
 
 def build_cv_view(model: CVModel, resolver: PortfolioResolver) -> dict[str, Any]:
-    loaded_data = resolver.loaded_data
-    profile = dict(loaded_data.documents["profile.yaml"])
-    profile["current_positions"] = [
-        with_resolved_references(resolver, record)
-        for record in resolver.resolve_many(profile.get("current_position_ids", []))
-    ]
-    profile["current_stays"] = [
-        with_resolved_references(resolver, record)
-        for record in resolver.resolve_many(profile.get("current_stay_ids", []))
-    ]
+    profile = profile_with_current_activity(resolver)
 
     degrees = resolved_records(
         resolver,
