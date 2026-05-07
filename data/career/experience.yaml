@@ -1,8 +1,6 @@
 positions:
 - id: position_01
   title: Student Trainee
-  institution: Laboratorio de Biología Molecular del Cáncer (CIMES)
-  institution_type: Laboratory
   organization_ids:
   - organization_02
   - organization_12
@@ -25,8 +23,6 @@ positions:
   - Detected copy number alterations and gene fusions with unified R reporting.
 - id: position_02
   title: Junior Software Engineer
-  institution: Khaos Research
-  institution_type: Research group
   organization_ids:
   - organization_03
   department: null
@@ -48,8 +44,6 @@ positions:
   - Managed project tasks and coordination through OpenProject.
 - id: position_03
   title: Associate Software Engineer
-  institution: Khaos Research
-  institution_type: Research group
   organization_ids:
   - organization_03
   department: null
@@ -73,8 +67,6 @@ positions:
     workflows.
 - id: position_04
   title: PhD candidate - FPU Fellowship
-  institution: Universidad de Málaga
-  institution_type: University
   organization_ids:
   - organization_01
   department: Lenguajes y Ciencias de la Computación (LCC)
@@ -99,8 +91,6 @@ positions:
   - Supervised 1 Bachelor's thesis and 1 external internship.
 - id: position_05
   title: Associate Team Coordinator
-  institution: Khaos Research
-  institution_type: Research group
   organization_ids:
   - organization_03
   department: null
@@ -114,8 +104,6 @@ positions:
   tasks: []
 - id: position_06
   title: Postdoctoral researcher - FPU-POP Fellowship
-  institution: Universidad de Málaga
-  institution_type: University
   organization_ids:
   - organization_01
   department: Lenguajes y Ciencias de la Computación (LCC)

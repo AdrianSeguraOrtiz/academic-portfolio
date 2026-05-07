@@ -49,7 +49,7 @@ def compact_unique(values: Sequence[Any] | None) -> list[str]:
 
 
 def record_name(record: Mapping[str, Any]) -> str:
-    for field in ("name", "title", "journal", "program", "event", "full_name", "institution"):
+    for field in ("name", "title", "journal", "program", "event", "full_name"):
         value = record.get(field)
         if value:
             return str(value)

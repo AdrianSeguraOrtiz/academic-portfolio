@@ -3,8 +3,6 @@ university_classes:
   name: Bases de Datos
   degree: Grado en Ingeniería de la Salud
   academic_year: 2022/2023
-  institution: Universidad de Málaga
-  institution_type: University
   department: Lenguajes y Ciencias de la Computación (LCC)
   start_date: '2023-01-30'
   end_date: '2023-05-22'
@@ -14,8 +12,6 @@ university_classes:
   name: Informática
   degree: Grado en Biología
   academic_year: 2023/2024
-  institution: Universidad de Málaga
-  institution_type: University
   department: Lenguajes y Ciencias de la Computación (LCC)
   start_date: '2023-09-11'
   end_date: '2023-12-22'
@@ -25,8 +21,6 @@ university_classes:
   name: Estándares de Datos
   degree: Grado en Ingeniería de la Salud, Mención Bioinformática
   academic_year: 2023/2024
-  institution: Universidad de Málaga
-  institution_type: University
   department: Lenguajes y Ciencias de la Computación (LCC)
   start_date: '2023-09-12'
   end_date: '2023-12-22'
@@ -36,8 +30,6 @@ university_classes:
   name: Análisis y Diseño de Algoritmos
   degree: Grado en Ingeniería Informática
   academic_year: 2024/2025
-  institution: Universidad de Málaga
-  institution_type: University
   department: Lenguajes y Ciencias de la Computación (LCC)
   start_date: '2024-09-10'
   end_date: '2024-12-20'
@@ -47,8 +39,6 @@ university_classes:
   name: Análisis y Diseño de Algoritmos
   degree: Grado en Ingeniería del Software
   academic_year: 2024/2025
-  institution: Universidad de Málaga
-  institution_type: University
   department: Lenguajes y Ciencias de la Computación (LCC)
   start_date: '2024-09-10'
   end_date: '2024-12-20'
@@ -58,8 +48,6 @@ university_classes:
   name: Diseño y Explotación de Almacenes de Datos
   degree: Grado en Ingeniería Informática
   academic_year: 2024/2025
-  institution: Universidad de Málaga
-  institution_type: University
   department: Lenguajes y Ciencias de la Computación (LCC)
   start_date: '2024-09-10'
   end_date: '2024-12-20'
@@ -69,8 +57,6 @@ university_classes:
   name: Análisis y Diseño de Algoritmos
   degree: Grado en Ingeniería Informática
   academic_year: 2025/2026
-  institution: Universidad de Málaga
-  institution_type: University
   department: Lenguajes y Ciencias de la Computación (LCC)
   start_date: '2025-09-09'
   end_date: '2025-12-19'
@@ -80,8 +66,6 @@ university_classes:
   name: Biología de Sistemas
   degree: Grado en Ingeniería de la Salud, Mención Bioinformática
   academic_year: 2025/2026
-  institution: Universidad de Málaga
-  institution_type: University
   department: Lenguajes y Ciencias de la Computación (LCC)
   start_date: '2025-09-09'
   end_date: '2025-12-19'

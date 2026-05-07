@@ -3,8 +3,6 @@ funded_projects:
   acronym: EnBiC2-Lab
   title: Environmental and Biodiversity Climate Change Lab
   code: LifeWatch-2019-11-UMA-01
-  institution: Universidad de Málaga
-  institution_type: University
   principal_investigators:
   - Juan Teodomiro López Navarrete
   funders:
@@ -21,8 +19,6 @@ funded_projects:
     Una aproximación holística de smart data para el análisis de datos guiado por el contexto:
     explotación de semántica y contexto
   code: PID2020-112540RB-C41
-  institution: Universidad de Málaga
-  institution_type: University
   principal_investigators:
   - José Francisco Aldana Montes
   - Ismael Navas Delgado
@@ -39,8 +35,6 @@ funded_projects:
   title: >-
     Potenciando los Ecosistemas de Compartición de Datos Federados con un Enfoque Multidimensional
   code: PID2024-155363OB-C41
-  institution: Universidad de Málaga
-  institution_type: University
   principal_investigators:
   - José Francisco Aldana Montes
   - José Manuel García Nieto
@@ -58,8 +52,6 @@ funded_projects:
     Infraestructura y Servicios de Integración e Inteligencia de Datos en el sector de la
     Agroalimentación en Andalucía
   code: DGP_PIDI_2024_01174
-  institution: Universidad de Málaga
-  institution_type: University
   principal_investigators:
   - José Francisco Aldana Montes
   - José Manuel García Nieto

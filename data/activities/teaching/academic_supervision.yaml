@@ -5,7 +5,6 @@ academic_supervision:
   student: Pablo Moreno García-Espina
   degree: Grado en Ingeniería de la Salud
   academic_year: 2024/2025
-  institution: Universidad de Málaga
   role: Co-supervisor
   date: 2025-06
   workload_hours: null
@@ -20,7 +19,6 @@ academic_supervision:
   student: Nina Souto Blanco
   degree: Grado en Bioquímica
   academic_year: 2024/2025
-  institution: Universidad de Málaga
   role: External internship tutor
   date: '2025-10-22'
   workload_hours: 300

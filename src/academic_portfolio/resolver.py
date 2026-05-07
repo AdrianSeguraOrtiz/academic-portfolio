@@ -59,7 +59,7 @@ class InvalidReferenceFieldError(ValueError):
 def record_label(record: Mapping[str, Any]) -> str:
     """Return a compact human-readable label for a portfolio record."""
 
-    for field in ("title", "name", "journal", "full_name", "institution"):
+    for field in ("title", "name", "journal", "full_name"):
         value = record.get(field)
         if value:
             return str(value)

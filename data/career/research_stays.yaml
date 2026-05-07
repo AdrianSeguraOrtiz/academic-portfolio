@@ -1,8 +1,6 @@
 stays:
 - id: stay_01
   title: Predoctoral Researcher (International Stay)
-  institution: Lille University of Science and Technology
-  institution_type: University
   organization_ids:
   - organization_04
   - organization_08
@@ -31,8 +29,6 @@ stays:
   notes: null
 - id: stay_02
   title: Postdoctoral Researcher (International Stay)
-  institution: Athena Research Center
-  institution_type: Research center
   organization_ids:
   - organization_05
   location:

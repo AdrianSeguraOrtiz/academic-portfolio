@@ -15,8 +15,7 @@
 {%- endmacro %}
 
 {% macro organization_names(record) -%}
-{%- set linked = record.get("resolved", {}).get("organization_ids", []) | linked_names -%}
-{{ linked or record.get("institution", "") }}
+{{ record.get("resolved", {}).get("organization_ids", []) | linked_names }}
 {%- endmacro %}
 
 {% macro date_span(record) -%}
