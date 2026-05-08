@@ -209,7 +209,9 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert output.output_path.exists()
     assert (tmp_path / "assets" / "site.css").exists()
     assert (tmp_path / "assets" / "collaborations.js").exists()
+    assert (tmp_path / "assets" / "software-timeline.js").exists()
     assert (tmp_path / "assets" / "career-timeline.js").exists()
+    assert (tmp_path / "assets" / "teaching-timeline.js").exists()
     assert (tmp_path / "assets" / "dissemination.js").exists()
     assert (tmp_path / "assets" / "profile.jpg").exists()
     assert "Adrián Segura Ortiz" in output.content

@@ -22,6 +22,8 @@ const TIMELINE_FALLBACK_YEAR_SPAN = 8;
 const TIMELINE_MIN_YEAR_SPAN = 6;
 const TIMELINE_RESET_DURATION = 250;
 const TIMELINE_ZOOM_EXTENT = [1, 7];
+const COMPACT_VIEWPORT_QUERY = "(max-width: 760px)";
+const COMPACT_TIMELINE_MIN_WIDTH = 320;
 const AXIS_TOP_OFFSET = 310;
 const AXIS_BOTTOM_OFFSET = 380;
 const AXIS_YEAR_LABEL_OFFSET = 30;
@@ -90,16 +92,20 @@ class CareerTimeline {
     this.height = TIMELINE_HEIGHT;
     this.margin = TIMELINE_MARGIN;
     this.baseline = TIMELINE_BASELINE;
-    this.container.style.width = `${this.width}px`;
+    this.displayWidth = compactTimelineDisplayWidth(this.width, this.container);
+    this.displayHeight = Math.round(this.height * (this.displayWidth / this.width));
+    this.container.style.width = `${this.displayWidth}px`;
+    this.container.style.setProperty("--timeline-display-height", `${this.displayHeight}px`);
     this.svg = window.d3
       .select(container)
       .append("svg")
-      .attr("width", this.width)
-      .attr("height", this.height)
+      .attr("width", this.displayWidth)
+      .attr("height", this.displayHeight)
       .attr("viewBox", `0 0 ${this.width} ${this.height}`);
     this.root = this.svg.append("g").attr("class", "career-root");
     this.zoom = window.d3
       .zoom()
+      .filter(shouldHandleTimelineZoom)
       .scaleExtent(TIMELINE_ZOOM_EXTENT)
       .translateExtent([
         [0, 0],
@@ -110,6 +116,14 @@ class CareerTimeline {
       });
     this.svg.call(this.zoom);
     this.container.classList.add("loaded");
+  }
+
+  updateDisplaySize() {
+    this.displayWidth = compactTimelineDisplayWidth(this.width, this.container);
+    this.displayHeight = Math.round(this.height * (this.displayWidth / this.width));
+    this.container.style.width = `${this.displayWidth}px`;
+    this.container.style.setProperty("--timeline-display-height", `${this.displayHeight}px`);
+    this.svg.attr("width", this.displayWidth).attr("height", this.displayHeight);
   }
 
   yearSpan() {
@@ -334,7 +348,14 @@ class CareerTimeline {
   scrollToLatest() {
     const scroller = this.container.closest(CAREER_SELECTORS.scroller);
     if (scroller) {
-      scroller.scrollLeft = scroller.scrollWidth;
+      if (isCompactViewport()) {
+        scroller.scrollTo({ left: 0, behavior: "auto" });
+        return;
+      }
+      scroller.scrollTo({
+        left: Math.max(scroller.scrollWidth - scroller.clientWidth, 0),
+        behavior: "auto",
+      });
     }
   }
 }
@@ -342,6 +363,26 @@ class CareerTimeline {
 function parseCareerDate(value) {
   const text = String(value || "");
   return new Date(`${text.slice(0, DATE_ISO_LENGTH)}T00:00:00`);
+}
+
+function compactTimelineDisplayWidth(width, container) {
+  if (!isCompactViewport()) {
+    return width;
+  }
+  const scroller = container.closest(CAREER_SELECTORS.scroller);
+  const viewportWidth = scroller?.clientWidth || window.innerWidth || COMPACT_TIMELINE_MIN_WIDTH;
+  return Math.round(Math.min(width, Math.max(viewportWidth, COMPACT_TIMELINE_MIN_WIDTH)));
+}
+
+function isCompactViewport() {
+  return window.matchMedia?.(COMPACT_VIEWPORT_QUERY).matches ?? false;
+}
+
+function shouldHandleTimelineZoom(event) {
+  if (isCompactViewport() && String(event.type || "").startsWith("touch")) {
+    return false;
+  }
+  return (!event.ctrlKey || event.type === "wheel") && !event.button;
 }
 
 function offsetDate(value, months) {
@@ -686,8 +727,24 @@ function initCareerTimeline() {
   });
 
   resetButton?.addEventListener("click", () => timeline.resetZoom());
+  window.addEventListener("resize", () => {
+    window.requestAnimationFrame(() => {
+      timeline.updateDisplaySize();
+      timeline.scrollToLatest();
+    });
+  });
   timeline.render();
-  window.requestAnimationFrame(() => timeline.scrollToLatest());
+  scheduleLatestScroll(timeline);
+}
+
+function scheduleLatestScroll(timeline) {
+  const scroll = () => timeline.scrollToLatest();
+  window.requestAnimationFrame(() => {
+    scroll();
+    window.requestAnimationFrame(scroll);
+  });
+  window.setTimeout(scroll, 150);
+  window.addEventListener("load", scroll, { once: true });
 }
 
 initCareerTimeline();

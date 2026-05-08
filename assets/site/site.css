@@ -15,6 +15,8 @@
   --honor: #c0567a;
   --teaching: #5f7f4f;
   --shadow: 0 16px 34px rgba(27, 38, 35, 0.08);
+  --card-grid-min: clamp(138px, 22vw, 270px);
+  --card-gap: clamp(7px, 1vw, 14px);
 }
 
 /* Base layout */
@@ -22,13 +24,19 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: clamp(10.5px, calc(0.64vw + 8.45px), 16px);
+}
+
 body {
+  max-width: 100%;
   margin: 0;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.55;
 }
 
@@ -36,6 +44,13 @@ a {
   color: var(--accent-strong);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18em;
+}
+
+main a,
+main li,
+main p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* Site navigation */
@@ -123,6 +138,7 @@ h3 {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
 }
 
 .hero-identity {
@@ -211,6 +227,7 @@ h3 {
 
 .hero-panel {
   align-self: center;
+  min-width: 0;
   border-left: 5px solid var(--accent);
   padding: 26px;
   background: var(--surface);
@@ -665,13 +682,17 @@ h3 {
 
 .career-timeline-scroll {
   overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
   border-radius: 8px;
   background: var(--surface-muted);
 }
 
 .career-timeline {
   position: relative;
-  min-height: 820px;
+  min-height: var(--timeline-display-height, 820px);
+  touch-action: pan-x pan-y;
   cursor: grab;
 }
 
@@ -948,16 +969,8 @@ h3 {
 
 .career-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
-  gap: 12px;
-}
-
-.experience-grid {
-  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-}
-
-.compact-career-grid {
-  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-grid-min)), 1fr));
+  gap: var(--card-gap);
 }
 
 .career-card {
@@ -1040,8 +1053,8 @@ h3 {
 
 .record-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-grid-min)), 1fr));
+  gap: var(--card-gap);
 }
 
 .record-card {
@@ -1126,8 +1139,8 @@ h3 {
 
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-grid-min)), 1fr));
+  gap: var(--card-gap);
 }
 
 .project-card {
@@ -1251,8 +1264,15 @@ h3 {
   max-height: 760px;
   overflow-x: hidden;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   border-radius: 8px;
   background: var(--surface-muted);
+}
+
+.teaching-timeline-frame {
+  width: max-content;
+  min-width: 100%;
+  margin: 0 auto;
 }
 
 .teaching-timeline-stage {
@@ -1261,6 +1281,7 @@ h3 {
   max-width: 100%;
   min-height: var(--timeline-height);
   margin: 0 auto;
+  transform-origin: top left;
 }
 
 .teaching-axis {
@@ -1567,8 +1588,8 @@ h3 {
 
 .media-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-grid-min)), 1fr));
+  gap: var(--card-gap);
 }
 
 .media-card {
@@ -1629,11 +1650,23 @@ h3 {
   min-width: 0;
 }
 
+.software-timeline-card {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.software-timeline-card .timeline-years,
+.software-timeline-card .timeline-rows {
+  min-width: 760px;
+}
+
 .timeline-years {
   display: grid;
   gap: 6px;
   margin: 4px 0 10px;
   padding-left: 150px;
+  padding-right: 150px;
   color: var(--muted);
   font-size: 0.76rem;
   font-weight: 800;
@@ -1654,7 +1687,8 @@ h3 {
 
 .timeline-row {
   display: grid;
-  grid-template-columns: 138px minmax(0, 1fr);
+  grid-template-columns: 138px minmax(0, 1fr) 138px;
+  grid-template-areas: "label-start track label-end";
   gap: 12px;
   align-items: center;
 }
@@ -1667,7 +1701,18 @@ h3 {
   text-decoration: none;
 }
 
+.timeline-label-start {
+  grid-area: label-start;
+}
+
+.timeline-label-end {
+  grid-area: label-end;
+  justify-self: end;
+  text-align: right;
+}
+
 .timeline-track {
+  grid-area: track;
   position: relative;
   height: 34px;
   border-radius: 6px;
@@ -1942,8 +1987,8 @@ h3 {
 
 .package-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-grid-min)), 1fr));
+  gap: var(--card-gap);
 }
 
 .package-card {
@@ -2000,6 +2045,7 @@ h3 {
   border-radius: 8px;
   padding: 10px;
   background: var(--surface-muted);
+  overflow: hidden;
 }
 
 .chart-y-axis {
@@ -2016,6 +2062,7 @@ h3 {
 .chart-plot {
   position: relative;
   min-width: 0;
+  overflow: hidden;
 }
 
 .chart-grid-line {
@@ -2060,6 +2107,7 @@ h3 {
   display: flex;
   gap: 5px;
   margin-top: 6px;
+  overflow: hidden;
 }
 
 .chart-x-axis span {
@@ -2546,8 +2594,8 @@ h3 {
 
 .organization-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-grid-min)), 1fr));
+  gap: var(--card-gap);
 }
 
 .organization-card {
@@ -2565,7 +2613,18 @@ h3 {
 }
 
 /* Responsive layout */
-@media (max-width: 900px) {
+@media (max-width: 760px) {
+  .career-timeline-scroll {
+    overflow-x: hidden;
+  }
+
+  .career-timeline {
+    cursor: default;
+    touch-action: pan-y;
+  }
+}
+
+@media (max-width: 620px) {
   .nav {
     justify-content: flex-start;
   }
@@ -2585,17 +2644,26 @@ h3 {
     max-height: none;
   }
 
+  .software-snapshot {
+    position: static;
+  }
+
   .timeline-years {
+    min-width: 760px;
     padding-left: 0;
+    padding-right: 0;
   }
 
   .timeline-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "label-start label-end"
+      "track track";
     gap: 4px;
   }
 
-  .software-snapshot {
-    position: static;
+  .timeline-label-end {
+    display: block;
   }
 
   .repo-row {
@@ -2617,9 +2685,15 @@ h3 {
     padding-top: 46px;
   }
 
+  .hero-panel {
+    padding: 20px;
+  }
+
   .hero-identity {
     grid-template-columns: 1fr;
     gap: 14px;
+    justify-items: center;
+    text-align: center;
   }
 
   .profile-photo {
@@ -2628,6 +2702,7 @@ h3 {
 
   h1 {
     font-size: 3rem;
+    overflow-wrap: anywhere;
   }
 }
 
@@ -2647,11 +2722,105 @@ h3 {
     font-size: 2.35rem;
   }
 
-  h2 {
-    font-size: 1.55rem;
+  .hero {
+    padding-top: 34px;
   }
 
-  .metric-grid {
-    grid-template-columns: 1fr;
+  .lead {
+    font-size: 1rem;
+  }
+
+  .career-timeline-card,
+  .teaching-timeline-card {
+    margin-right: -8px;
+    margin-left: -8px;
+    padding: 10px;
+  }
+
+  .chart-card,
+  .record-card,
+  .project-card,
+  .career-card,
+  .media-card,
+  .package-card,
+  .organization-card {
+    padding: 12px;
+  }
+
+  .record-topline,
+  .software-meta {
+    gap: 5px;
+  }
+
+  .career-timeline-toolbar,
+  .career-timeline-legend,
+  .teaching-timeline-legends {
+    padding-right: 2px;
+    padding-left: 2px;
+  }
+
+  .career-reset {
+    margin-left: 0;
+  }
+
+  .teaching-timeline-scroll {
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .teaching-timeline-scroll.is-fit-width {
+    max-height: none;
+  }
+
+  .teaching-timeline-frame {
+    min-width: 0;
+    margin-right: 0;
+    margin-left: 0;
+    overflow: visible;
+  }
+
+  .teaching-timeline-stage {
+    max-width: none;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .package-download-chart {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 7px;
+    padding: 8px;
+  }
+
+  .chart-y-axis {
+    font-size: 0.62rem;
+  }
+
+  .package-bars,
+  .chart-y-axis {
+    height: 104px;
+  }
+
+  .chart-grid-line.middle {
+    top: 52px;
+  }
+
+  .chart-x-axis {
+    gap: 3px;
+    height: 34px;
+    margin-top: 4px;
+  }
+
+  .chart-x-axis span {
+    font-size: 0.52rem;
+    line-height: 1;
+  }
+
+  .chart-x-axis span:nth-child(3n + 2),
+  .chart-x-axis span:nth-child(3n + 3) {
+    color: transparent;
+  }
+
+  h2 {
+    font-size: 1.55rem;
   }
 }

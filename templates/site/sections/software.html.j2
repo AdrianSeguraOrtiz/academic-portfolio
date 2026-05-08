@@ -15,7 +15,7 @@
         {% for item in software_timeline.rows %}
         {% set github = item.project.get("github") %}
         <div class="timeline-row" style="--language-color: {{ item.color }};">
-          <a class="timeline-label" href="{{ item.project.urls.github }}">{{ item.project.name }}</a>
+          <a class="timeline-label timeline-label-start" href="{{ item.project.urls.github }}">{{ item.project.name }}</a>
           <div class="timeline-track">
             {% for month in item.months %}
             <span class="activity-pulse" style="--left: {{ month.left }}%; --width: {{ month.width }}%; --height: {{ month.height }}px;" title="{{ month.count }} {{ "commit" if month.count == 1 else "commits" }} in {{ month.month }}"></span>
@@ -23,6 +23,7 @@
             {% if item.created_left is not none %}<span class="timeline-marker created" style="--left: {{ item.created_left }}%;" title="Repository created: {{ github.created_at[:10] }}"></span>{% endif %}
             {% if item.pushed_left is not none %}<span class="timeline-marker pushed" style="--left: {{ item.pushed_left }}%;" title="Last push: {{ github.pushed_at[:10] }}"></span>{% endif %}
           </div>
+          <a class="timeline-label timeline-label-end" href="{{ item.project.urls.github }}" aria-hidden="true" tabindex="-1">{{ item.project.name }}</a>
         </div>
         {% endfor %}
       </div>
