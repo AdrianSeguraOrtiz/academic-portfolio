@@ -654,6 +654,31 @@ h3 {
   margin-bottom: 12px;
 }
 
+.timeline-zoom-controls {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.timeline-zoom-controls button {
+  min-width: 30px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 9px;
+  background: var(--surface);
+  color: var(--accent-strong);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 850;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.timeline-zoom-controls button:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .career-filter,
 .career-reset {
   border: 1px solid var(--line);
@@ -826,7 +851,6 @@ h3 {
   stroke-linecap: round;
   stroke: var(--gold);
   stroke-width: 4;
-  vector-effect: non-scaling-stroke;
 }
 
 .career-marker line {
@@ -1269,6 +1293,10 @@ h3 {
   background: var(--surface-muted);
 }
 
+.teaching-timeline-scroll.is-zoomed {
+  overflow-x: auto;
+}
+
 .teaching-timeline-frame {
   width: max-content;
   min-width: 100%;
@@ -1278,7 +1306,7 @@ h3 {
 .teaching-timeline-stage {
   position: relative;
   width: var(--stage-width);
-  max-width: 100%;
+  max-width: none;
   min-height: var(--timeline-height);
   margin: 0 auto;
   transform-origin: top left;
@@ -1640,7 +1668,7 @@ h3 {
 /* Software projects and packages */
 .software-visual-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  grid-template-columns: minmax(0, 1.7fr) minmax(220px, 0.45fr);
   gap: 18px;
   margin: 0 0 22px;
 }
@@ -1650,14 +1678,15 @@ h3 {
   min-width: 0;
 }
 
-.software-timeline-card {
+.software-timeline-scroll {
+  margin-top: 8px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
 }
 
-.software-timeline-card .timeline-years,
-.software-timeline-card .timeline-rows {
+.software-timeline-scroll .timeline-years,
+.software-timeline-scroll .timeline-rows {
   min-width: 760px;
 }
 
@@ -1987,7 +2016,7 @@ h3 {
 
 .package-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--card-grid-min)), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: var(--card-gap);
 }
 
@@ -2618,6 +2647,10 @@ h3 {
     overflow-x: hidden;
   }
 
+  .career-timeline-scroll.is-zoomed {
+    overflow-x: auto;
+  }
+
   .career-timeline {
     cursor: default;
     touch-action: pan-y;
@@ -2670,6 +2703,10 @@ h3 {
     display: grid;
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+
+  .repo-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .repo-summary p {
@@ -2766,6 +2803,10 @@ h3 {
   .teaching-timeline-scroll {
     overflow-x: hidden;
     overscroll-behavior: contain;
+  }
+
+  .teaching-timeline-scroll.is-zoomed {
+    overflow-x: auto;
   }
 
   .teaching-timeline-scroll.is-fit-width {

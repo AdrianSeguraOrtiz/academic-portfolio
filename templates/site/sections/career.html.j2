@@ -6,6 +6,10 @@
       {% for filter in career_timeline.filters %}
       <button type="button" class="career-filter active" data-career-filter="{{ filter.id }}" aria-pressed="true">{{ filter.label }}</button>
       {% endfor %}
+      <div class="timeline-zoom-controls" aria-label="Career timeline zoom controls">
+        <button type="button" data-career-zoom-out aria-label="Zoom out career timeline" title="Zoom out">-</button>
+        <button type="button" data-career-zoom-in aria-label="Zoom in career timeline" title="Zoom in">+</button>
+      </div>
       <button type="button" class="career-reset" data-career-reset>Reset zoom</button>
     </div>
     <div class="career-timeline-scroll">

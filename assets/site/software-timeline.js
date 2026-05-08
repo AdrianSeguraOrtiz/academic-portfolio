@@ -1,4 +1,4 @@
-const SOFTWARE_TIMELINE_SELECTOR = ".software-timeline-card";
+const SOFTWARE_TIMELINE_SELECTOR = ".software-timeline-scroll";
 
 function initSoftwareTimelineScroll() {
   const timelines = Array.from(document.querySelectorAll(SOFTWARE_TIMELINE_SELECTOR));

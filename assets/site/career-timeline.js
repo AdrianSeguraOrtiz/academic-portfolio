@@ -5,6 +5,8 @@ const CAREER_SELECTORS = {
   loading: ".map-loading",
   reset: "[data-career-reset]",
   scroller: ".career-timeline-scroll",
+  zoomIn: "[data-career-zoom-in]",
+  zoomOut: "[data-career-zoom-out]",
 };
 
 const CAREER_MESSAGES = {
@@ -22,8 +24,9 @@ const TIMELINE_FALLBACK_YEAR_SPAN = 8;
 const TIMELINE_MIN_YEAR_SPAN = 6;
 const TIMELINE_RESET_DURATION = 250;
 const TIMELINE_ZOOM_EXTENT = [1, 7];
-const COMPACT_VIEWPORT_QUERY = "(max-width: 760px)";
 const COMPACT_TIMELINE_MIN_WIDTH = 320;
+const COMPACT_TIMELINE_MAX_SCALE = 2.4;
+const TIMELINE_ZOOM_STEP = 1.25;
 const AXIS_TOP_OFFSET = 310;
 const AXIS_BOTTOM_OFFSET = 380;
 const AXIS_YEAR_LABEL_OFFSET = 30;
@@ -44,13 +47,13 @@ const EXPERIENCE_LANE_OFFSET = -46;
 const EXPERIENCE_LANE_STEP = 92;
 const EDUCATION_LANE_OFFSET = 44;
 const EDUCATION_LANE_STEP = 38;
-const STAY_LANE_OFFSET = 300;
+const STAY_LANE_OFFSET = 216;
 const STAY_LANE_STEP = 72;
 const MARKER_LABEL_X = 10;
 const MARKER_LABEL_Y_OFFSET = -5;
 const MARKER_LINE_GAP = 10;
 const MARKER_TOP_BASE_Y = 34;
-const MARKER_BOTTOM_BASELINE_OFFSET = 216;
+const MARKER_BOTTOM_BASELINE_OFFSET = 344;
 const MARKER_TOP_LANE_STEP = 70;
 const MARKER_BOTTOM_LANE_STEP = 66;
 const MARKER_LABEL_WIDTH = 190;
@@ -62,8 +65,8 @@ const LANE_LABELS = [
   { text: "Certifications", y: 42 },
   { text: "Experience", baselineOffset: -92 },
   { text: "Education", baselineOffset: 88 },
-  { text: "Honors", baselineOffset: 210 },
-  { text: "Research Stays", baselineOffset: 344 },
+  { text: "Research Stays", baselineOffset: 210 },
+  { text: "Honors", baselineOffset: 344 },
 ];
 const LABEL_LINE_HEIGHT = 12;
 const LABEL_BLOCK_GAP = 14;
@@ -92,7 +95,8 @@ class CareerTimeline {
     this.height = TIMELINE_HEIGHT;
     this.margin = TIMELINE_MARGIN;
     this.baseline = TIMELINE_BASELINE;
-    this.displayWidth = compactTimelineDisplayWidth(this.width, this.container);
+    this.compactScale = 1;
+    this.displayWidth = compactTimelineDisplayWidth(this.width, this.container, this.compactScale);
     this.displayHeight = Math.round(this.height * (this.displayWidth / this.width));
     this.container.style.width = `${this.displayWidth}px`;
     this.container.style.setProperty("--timeline-display-height", `${this.displayHeight}px`);
@@ -116,14 +120,24 @@ class CareerTimeline {
       });
     this.svg.call(this.zoom);
     this.container.classList.add("loaded");
+    this.updateScrollerMode();
   }
 
   updateDisplaySize() {
-    this.displayWidth = compactTimelineDisplayWidth(this.width, this.container);
+    this.displayWidth = compactTimelineDisplayWidth(this.width, this.container, this.compactScale);
     this.displayHeight = Math.round(this.height * (this.displayWidth / this.width));
     this.container.style.width = `${this.displayWidth}px`;
     this.container.style.setProperty("--timeline-display-height", `${this.displayHeight}px`);
     this.svg.attr("width", this.displayWidth).attr("height", this.displayHeight);
+    this.updateScrollerMode();
+  }
+
+  updateScrollerMode() {
+    const scroller = this.container.closest(CAREER_SELECTORS.scroller);
+    scroller?.classList.toggle(
+      "is-zoomed",
+      this.displayWidth > scroller.clientWidth + 1,
+    );
   }
 
   yearSpan() {
@@ -155,10 +169,19 @@ class CareerTimeline {
   }
 
   resetZoom() {
+    this.compactScale = 1;
+    this.updateDisplaySize();
     this.svg
       .transition()
       .duration(TIMELINE_RESET_DURATION)
       .call(this.zoom.transform, window.d3.zoomIdentity);
+    this.scrollToLatest();
+  }
+
+  zoomBy(factor) {
+    this.compactScale = clamp(this.compactScale * factor, 1, COMPACT_TIMELINE_MAX_SCALE);
+    this.updateDisplaySize();
+    this.scrollToLatest();
   }
 
   drawAxis(x) {
@@ -348,7 +371,7 @@ class CareerTimeline {
   scrollToLatest() {
     const scroller = this.container.closest(CAREER_SELECTORS.scroller);
     if (scroller) {
-      if (isCompactViewport()) {
+      if (this.compactScale <= 1) {
         scroller.scrollTo({ left: 0, behavior: "auto" });
         return;
       }
@@ -365,24 +388,22 @@ function parseCareerDate(value) {
   return new Date(`${text.slice(0, DATE_ISO_LENGTH)}T00:00:00`);
 }
 
-function compactTimelineDisplayWidth(width, container) {
-  if (!isCompactViewport()) {
-    return width;
-  }
+function compactTimelineDisplayWidth(width, container, compactScale = 1) {
   const scroller = container.closest(CAREER_SELECTORS.scroller);
   const viewportWidth = scroller?.clientWidth || window.innerWidth || COMPACT_TIMELINE_MIN_WIDTH;
-  return Math.round(Math.min(width, Math.max(viewportWidth, COMPACT_TIMELINE_MIN_WIDTH)));
-}
-
-function isCompactViewport() {
-  return window.matchMedia?.(COMPACT_VIEWPORT_QUERY).matches ?? false;
+  const baseWidth = Math.min(width, Math.max(viewportWidth, COMPACT_TIMELINE_MIN_WIDTH));
+  return Math.round(Math.min(width, baseWidth * compactScale));
 }
 
 function shouldHandleTimelineZoom(event) {
-  if (isCompactViewport() && String(event.type || "").startsWith("touch")) {
+  if (String(event.type || "").startsWith("touch")) {
     return false;
   }
   return (!event.ctrlKey || event.type === "wheel") && !event.button;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
 }
 
 function offsetDate(value, months) {
@@ -707,6 +728,8 @@ function initCareerTimeline() {
 
   const state = new Set(data.filters.map((filter) => filter.id));
   const resetButton = document.querySelector(CAREER_SELECTORS.reset);
+  const zoomInButton = document.querySelector(CAREER_SELECTORS.zoomIn);
+  const zoomOutButton = document.querySelector(CAREER_SELECTORS.zoomOut);
   const filterButtons = document.querySelectorAll(CAREER_SELECTORS.filter);
   const timeline = new CareerTimeline(container, data, state);
 
@@ -727,6 +750,8 @@ function initCareerTimeline() {
   });
 
   resetButton?.addEventListener("click", () => timeline.resetZoom());
+  zoomInButton?.addEventListener("click", () => timeline.zoomBy(TIMELINE_ZOOM_STEP));
+  zoomOutButton?.addEventListener("click", () => timeline.zoomBy(1 / TIMELINE_ZOOM_STEP));
   window.addEventListener("resize", () => {
     window.requestAnimationFrame(() => {
       timeline.updateDisplaySize();
