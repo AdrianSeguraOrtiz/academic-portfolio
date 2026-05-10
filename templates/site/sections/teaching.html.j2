@@ -2,6 +2,64 @@
 <section class="content-section" id="teaching">
   {{ common.section_heading("Teaching", "Classes and Supervision") }}
   <div class="teaching-layout">
+    <div class="teaching-chart-grid" aria-label="Teaching workload charts">
+      <article class="teaching-hours-card teaching-year-chart">
+        <div class="chart-heading">
+          <span>Classroom Hours</span>
+          <h3>By Academic Year</h3>
+        </div>
+        <div class="teaching-chart-legend" aria-label="Academic year chart organization legend">
+          {% for organization in teaching_hours_chart.legend %}
+          <span><i style="--org-color: {{ organization.color }}"></i>{{ organization.label }}</span>
+          {% endfor %}
+        </div>
+        <div class="teaching-year-bars">
+          {% for row in teaching_hours_chart.by_academic_year %}
+          <div class="teaching-year-bar" style="--bar-size: {{ row.share }}%">
+            <span>{{ row.hours_label }}</span>
+            <div class="teaching-year-stack">
+              {% for segment in row.segments %}
+              <i
+                style="--org-color: {{ segment.color }}; --segment-size: {{ segment.share }}%"
+                title="{{ segment.label }} · {{ segment.hours_label }}"
+              ></i>
+              {% endfor %}
+            </div>
+            <strong>{{ row.label }}</strong>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+      <article class="teaching-hours-card teaching-degree-chart">
+        <div class="chart-heading">
+          <span>Classroom Hours</span>
+          <h3>By Degree Programme</h3>
+        </div>
+        <div class="teaching-chart-legend" aria-label="Degree chart organization legend">
+          {% for organization in teaching_hours_chart.legend %}
+          <span><i style="--org-color: {{ organization.color }}"></i>{{ organization.label }}</span>
+          {% endfor %}
+        </div>
+        <div class="teaching-degree-bars">
+          {% for row in teaching_hours_chart.by_degree %}
+          <div class="teaching-degree-row" style="--bar-size: {{ row.share }}%">
+            <div>
+              <strong>{{ row.label }}</strong>
+              <span>{{ row.hours_label }}</span>
+            </div>
+            <div class="teaching-degree-stack">
+              {% for segment in row.segments %}
+              <i
+                style="--org-color: {{ segment.color }}; --segment-size: {{ segment.share }}%"
+                title="{{ segment.label }} · {{ segment.hours_label }}"
+              ></i>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+    </div>
     <article class="teaching-timeline-card">
       <div class="teaching-timeline-legends">
         <div class="teaching-organization-legend" aria-label="Teaching organization color legend">

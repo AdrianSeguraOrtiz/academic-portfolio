@@ -3,17 +3,35 @@ from __future__ import annotations
 from datetime import date
 from typing import Any
 
+
+def _organization_full_label(organization: dict[str, Any]) -> str:
+    return str(
+        organization.get("full_name")
+        or organization.get("name")
+        or organization.get("abbreviation")
+        or "Unknown organization"
+    )
+
+
+def _organization_short_label(organization: dict[str, Any]) -> str:
+    return str(
+        organization.get("abbreviation")
+        or organization.get("name")
+        or organization.get("full_name")
+        or organization.get("id")
+        or "Unknown organization"
+    )
+
+
 def _month_span_to_present(start_date: Any, end_date: Any) -> int:
     effective_end = end_date or date.today().strftime("%Y-%m")
     return _month_span(start_date, effective_end)
-
 
 
 def _float_percentage(value: float, total: float) -> float:
     if total <= 0:
         return 0.0
     return round((value / total) * 100, 2)
-
 
 
 def _month_span(start_date: Any, end_date: Any) -> int:
@@ -24,7 +42,6 @@ def _month_span(start_date: Any, end_date: Any) -> int:
     if start is None or end is None:
         return 1
     return max(end - start + 1, 1)
-
 
 
 def _month_number(value: Any) -> int | None:
@@ -44,17 +61,14 @@ def _month_number(value: Any) -> int | None:
     return (year * 12) + month - 1
 
 
-
 def _year_from_month(month_number: int) -> int:
     return month_number // 12
-
 
 
 def _month_label(month_number: int) -> str:
     year = _year_from_month(month_number)
     month = (month_number % 12) + 1
     return f"{year}-{month:02d}"
-
 
 
 def _percentage(value: int, total: int) -> float:

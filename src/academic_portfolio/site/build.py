@@ -12,12 +12,17 @@ from academic_portfolio.loader import load_data
 from academic_portfolio.packages import collect_package_stats
 from academic_portfolio.render import date_range, record_name
 from academic_portfolio.resolver import PortfolioResolver
-from academic_portfolio.site.career import _career_timeline_view
+from academic_portfolio.site.career import _career_details_view, _career_timeline_view
 from academic_portfolio.site.collaborations import _collaboration_view
 from academic_portfolio.site.dissemination import _dissemination_view
 from academic_portfolio.site.organizations import _organization_network_view
+from academic_portfolio.site.overview import _format_number, _overview_summary
 from academic_portfolio.site.projects import _project_records
-from academic_portfolio.site.publications import _publication_year_chart, _tagged_publication_records
+from academic_portfolio.site.publications import (
+    _publication_year_chart,
+    _publication_year_groups,
+    _tagged_publication_records,
+)
 from academic_portfolio.site.software import (
     _attach_github_stats,
     _attach_package_stats,
@@ -25,7 +30,7 @@ from academic_portfolio.site.software import (
     _software_language_chart,
     _software_timeline,
 )
-from academic_portfolio.site.teaching import _teaching_timeline_view
+from academic_portfolio.site.teaching import _teaching_hours_chart, _teaching_timeline_view
 from academic_portfolio.view_records import (
     profile_with_current_activity,
     resolved_records,
@@ -149,6 +154,10 @@ def build_site_view(
     )
     projects = _project_records(research_projects, teaching_innovation_projects)
     teaching_timeline = _teaching_timeline_view(university_classes, academic_supervision)
+    teaching_hours_chart = _teaching_hours_chart(
+        university_classes,
+        teaching_timeline["legend"],
+    )
     dissemination_hub = _dissemination_view(
         scientific_articles,
         presentations,
@@ -193,10 +202,47 @@ def build_site_view(
         "grants": len(grants),
         "research_stays": len(research_stays),
     }
+    overview = _overview_summary(
+        degrees=degrees,
+        experience=experience,
+        research_stays=research_stays,
+        publications=publications,
+        software_projects=software_projects,
+        software_packages=software_packages,
+        research_projects=research_projects,
+        reviewing=resolved_records(
+            resolver,
+            "research/reviewing.yaml",
+            "reviewing",
+            reverse=True,
+        ),
+        scientific_articles=scientific_articles,
+        presentations=presentations,
+        press_items=press_items,
+        social_media_items=social_media_items,
+        tv_media_items=tv_media_items,
+        university_classes=university_classes,
+        academic_supervision=academic_supervision,
+        teaching_innovation_projects=teaching_innovation_projects,
+        honors=honors,
+        grants=grants,
+        organizations=organizations,
+        metrics=metrics,
+    )
+    metrics.update(
+        {
+            "package_downloads": overview["software"]["package_downloads"],
+            "known_social_views": overview["dissemination"]["known_social_views"],
+            "teaching_hours": overview["teaching"]["total_hours"],
+            "work_institutions": overview["experience"]["institution_count"],
+            "reviewed_manuscripts": overview["research"]["reviewed_manuscripts"],
+        }
+    )
 
     return {
         "profile": profile,
         "metrics": metrics,
+        "overview": overview,
         "publications": publications,
         "software_projects": software_projects,
         "software_packages": software_packages,
@@ -208,6 +254,14 @@ def build_site_view(
             "honors": honors,
             "grants": grants,
         },
+        "career_details": _career_details_view(
+            degrees,
+            experience,
+            research_stays,
+            certifications,
+            honors,
+            grants,
+        ),
         "projects": projects,
         "research_projects": research_projects,
         "teaching": {
@@ -215,6 +269,7 @@ def build_site_view(
             "academic_supervision": academic_supervision,
             "teaching_innovation_projects": teaching_innovation_projects,
         },
+        "teaching_hours_chart": teaching_hours_chart,
         "teaching_timeline": teaching_timeline,
         "dissemination": {
             "scientific_articles": scientific_articles,
@@ -237,6 +292,7 @@ def build_site_view(
         ),
         "collaborations": _collaboration_view(publications, research_stays),
         "publication_chart": _publication_year_chart(journal_papers, conference_papers),
+        "publication_groups": _publication_year_groups(publications),
         "software_github": _software_github_summary(software_projects),
         "software_timeline": _software_timeline(software_projects),
         "software_language_chart": _software_language_chart(software_projects),
@@ -328,12 +384,5 @@ def _copy_static_assets(static_dir: Path | str, output_dir: Path) -> list[Path]:
         copied_paths.append(target_path)
 
     return copied_paths
-
-
-def _format_number(value: Any) -> str:
-    try:
-        return f"{int(value):,}"
-    except (TypeError, ValueError):
-        return str(value)
 
 

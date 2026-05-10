@@ -41,21 +41,32 @@
       </div>
     </aside>
 
-    <div class="media-grid" data-dissemination-items>
-      {% for item in dissemination_hub["items"] %}
-      <article class="media-card category-{{ item.category }}" data-category="{{ item.category }}">
-        <div class="record-topline">
-          <span>{{ item.type_label }}</span>
-          {% if item.date_label %}<time>{{ item.date_label }}</time>{% endif %}
-        </div>
-        <h3>{% if item.url %}<a href="{{ item.url }}">{{ item.display_title }}</a>{% else %}{{ item.display_title }}{% endif %}</h3>
-        {% if item.source %}<p class="media-source">{{ item.source }}</p>{% endif %}
-        {% for line in item.detail_lines %}<p>{{ line }}</p>{% endfor %}
-        {% if item.description and item.description != item.display_title %}<p>{{ item.description }}</p>{% endif %}
-        {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ common.linked_records(item.resolved.publication_ids) }}</p>{% endif %}
-        {% if item.get("resolved", {}).get("software_package_ids", []) %}<p class="tags">Software packages: {{ common.linked_records(item.resolved.software_package_ids) }}</p>{% endif %}
-      </article>
-      {% endfor %}
+    <div class="media-carousel-shell" data-dissemination-carousel>
+      {{ common.carousel_control("media-carousel-control", "previous", "data-dissemination-prev", "Previous dissemination items") }}
+      <div class="media-grid" data-dissemination-items>
+        {% for item in dissemination_hub["items"] %}
+        <article class="media-card category-{{ item.category }}" data-category="{{ item.category }}">
+          <div class="record-topline">
+            <span>{{ item.type_label }}</span>
+            {% if item.date_label %}<time>{{ item.date_label }}</time>{% endif %}
+          </div>
+          <h3>{% if item.url %}<a href="{{ item.url }}">{{ item.display_title }}</a>{% else %}{{ item.display_title }}{% endif %}</h3>
+          {% if item.source %}<p class="media-source">{{ item.source }}</p>{% endif %}
+          {% if item.detail_lines or (item.description and item.description != item.display_title) or item.get("resolved", {}).get("publication_ids", []) or item.get("resolved", {}).get("software_package_ids", []) %}
+          <details class="media-details" data-media-details>
+            <summary>Publications and details</summary>
+            <div class="media-details-content">
+              {% for line in item.detail_lines %}<p>{{ line }}</p>{% endfor %}
+              {% if item.description and item.description != item.display_title %}<p>{{ item.description }}</p>{% endif %}
+              {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ common.linked_records(item.resolved.publication_ids) }}</p>{% endif %}
+              {% if item.get("resolved", {}).get("software_package_ids", []) %}<p class="tags">Software packages: {{ common.linked_records(item.resolved.software_package_ids) }}</p>{% endif %}
+            </div>
+          </details>
+          {% endif %}
+        </article>
+        {% endfor %}
+      </div>
+      {{ common.carousel_control("media-carousel-control", "next", "data-dissemination-next", "Next dissemination items") }}
     </div>
   </div>
 </section>

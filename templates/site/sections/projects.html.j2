@@ -6,9 +6,11 @@
     <span><i class="role-research"></i> Research team member</span>
     <span><i class="role-lead"></i> PI / Co-PI</span>
   </div>
-  <div class="project-grid">
+  <div class="project-carousel-shell" data-project-carousel>
+    {{ common.carousel_control("project-carousel-control", "previous", "data-project-carousel-prev", "Previous project") }}
+    <div class="project-grid" data-project-carousel-track>
     {% for project in projects %}
-    <article class="project-card type-{{ project.project_type }} role-{{ project.participation_class }}">
+    <article class="project-card type-{{ project.project_type }} role-{{ project.participation_class }}" data-project-carousel-item>
       <div class="record-topline project-topline">
         <span class="project-type-label">{{ project.project_type_label }}</span>
         {% if project.get("code") %}<span>{{ project.code }}</span>{% endif %}
@@ -17,12 +19,17 @@
       <h3>{{ project.display_title }}</h3>
       <p>{{ common.org_links(project) }}</p>
       {% if project.get("principal_investigators") %}<p>Principal investigators: {{ project.principal_investigators | join(", ") }}</p>{% endif %}
-      <ul class="meta-list">
-        {% if project.project_funders %}<li>Funders: {{ project.project_funders | join(", ") }}</li>{% endif %}
-        {% if project.get("participation") %}<li>Participation: {{ project.participation }}</li>{% endif %}
-        {% if project.get("total_amount_eur") %}<li>Total amount: {{ project.total_amount_eur }} EUR</li>{% endif %}
-      </ul>
+      <details class="project-meta-details" data-project-meta-details open>
+        <summary>Project details</summary>
+        <ul class="meta-list">
+          {% if project.project_funders %}<li>Funders: {{ project.project_funders | join(", ") }}</li>{% endif %}
+          {% if project.get("participation") %}<li>Participation: {{ project.participation }}</li>{% endif %}
+          {% if project.get("total_amount_eur") %}<li>Total amount: {{ project.total_amount_eur }} EUR</li>{% endif %}
+        </ul>
+      </details>
     </article>
     {% endfor %}
+    </div>
+    {{ common.carousel_control("project-carousel-control", "next", "data-project-carousel-next", "Next project") }}
   </div>
 </section>

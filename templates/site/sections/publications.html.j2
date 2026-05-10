@@ -7,9 +7,9 @@
       <span><i class="kind-dot journal"></i> Journal paper</span>
       <span><i class="kind-dot conference"></i> Conference paper</span>
     </div>
-    <div class="bar-chart" aria-label="Publications by year">
+    <div class="bar-chart publication-year-chart" aria-label="Publications by year" data-publication-year-chart>
       {% for item in publication_chart %}
-      <div class="bar-item">
+      <button class="bar-item publication-year-button{% if loop.first %} is-active{% endif %}" type="button" data-publication-year="{{ item.year }}" aria-label="Show publications from {{ item.year }}">
         <div class="bar-track">
           <div class="bar-stack" style="height: {{ item.height }}%">
             <span class="bar-segment journal" style="height: {{ item.journal_share }}%"></span>
@@ -18,13 +18,31 @@
         </div>
         <strong>{{ item.total }}</strong>
         <span>{{ item.year }}</span>
-      </div>
+      </button>
       {% endfor %}
     </div>
   </div>
-  <div class="record-grid">
-    {% for publication in publications %}
-    {{ common.publication_card(publication) }}
-    {% endfor %}
+  <div class="publication-carousel-shell" data-publication-carousel-shell>
+    {{ common.carousel_control("publication-carousel-control", "previous", "data-publication-carousel-prev", "Previous publication") }}
+    <div class="publication-carousel" data-publication-carousel aria-label="Publications grouped by year" tabindex="0">
+      <div class="publication-year-track">
+        {% for group in publication_groups %}
+        <section class="publication-year-group" data-publication-year-group="{{ group.year }}" aria-labelledby="publication-year-{{ group.year }}">
+          <header class="publication-year-heading" id="publication-year-{{ group.year }}" style="--publication-year-span: {{ group.count }}">
+            <span>{{ group.year }}</span>
+            <small>{{ group.count }} {{ "paper" if group.count == 1 else "papers" }}</small>
+          </header>
+          <div class="publication-year-cards">
+            {% for publication in group.publications %}
+            <div class="publication-slide" data-publication-slide data-publication-slide-year="{{ group.year }}">
+              {{ common.publication_card(publication) }}
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+        {% endfor %}
+      </div>
+    </div>
+    {{ common.carousel_control("publication-carousel-control", "next", "data-publication-carousel-next", "Next publication") }}
   </div>
 </section>

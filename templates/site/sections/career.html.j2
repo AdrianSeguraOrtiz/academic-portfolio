@@ -1,6 +1,6 @@
 {% import "macros/common.html.j2" as common %}
 <section class="content-section" id="career">
-  {{ common.section_heading("Career", "Education, Experience, Stays, Honors, and Grants") }}
+  {{ common.section_heading("Career", "Academic Trajectory") }}
   <div class="career-timeline-card">
     <div class="career-timeline-toolbar" aria-label="Career timeline filters">
       {% for filter in career_timeline.filters %}
@@ -27,141 +27,106 @@
     </div>
     <script type="application/json" id="career-timeline-data">{{ career_timeline | tojson }}</script>
   </div>
-  <div class="career-detail-tabs" aria-label="Career detail categories">
-    <a href="#career-education"><span>{{ career.degrees | length }}</span> Education</a>
-    <a href="#career-experience"><span>{{ career.experience | length }}</span> Experience</a>
-    <a href="#career-stays"><span>{{ career.research_stays | length }}</span> Stays</a>
-    <a href="#career-certifications"><span>{{ career.certifications | length }}</span> Certifications</a>
-    <a href="#career-honors"><span>{{ career.honors | length }}</span> Honors</a>
-    <a href="#career-grants"><span>{{ career.grants | length }}</span> Grants</a>
+  <div class="career-detail-heading">
+    <p class="eyebrow">Records</p>
+    <h3>Career Details</h3>
   </div>
-  <div class="career-detail-sections">
-    <section id="career-education" class="career-detail-section education">
-      <div class="career-detail-heading">
-        <p class="eyebrow">Education</p>
-        <h3>Degrees</h3>
+  <div class="career-detail-filters" data-career-detail-filters aria-label="Career detail filters">
+    <button type="button" class="active" data-career-detail-filter="all" aria-pressed="true">All</button>
+    {% for filter in career_details.filters %}
+    <button type="button" class="active career-category-{{ filter.id }}" data-career-detail-filter="{{ filter.id }}" aria-pressed="true"><span>{{ filter.count }}</span>{{ filter.label }}</button>
+    {% endfor %}
+  </div>
+  <div class="career-detail-list" data-career-detail-items>
+  {% for item in career_details["items"] %}
+    {% if item.kind == "organization_group" %}
+    <article class="career-card career-organization-card {{ item.category }}" data-career-category="{{ item.category }}">
+      <div class="career-organization-heading">
+        <div>
+          <div class="record-topline"><span>{{ item.category_label }}</span><time>{{ item.period }}</time></div>
+          <h3>{% if item.organization.get("website") %}<a href="{{ item.organization.website }}">{{ item.title }}</a>{% else %}{{ item.title }}{% endif %}</h3>
+          <p>{{ item.period }}{% if item.location %} · {{ item.location }}{% endif %}</p>
+        </div>
+        <p class="career-progression-summary">{{ item.progression }}</p>
       </div>
-      <div class="career-card-grid">
-      {% for degree in career.degrees %}
-      <article class="career-card education">
-        <div class="record-topline"><span>{{ degree.level }}</span><time>{{ degree.start_date | date_range(degree.end_date) }}</time></div>
-        <h3>{{ degree.title }}</h3>
-        <p>{{ common.org_links(degree) }} · {{ degree.start_date | date_range(degree.end_date) }}</p>
-        {% if degree.grade %}<p>{{ degree.grade }}</p>{% endif %}
-        {% if degree.get("resolved", {}).get("grant_ids", []) %}<p>Grants: {{ common.linked_records(degree.resolved.grant_ids) }}</p>{% endif %}
-        {% if degree.thesis.title %}<p>{{ degree.thesis.type }}: {{ degree.thesis.title }}</p>{% endif %}
-        {% if degree.thesis.area %}<p class="tags">{{ degree.thesis.area }}</p>{% endif %}
-      </article>
-      {% endfor %}
+      <div class="career-progression">
+        {% for record in item.records %}
+        <article class="career-progress-item">
+          <span class="career-progress-dot" aria-hidden="true"></span>
+          <div class="career-progress-content">
+            <div class="record-topline">
+              <span>{% if record.end_date %}{{ item.category_label }}{% else %}Current {{ item.category_label | lower }}{% endif %}</span>
+              <time>{{ common.date_span(record) }}</time>
+            </div>
+            <h4>{{ record.title }}</h4>
+            <p>{{ common.date_span(record) }}</p>
+            {% if item.category == "experience" %}
+            <ul class="meta-list">
+              {% if record.location %}<li>Location: {{ record.location }}</li>{% endif %}
+              {% if record.employment_type or record.dedication or record.work_mode %}<li>Type: {{ [record.employment_type, record.dedication, record.work_mode] | select | unique | join(", ") }}</li>{% endif %}
+              {% if record.department %}<li>Department: {{ record.department }}</li>{% endif %}
+              {% if record.group %}<li>Group: {{ record.group }}</li>{% endif %}
+            </ul>
+            {% if record.tasks %}
+            <details class="task-details">
+              <summary>Tasks ({{ record.tasks | length }})</summary>
+              <ul class="meta-list">
+                {% for task in record.tasks %}
+                <li>{{ task }}</li>
+                {% endfor %}
+              </ul>
+            </details>
+            {% endif %}
+            {% else %}
+            {% if record.description %}<p>{{ record.description }}</p>{% endif %}
+            <ul class="meta-list">
+              {% if record.location.city %}<li>Location: {{ record.location.city }}, {{ record.location.country }}</li>{% endif %}
+              {% if record.host_group %}<li>Host group: {{ record.host_group }}</li>{% endif %}
+              {% if record.purpose or record.type %}<li>Purpose: {{ [record.purpose, record.type] | select | join(", ") }}</li>{% endif %}
+              {% if record.get("resolved", {}).get("grant_ids", []) %}<li>Grants: {{ common.linked_records(record.resolved.grant_ids) }}</li>{% endif %}
+              {% for task in record.tasks %}<li>{{ task }}</li>{% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
       </div>
-    </section>
-    <section id="career-experience" class="career-detail-section experience">
-      <div class="career-detail-heading">
-        <p class="eyebrow">Experience</p>
-        <h3>Positions</h3>
-      </div>
-      <div class="career-card-grid experience-grid">
-      {% for position in career.experience %}
-      <article class="career-card experience">
-        <div class="record-topline"><span>{{ position.employment_type or position.dedication or "Position" }}</span><time>{{ common.date_span(position) }}</time></div>
-        <h3>{{ position.title }}</h3>
-        <p>{{ common.org_links(position) }} · {{ common.date_span(position) }}</p>
-        <ul class="meta-list">
-          {% if position.location %}<li>Location: {{ position.location }}</li>{% endif %}
-          {% if position.employment_type or position.dedication or position.work_mode %}<li>Type: {{ [position.employment_type, position.dedication, position.work_mode] | select | unique | join(", ") }}</li>{% endif %}
-          {% if position.department %}<li>Department: {{ position.department }}</li>{% endif %}
-          {% if position.group %}<li>Group: {{ position.group }}</li>{% endif %}
-        </ul>
-        {% if position.tasks %}
-        <details class="task-details">
-          <summary>Tasks ({{ position.tasks | length }})</summary>
-          <ul class="meta-list">
-            {% for task in position.tasks %}
-            <li>{{ task }}</li>
-            {% endfor %}
-          </ul>
-        </details>
-        {% endif %}
-      </article>
-      {% endfor %}
-      </div>
-    </section>
-    <section id="career-stays" class="career-detail-section stay">
-      <div class="career-detail-heading">
-        <p class="eyebrow">Research Stays</p>
-        <h3>International Mobility</h3>
-      </div>
-      <div class="career-card-grid">
-      {% for stay in career.research_stays %}
-      <article class="career-card stay">
-        <div class="record-topline"><span>{{ stay.type or "Research stay" }}</span><time>{{ common.date_span(stay) }}</time></div>
-        <h3>{{ stay.title }}</h3>
-        <p>{{ common.org_links(stay) }} · {{ common.date_span(stay) }}</p>
-        <p>{{ stay.description }}</p>
-        <ul class="meta-list">
-          {% if stay.location.city %}<li>Location: {{ stay.location.city }}, {{ stay.location.country }}</li>{% endif %}
-          {% if stay.host_group %}<li>Host group: {{ stay.host_group }}</li>{% endif %}
-          {% if stay.purpose or stay.type %}<li>Purpose: {{ [stay.purpose, stay.type] | select | join(", ") }}</li>{% endif %}
-          {% if stay.get("resolved", {}).get("grant_ids", []) %}<li>Grants: {{ common.linked_records(stay.resolved.grant_ids) }}</li>{% endif %}
-          {% for task in stay.tasks %}<li>{{ task }}</li>{% endfor %}
-        </ul>
-      </article>
-      {% endfor %}
-      </div>
-    </section>
-    <section id="career-certifications" class="career-detail-section certification">
-      <div class="career-detail-heading">
-        <p class="eyebrow">Certifications</p>
-        <h3>Credentials</h3>
-      </div>
-      <div class="career-card-grid compact-career-grid">
-      {% for certification in career.certifications %}
-      <article class="career-card certification">
-        <div class="record-topline"><span>Certification</span>{% if certification.issue_date %}<time>{{ certification.issue_date }}</time>{% endif %}</div>
-        <h3>{{ certification.title }}</h3>
-        <p>{{ common.org_links(certification) }}{% if certification.issue_date %} · {{ certification.issue_date }}{% endif %}</p>
-        <ul class="meta-list">
-          {% if certification.duration_hours %}<li>{{ certification.duration_hours }} hours</li>{% endif %}
-          {% if certification.credential_id %}<li>Credential ID: {{ certification.credential_id }}</li>{% endif %}
-          {% if certification.notes %}<li>{{ certification.notes }}</li>{% endif %}
-        </ul>
-      </article>
-      {% endfor %}
-      </div>
-    </section>
-    <section id="career-honors" class="career-detail-section honor">
-      <div class="career-detail-heading">
-        <p class="eyebrow">Honors</p>
-        <h3>Awards</h3>
-      </div>
-      <div class="career-card-grid compact-career-grid">
-      {% for honor in career.honors %}
-      <article class="career-card honor">
-        <div class="record-topline"><span>Honor</span><time>{{ honor.issue_date }}</time></div>
-        <h3>{{ honor.title }}</h3>
-        <p>{{ honor.issue_date }} · {{ honor.awarding_entities | join(", ") }}</p>
-        <p>{{ honor.context }}</p>
-      </article>
-      {% endfor %}
-      </div>
-    </section>
-    <section id="career-grants" class="career-detail-section grant">
-      <div class="career-detail-heading">
-        <p class="eyebrow">Grants</p>
-        <h3>Funding</h3>
-      </div>
-      <div class="career-card-grid compact-career-grid">
-      {% for grant in career.grants %}
-      <article class="career-card grant">
-        <div class="record-topline"><span>{{ grant.awarding_entity_type }}</span><time>{{ grant.issue_date }}</time></div>
-        <h3>{{ grant.name }}</h3>
-        <p>{{ grant.issue_date }} · {{ grant.awarding_entity }}</p>
-        <p>{{ grant.purpose }}</p>
-        {% if common.date_span(grant) %}<p class="tags">{{ common.date_span(grant) }}</p>{% endif %}
-        {% if grant.notes %}<p>{{ grant.notes }}</p>{% endif %}
-      </article>
-      {% endfor %}
-      </div>
-    </section>
+    </article>
+    {% else %}
+    {% set record = item.record %}
+    <article class="career-card {{ item.category }}" data-career-category="{{ item.category }}">
+      {% if item.category == "education" %}
+      <div class="record-topline"><span>{{ record.level }}</span><time>{{ record.start_date | date_range(record.end_date) }}</time></div>
+      <h3>{{ record.title }}</h3>
+      <p>{{ common.org_links(record) }} · {{ record.start_date | date_range(record.end_date) }}</p>
+      {% if record.grade %}<p>{{ record.grade }}</p>{% endif %}
+      {% if record.get("resolved", {}).get("grant_ids", []) %}<p>Grants: {{ common.linked_records(record.resolved.grant_ids) }}</p>{% endif %}
+      {% if record.get("thesis", {}).get("title") %}<p>{{ record.thesis.type }}: {{ record.thesis.title }}</p>{% endif %}
+      {% if record.get("thesis", {}).get("area") %}<p class="tags">{{ record.thesis.area }}</p>{% endif %}
+      {% elif item.category == "certification" %}
+      <div class="record-topline"><span>Certification</span>{% if record.issue_date %}<time>{{ record.issue_date }}</time>{% endif %}</div>
+      <h3>{{ record.title }}</h3>
+      <p>{{ common.org_links(record) }}{% if record.issue_date %} · {{ record.issue_date }}{% endif %}</p>
+      <ul class="meta-list">
+        {% if record.duration_hours %}<li>{{ record.duration_hours }} hours</li>{% endif %}
+        {% if record.credential_id %}<li>Credential ID: {{ record.credential_id }}</li>{% endif %}
+        {% if record.notes %}<li>{{ record.notes }}</li>{% endif %}
+      </ul>
+      {% elif item.category == "honor" %}
+      <div class="record-topline"><span>Honor</span><time>{{ record.issue_date }}</time></div>
+      <h3>{{ record.title }}</h3>
+      <p>{{ record.issue_date }} · {{ record.awarding_entities | join(", ") }}</p>
+      <p>{{ record.context }}</p>
+      {% elif item.category == "grant" %}
+      <div class="record-topline"><span>{{ record.awarding_entity_type }}</span><time>{{ record.issue_date }}</time></div>
+      <h3>{{ record.name }}</h3>
+      <p>{{ record.issue_date }} · {{ record.awarding_entity }}</p>
+      <p>{{ record.purpose }}</p>
+      {% if common.date_span(record) %}<p class="tags">{{ common.date_span(record) }}</p>{% endif %}
+      {% if record.notes %}<p>{{ record.notes }}</p>{% endif %}
+      {% endif %}
+    </article>
+    {% endif %}
+    {% endfor %}
   </div>
 </section>

@@ -83,56 +83,62 @@
       </div>
       {% endif %}
     </aside>
-    <div class="repo-list">
-      {% for project in software_projects %}
-      {% set github = project.get("github") %}
-      <article class="repo-row">
-        <div class="repo-identity">
-          <div class="software-meta">
-            <span>{{ project.type }}</span>
+    <div class="software-carousel repo-carousel-shell" data-software-carousel data-repo-carousel>
+      {{ common.carousel_control("software-carousel-control", "previous", "data-software-carousel-prev", "Previous repository") }}
+      <div class="repo-list" data-software-carousel-track>
+        {% for project in software_projects %}
+        {% set github = project.get("github") %}
+        <article class="repo-row" data-software-carousel-item>
+          <div class="repo-identity">
+            <div class="software-meta">
+              <span>{{ project.type }}</span>
+            </div>
+            <h3>{% if project.urls.github %}<a href="{{ project.urls.github }}">{{ project.name }}</a>{% else %}{{ project.name }}{% endif %}</h3>
+            {% if project.full_name %}<p>{{ project.full_name }}</p>{% endif %}
           </div>
-          <h3>{% if project.urls.github %}<a href="{{ project.urls.github }}">{{ project.name }}</a>{% else %}{{ project.name }}{% endif %}</h3>
-          {% if project.full_name %}<p>{{ project.full_name }}</p>{% endif %}
-        </div>
-        <div class="repo-summary">
-          {% if project.description %}<p>{{ project.description }}</p>{% endif %}
-          <div class="repo-tags">
-            {% for domain in project.domains %}
-            <span>{{ domain }}</span>
-            {% endfor %}
+          <div class="repo-summary">
+            {% if project.description %}<p>{{ project.description }}</p>{% endif %}
+            <div class="repo-tags">
+              {% for domain in project.domains %}
+              <span>{{ domain }}</span>
+              {% endfor %}
+            </div>
           </div>
-        </div>
-        {% if github %}
-        <div class="repo-stats">
-          <div class="repo-statline">
-            {% if github.language %}<span>{{ github.language }}</span>{% endif %}
-            {% if github.license %}<span>{{ github.license }}</span>{% endif %}
-            <span>{{ github.stargazers_count }} stars</span>
-            <span>{{ github.forks_count }} forks</span>
-            <span>{{ github.open_issues_count }} open</span>
-            {% if github.commits_count is not none %}<span>{{ github.commits_count }} commits</span>{% endif %}
-          </div>
-          {% if github.first_commit_at or github.last_commit_at or github.pushed_at %}
-          <div class="repo-dates">
-            {% if github.first_commit_at and github.last_commit_at %}
-            <span>Commits {{ github.first_commit_at[:10] }} - {{ github.last_commit_at[:10] }}</span>
-            {% endif %}
-            {% if github.pushed_at %}
-            <span>Push {{ github.pushed_at[:10] }}</span>
+          {% if github %}
+          <div class="repo-stats">
+            <div class="repo-statline">
+              {% if github.language %}<span>{{ github.language }}</span>{% endif %}
+              {% if github.license %}<span>{{ github.license }}</span>{% endif %}
+              <span>{{ github.stargazers_count }} stars</span>
+              <span>{{ github.forks_count }} forks</span>
+              <span>{{ github.open_issues_count }} open</span>
+              {% if github.commits_count is not none %}<span>{{ github.commits_count }} commits</span>{% endif %}
+            </div>
+            {% if github.first_commit_at or github.last_commit_at or github.pushed_at %}
+            <div class="repo-dates">
+              {% if github.first_commit_at and github.last_commit_at %}
+              <span>Commits {{ github.first_commit_at[:10] }} - {{ github.last_commit_at[:10] }}</span>
+              {% endif %}
+              {% if github.pushed_at %}
+              <span>Push {{ github.pushed_at[:10] }}</span>
+              {% endif %}
+            </div>
             {% endif %}
           </div>
           {% endif %}
-        </div>
-        {% endif %}
-      </article>
-      {% endfor %}
+        </article>
+        {% endfor %}
+      </div>
+      {{ common.carousel_control("software-carousel-control", "next", "data-software-carousel-next", "Next repository") }}
     </div>
   </div>
   <h3 class="subsection-title">Software Packages</h3>
-  <div class="package-grid">
+  <div class="software-carousel package-carousel-shell" data-software-carousel data-package-carousel>
+    {{ common.carousel_control("software-carousel-control", "previous", "data-software-carousel-prev", "Previous software package") }}
+    <div class="package-grid" data-software-carousel-track>
     {% for package in software_packages %}
     {% set stats = package.get("package_stats", {}) %}
-    <article class="package-card">
+    <article class="package-card" data-software-carousel-item>
       <div class="software-meta"><span>{{ package.ecosystem }}</span>{% if package.get("package_name") %}<span>{{ package.package_name }}</span>{% endif %}{% if package.get("group_id") %}<span>{{ package.group_id }}:{{ package.artifact_id }}</span>{% endif %}</div>
       <h3><a href="{{ stats.get("package_url") or stats.get("mvnrepository_url") or package.get("url", "#") }}">{{ package.name }}</a></h3>
       {% if stats.get("summary") %}<p>{{ stats.summary }}</p>{% endif %}
@@ -220,5 +226,7 @@
       {% endif %}
     </article>
     {% endfor %}
+    </div>
+    {{ common.carousel_control("software-carousel-control", "next", "data-software-carousel-next", "Next software package") }}
   </div>
 </section>

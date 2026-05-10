@@ -51,12 +51,20 @@ def _collaboration_view(
                 **location,
                 "stay_ids": set(),
                 "stay_titles": [],
+                "stays": [],
                 "months": 0,
             },
         )
+        months = _month_span(stay.get("start_date"), stay.get("end_date"))
         item["stay_ids"].add(stay["id"])
         item["stay_titles"].append(stay["title"])
-        item["months"] += _month_span(stay.get("start_date"), stay.get("end_date"))
+        item["stays"].append(
+            {
+                "months": int(months),
+                "year": _stay_year(stay),
+            }
+        )
+        item["months"] += months
 
     max_publications = max(
         (len(location["publication_ids"]) for location in publication_locations.values()),
@@ -180,6 +188,10 @@ def _publication_map_node(location: dict[str, Any], max_publications: int) -> di
 
 def _stay_map_node(location: dict[str, Any]) -> dict[str, Any]:
     months = int(location["months"])
+    stays = sorted(
+        location["stays"],
+        key=lambda stay: (str(stay["year"]), int(stay["months"])),
+    )
     return {
         "city": location["city"],
         "country": location["country"],
@@ -187,8 +199,19 @@ def _stay_map_node(location: dict[str, Any]) -> dict[str, Any]:
         "longitude": location["longitude"],
         "stay_count": len(location["stay_ids"]),
         "months": months,
+        "stays": [
+            {
+                **stay,
+                "label": f"{stay['months']} mo · {stay['year']}",
+            }
+            for stay in stays
+        ],
     }
 
+
+def _stay_year(stay: dict[str, Any]) -> str:
+    date_value = stay.get("start_date") or stay.get("end_date") or ""
+    return str(date_value)[:4] if len(str(date_value)) >= 4 else "n.d."
 
 
 def _collaboration_city_row(

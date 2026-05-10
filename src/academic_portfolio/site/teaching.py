@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from math import ceil
 from typing import Any
 
@@ -13,6 +14,142 @@ TEACHING_ORGANIZATION_COLOR_PALETTE = [
     "#a66f21",
     "#6d5fa3",
 ]
+
+
+def _teaching_hours_chart(
+    university_classes: list[dict[str, Any]],
+    organization_legend: list[dict[str, str]] | None = None,
+) -> dict[str, Any]:
+    colors_by_organization_id = {
+        str(organization["id"]): str(organization["color"])
+        for organization in organization_legend or []
+    }
+    organizations = _teaching_chart_organizations(university_classes)
+    _assign_missing_teaching_chart_colors(organizations, colors_by_organization_id)
+    return {
+        "legend": _teaching_chart_legend(organizations, colors_by_organization_id),
+        "by_academic_year": _teaching_hours_rows(
+            university_classes,
+            key="academic_year",
+            sort_by_value=False,
+            colors_by_organization_id=colors_by_organization_id,
+        ),
+        "by_degree": _teaching_hours_rows(
+            university_classes,
+            key="degree",
+            sort_by_value=True,
+            colors_by_organization_id=colors_by_organization_id,
+        ),
+    }
+
+
+def _teaching_chart_organizations(records: list[dict[str, Any]]) -> dict[str, dict[str, str]]:
+    organizations = {}
+    for record in records:
+        organization = _primary_organization(record)
+        organizations[organization["id"]] = organization
+    return dict(
+        sorted(
+            organizations.items(),
+            key=lambda item: (item[1]["label"], item[1]["name"], item[1]["id"]),
+        )
+    )
+
+
+def _assign_missing_teaching_chart_colors(
+    organizations: dict[str, dict[str, str]],
+    colors_by_organization_id: dict[str, str],
+) -> None:
+    for index, organization_id in enumerate(organizations):
+        colors_by_organization_id.setdefault(
+            organization_id,
+            TEACHING_ORGANIZATION_COLOR_PALETTE[
+                index % len(TEACHING_ORGANIZATION_COLOR_PALETTE)
+            ],
+        )
+
+
+def _teaching_chart_legend(
+    organizations: dict[str, dict[str, str]],
+    colors_by_organization_id: dict[str, str],
+) -> list[dict[str, str]]:
+    return [
+        {
+            "id": organization_id,
+            "label": organization["label"],
+            "name": organization["name"],
+            "color": colors_by_organization_id[organization_id],
+        }
+        for organization_id, organization in organizations.items()
+    ]
+
+
+def _teaching_hours_rows(
+    records: list[dict[str, Any]],
+    *,
+    key: str,
+    sort_by_value: bool,
+    colors_by_organization_id: dict[str, str],
+) -> list[dict[str, Any]]:
+    totals: defaultdict[str, float] = defaultdict(float)
+    organization_totals: defaultdict[str, defaultdict[str, float]] = defaultdict(
+        lambda: defaultdict(float)
+    )
+    organizations = _teaching_chart_organizations(records)
+    for record in records:
+        label = str(record.get(key) or "Unspecified")
+        hours = float(record.get("workload_hours") or 0)
+        organization_id = _primary_organization(record)["id"]
+        totals[label] += hours
+        organization_totals[label][organization_id] += hours
+
+    max_hours = max(totals.values(), default=0)
+    rows = [
+        {
+            "label": label,
+            "hours": hours,
+            "hours_label": _format_teaching_hours(hours),
+            "share": round((hours / max_hours) * 100, 2) if max_hours else 0,
+            "segments": _teaching_hours_segments(
+                organization_totals[label],
+                organizations,
+                colors_by_organization_id,
+                hours,
+            ),
+        }
+        for label, hours in totals.items()
+    ]
+    if sort_by_value:
+        return sorted(rows, key=lambda row: (-row["hours"], row["label"]))
+    return sorted(rows, key=lambda row: row["label"])
+
+
+def _format_teaching_hours(hours: float) -> str:
+    if hours.is_integer():
+        return f"{int(hours)} h"
+    return f"{hours:.1f} h"
+
+
+def _teaching_hours_segments(
+    totals_by_organization_id: dict[str, float],
+    organizations: dict[str, dict[str, str]],
+    colors_by_organization_id: dict[str, str],
+    total_hours: float,
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "organization_id": organization_id,
+            "label": organizations[organization_id]["label"],
+            "hours": hours,
+            "hours_label": _format_teaching_hours(hours),
+            "share": round((hours / total_hours) * 100, 2) if total_hours else 0,
+            "color": colors_by_organization_id[organization_id],
+        }
+        for organization_id, hours in sorted(
+            totals_by_organization_id.items(),
+            key=lambda item: organizations[item[0]]["label"],
+        )
+    ]
 
 
 def _teaching_timeline_view(
@@ -247,6 +384,8 @@ def _teaching_detail_lines(
     if event_type == "class":
         if record.get("department"):
             lines.append(str(record["department"]))
+        if record.get("workload_hours"):
+            lines.append(f"{record['workload_hours']} hours")
     else:
         if record.get("role"):
             lines.append(str(record["role"]))

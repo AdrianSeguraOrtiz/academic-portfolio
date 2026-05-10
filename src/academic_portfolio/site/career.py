@@ -1,10 +1,169 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from datetime import date
 from typing import Any
 
 from academic_portfolio.render import date_range, record_name
 from academic_portfolio.view_records import records_by_reference
+
+
+def _career_details_view(
+    degrees: list[dict[str, Any]],
+    experience: list[dict[str, Any]],
+    research_stays: list[dict[str, Any]],
+    certifications: list[dict[str, Any]],
+    honors: list[dict[str, Any]],
+    grants: list[dict[str, Any]],
+) -> dict[str, Any]:
+    filters = [
+        {"id": "education", "label": "Education", "count": len(degrees)},
+        {"id": "experience", "label": "Experience", "count": len(experience)},
+        {"id": "stay", "label": "Stays", "count": len(research_stays)},
+        {"id": "certification", "label": "Certifications", "count": len(certifications)},
+        {"id": "honor", "label": "Honors", "count": len(honors)},
+        {"id": "grant", "label": "Grants", "count": len(grants)},
+    ]
+    items = [
+        *(
+            _career_detail_record_item("education", "Education", degree)
+            for degree in degrees
+        ),
+        *_career_detail_organization_groups("experience", "Experience", experience),
+        *_career_detail_organization_groups("stay", "Research stay", research_stays),
+        *(
+            _career_detail_record_item("certification", "Certification", certification)
+            for certification in certifications
+        ),
+        *(
+            _career_detail_record_item("honor", "Honor", honor)
+            for honor in honors
+        ),
+        *(
+            _career_detail_record_item("grant", "Grant", grant)
+            for grant in grants
+        ),
+    ]
+    return {
+        "filters": filters,
+        "items": sorted(
+            items,
+            key=lambda item: (item["sort_date"], item["category"], item["title"]),
+            reverse=True,
+        ),
+    }
+
+
+def _career_detail_record_item(
+    category: str,
+    category_label: str,
+    record: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "kind": "record",
+        "category": category,
+        "category_label": category_label,
+        "title": record_name(record),
+        "sort_date": _career_detail_sort_date(record),
+        "record": record,
+    }
+
+
+def _career_detail_organization_groups(
+    category: str,
+    category_label: str,
+    records: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    grouped_records: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
+    organizations_by_key: dict[str, dict[str, Any]] = {}
+
+    for record in records:
+        organization = _career_detail_primary_organization(record)
+        organization_key = str(organization.get("id") or "unknown")
+        grouped_records[organization_key].append(record)
+        organizations_by_key[organization_key] = organization
+
+    groups = []
+    for organization_key, group_records in grouped_records.items():
+        sorted_records = sorted(
+            group_records,
+            key=lambda record: _career_detail_sort_date(record),
+            reverse=True,
+        )
+        organization = organizations_by_key[organization_key]
+        groups.append(
+            {
+                "kind": "organization_group",
+                "category": category,
+                "category_label": category_label,
+                "title": _career_detail_organization_label(organization),
+                "sort_date": _career_detail_sort_date(sorted_records[0]),
+                "organization": organization,
+                "records": sorted_records,
+                "period": _career_detail_group_period(sorted_records),
+                "location": _career_detail_group_location(sorted_records, organization),
+                "progression": " <- ".join(record_name(record) for record in sorted_records),
+            }
+        )
+    return groups
+
+
+def _career_detail_primary_organization(record: dict[str, Any]) -> dict[str, Any]:
+    organizations = record.get("resolved", {}).get("organization_ids", [])
+    if not organizations:
+        return {"id": "unknown", "name": "Unspecified organization"}
+    return organizations[-1]
+
+
+def _career_detail_organization_label(organization: dict[str, Any]) -> str:
+    return str(
+        organization.get("name")
+        or organization.get("full_name")
+        or organization.get("abbreviation")
+        or "Unspecified organization"
+    )
+
+
+def _career_detail_group_period(records: list[dict[str, Any]]) -> str:
+    start_dates = [record.get("start_date") for record in records if record.get("start_date")]
+    end_dates = [record.get("end_date") for record in records if record.get("end_date")]
+    start_date = min(start_dates) if start_dates else None
+    end_date = None if any(not record.get("end_date") for record in records) else max(end_dates, default=None)
+    return date_range(start_date, end_date)
+
+
+def _career_detail_group_location(
+    records: list[dict[str, Any]],
+    organization: dict[str, Any],
+) -> str:
+    for record in records:
+        location = record.get("location")
+        if isinstance(location, str) and location:
+            return location
+        if isinstance(location, dict):
+            location_label = ", ".join(
+                str(part)
+                for part in (location.get("city"), location.get("country"))
+                if part
+            )
+            if location_label:
+                return location_label
+
+    location = organization.get("location", {})
+    return ", ".join(
+        str(part)
+        for part in (location.get("city"), location.get("country"))
+        if part
+    )
+
+
+def _career_detail_sort_date(record: dict[str, Any]) -> str:
+    return _timeline_date(
+        record.get("end_date")
+        or record.get("issue_date")
+        or record.get("start_date")
+        or record.get("date")
+    )
 
 def _career_timeline_view(
     degrees: list[dict[str, Any]],

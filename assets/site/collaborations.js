@@ -249,19 +249,27 @@ function drawStayMarkers(layer, nodes) {
     .attr("y2", stemY);
   markers.append("circle").attr("cx", 0).attr("cy", circleY).attr("r", circleRadius);
   markers
-    .append("text")
+    .selectAll("text")
+    .data((node) => stayLabels(node))
+    .join("text")
     .attr("class", "stay-month-label")
     .attr("x", labelX)
-    .attr("y", labelY)
-    .text((node) => `${node.months} mo`);
+    .attr("y", (_stay, index) => labelY + index * 15)
+    .text((stay) => stay.label);
   markers
     .append("title")
-    .text(
-      (node) =>
-        `${node.city}, ${node.country} · ${node.months} ${
-          node.months === 1 ? "month" : "months"
-        } in research stay`,
-    );
+    .text((node) => {
+      const lines = stayLabels(node).map((stay) => stay.label);
+      return `${node.city}, ${node.country}\n${lines.join("\n")}`;
+    });
+}
+
+function stayLabels(node) {
+  const stays = asArray(node.stays);
+  if (stays.length) {
+    return stays;
+  }
+  return [{ label: `${node.months} mo` }];
 }
 
 initCollaborationMap();

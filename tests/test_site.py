@@ -5,6 +5,7 @@ from academic_portfolio.github import github_repository_from_url
 from academic_portfolio.loader import load_data
 from academic_portfolio.resolver import PortfolioResolver
 from academic_portfolio.site import build_site_view, generate_site
+from academic_portfolio.site.collaborations import _collaboration_view
 
 
 def _flatten_organization_nodes(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -13,6 +14,46 @@ def _flatten_organization_nodes(nodes: list[dict[str, Any]]) -> list[dict[str, A
         flattened.append(node)
         flattened.extend(_flatten_organization_nodes(node.get("children", [])))
     return flattened
+
+
+def test_collaboration_map_keeps_repeated_city_stays_as_separate_labels() -> None:
+    collaborations = _collaboration_view(
+        publications=[],
+        research_stays=[
+            {
+                "id": "stay_a",
+                "title": "First stay",
+                "start_date": "2024-01",
+                "end_date": "2024-02",
+                "location": {
+                    "city": "Lille",
+                    "country": "France",
+                    "coordinates": {"latitude": 50.6292, "longitude": 3.0573},
+                },
+                "resolved": {"organization_ids": []},
+            },
+            {
+                "id": "stay_b",
+                "title": "Second stay",
+                "start_date": "2027-03",
+                "end_date": "2027-05",
+                "location": {
+                    "city": "Lille",
+                    "country": "France",
+                    "coordinates": {"latitude": 50.6292, "longitude": 3.0573},
+                },
+                "resolved": {"organization_ids": []},
+            },
+        ],
+    )
+
+    assert collaborations["metrics"]["research_stays"] == 2
+    assert collaborations["metrics"]["stay_cities"] == 1
+    assert collaborations["metrics"]["stay_months"] == 5
+    assert collaborations["map_data"]["stay_nodes"][0]["stays"] == [
+        {"months": 2, "year": "2024", "label": "2 mo · 2024"},
+        {"months": 3, "year": "2027", "label": "3 mo · 2027"},
+    ]
 
 
 def test_build_site_view_computes_core_metrics() -> None:
@@ -28,9 +69,53 @@ def test_build_site_view_computes_core_metrics() -> None:
     assert view["metrics"]["software_packages"] == 2
     assert view["metrics"]["research_projects"] == 4
     assert view["metrics"]["teaching_innovation_projects"] == 1
+    assert view["metrics"]["teaching_hours"] == 180
+    assert view["metrics"]["known_social_views"] == 68300
+    assert view["metrics"]["package_downloads"] == 0
+    assert view["metrics"]["work_institutions"] == 3
+    assert view["metrics"]["reviewed_manuscripts"] == 8
+    assert view["overview"]["research"]["reviewed_manuscripts"] == 8
+    assert view["overview"]["internationalization"]["international_publications"] == 1
+    assert view["overview"]["internationalization"]["national_multicity_publications"] == 1
+    assert view["overview"]["education"]["degrees"][0].startswith("Bachelor")
+    assert view["overview"]["education"]["degrees"][-1].startswith("Ph.D.")
+    assert "from Universidad de Málaga" in view["overview"]["education"]["degrees"][0]
+    assert [item["label"] for item in view["overview"]["experience"]["by_institution"]] == [
+        "Universidad de Málaga"
+    ]
+    assert "Athena Research and Innovation Center" in view["overview"]["internationalization"][
+        "stays_text"
+    ]
+    assert "ORKAD, belonging to CRIStAL, belonging to Université de Lille" in view[
+        "overview"
+    ]["internationalization"]["stays_text"]
+    assert "covering Predoctoral Researcher (International Stay) at Université de Lille" in view[
+        "overview"
+    ]["recognition"]["grants_text"]
+    assert "PhD candidate - FPU Fellowship at Universidad de Málaga" in view["overview"][
+        "recognition"
+    ]["grants_text"]
+    assert view["overview"]["teaching"]["degree_programs"] == 4
+    assert view["overview"]["teaching"]["teaching_innovation_projects"] == 1
+    assert (
+        view["overview"]["teaching"]["teaching_innovation_projects_phrase"]
+        == "1 teaching innovation project"
+    )
+    assert view["overview"]["teaching"]["supervision_counts"]["final degree project"] == 1
+    assert view["overview"]["teaching"]["supervision_counts"]["external internship"] == 1
+    assert view["overview"]["dissemination"]["known_social_views"] == 68300
+    assert view["overview"]["recognition"]["honors_phrase"] == "4 honors"
+    assert view["overview"]["recognition"]["grants_phrase"] == "2 grants"
+    assert len(view["overview"]["recognition"]["honors"]) == 4
+    assert len(view["overview"]["recognition"]["grants"]) == 2
     assert len(view["projects"]) == 5
     assert {project["participation_class"] for project in view["projects"]} == {"working"}
     assert view["publication_chart"]
+    assert [item["year"] for item in view["publication_chart"]] == sorted(
+        [item["year"] for item in view["publication_chart"]],
+        reverse=True,
+    )
+    assert view["publication_groups"][0]["year"] == view["publication_chart"][0]["year"]
     assert view["collaborations"]["metrics"]["research_stays"] == 2
     assert view["collaborations"]["metrics"]["stay_months"] == 6
     assert view["collaborations"]["metrics"]["publication_cities"] >= 3
@@ -39,6 +124,12 @@ def test_build_site_view_computes_core_metrics() -> None:
     assert view["collaborations"]["metrics"]["stay_cities"] == 2
     assert view["collaborations"]["metrics"]["stay_countries"] == 2
     assert view["collaborations"]["publication_nodes"]
+    stay_labels = {
+        stay["label"]
+        for node in view["collaborations"]["map_data"]["stay_nodes"]
+        for stay in node["stays"]
+    }
+    assert {"3 mo · 2024", "3 mo · 2026"}.issubset(stay_labels)
     assert any(node["city"] == "Málaga" for node in view["collaborations"]["publication_nodes"])
     assert view["career_timeline"]["items"]
     assert view["career_timeline"]["markers"]
@@ -54,10 +145,39 @@ def test_build_site_view_computes_core_metrics() -> None:
         item["type"] == "education" and item["grants"]
         for item in view["career_timeline"]["items"]
     )
+    assert view["career_details"]["items"]
+    assert {filter_item["id"] for filter_item in view["career_details"]["filters"]} == {
+        "education",
+        "experience",
+        "stay",
+        "certification",
+        "honor",
+        "grant",
+    }
+    assert any(
+        item["kind"] == "organization_group"
+        and item["category"] == "experience"
+        and item["title"] == "Khaos Research"
+        and len(item["records"]) == 3
+        for item in view["career_details"]["items"]
+    )
+    assert sum(row["hours"] for row in view["teaching_hours_chart"]["by_academic_year"]) == 180
+    assert [row["label"] for row in view["teaching_hours_chart"]["by_academic_year"]] == [
+        "2022/2023",
+        "2023/2024",
+        "2024/2025",
+        "2025/2026",
+    ]
+    assert view["teaching_hours_chart"]["by_degree"][0]["label"] == "Grado en Ingeniería de la Salud"
+    assert view["teaching_hours_chart"]["by_degree"][0]["hours_label"] == "90.8 h"
     assert len(view["teaching_timeline"]["events"]) == 10
     organizations = resolver.loaded_data.documents["entities/organizations.yaml"]["organizations"]
     university_of_malaga = next(
         organization for organization in organizations if organization["id"] == "organization_01"
+    )
+    assert view["teaching_hours_chart"]["legend"][0]["label"] == university_of_malaga["abbreviation"]
+    assert view["teaching_hours_chart"]["by_degree"][0]["segments"][0]["label"] == (
+        university_of_malaga["abbreviation"]
     )
     assert view["teaching_timeline"]["legend"][0]["label"] == university_of_malaga["abbreviation"]
     assert {event["type"] for event in view["teaching_timeline"]["events"]} == {
@@ -108,6 +228,13 @@ def test_build_site_view_computes_core_metrics() -> None:
     )
     khaos = next(node for node in organization_nodes if node["id"] == "organization_03")
     assert khaos["path_label"] == "UMA > ITIS > Khaos Research"
+    spain = next(country for country in view["organization_network"]["cards"] if country["country"] == "Spain")
+    malaga = next(city for city in spain["cities"] if city["city"] == "Málaga")
+    uma = next(organization for organization in malaga["organizations"] if organization["id"] == "organization_01")
+    itis = next(child for child in uma["children"] if child["id"] == "organization_06")
+    cimes = next(child for child in uma["children"] if child["id"] == "organization_12")
+    assert next(child for child in itis["children"] if child["id"] == "organization_03")
+    assert next(child for child in cimes["children"] if child["id"] == "organization_02")
     assert khaos["value"] > 0
     assert view["software_timeline"]["rows"] == []
     assert view["publications"][0]["publication_kind"] in {"journal", "conference"}
@@ -200,6 +327,8 @@ def test_build_site_view_uses_package_stats_for_software_packages() -> None:
     geneci = next(package for package in view["software_packages"] if package["id"] == "package_01")
     assert geneci["package_stats"]["latest_version"] == "4.0.1.2"
     assert geneci["package_stats"]["total_downloads"] == 18_024
+    assert view["metrics"]["package_downloads"] == 18_024
+    assert view["overview"]["software"]["package_downloads_label"] == "18,024"
 
 
 def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
@@ -208,37 +337,76 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert output.output_path == tmp_path / "index.html"
     assert output.output_path.exists()
     assert (tmp_path / "assets" / "site.css").exists()
+    assert (tmp_path / "assets" / "ui.js").exists()
     assert (tmp_path / "assets" / "collaborations.js").exists()
+    assert (tmp_path / "assets" / "publications.js").exists()
     assert (tmp_path / "assets" / "software-timeline.js").exists()
     assert (tmp_path / "assets" / "career-timeline.js").exists()
+    assert (tmp_path / "assets" / "career-details.js").exists()
+    assert (tmp_path / "assets" / "projects.js").exists()
     assert (tmp_path / "assets" / "teaching-timeline.js").exists()
     assert (tmp_path / "assets" / "dissemination.js").exists()
+    assert (tmp_path / "assets" / "organizations.js").exists()
     assert (tmp_path / "assets" / "profile.jpg").exists()
     assert "Adrián Segura Ortiz" in output.content
     assert 'class="profile-photo"' in output.content
-    assert "Journal papers" in output.content
-    assert "Conference papers" in output.content
+    assert "Portfolio Summary" in output.content
+    assert "artificial intelligence applied" in output.content
+    assert "journal papers" in output.content
+    assert "conference paper" in output.content
+    assert "paper in international collaboration" in output.content
+    assert "paper in national collaboration" in output.content
+    assert "multi-city" not in output.content
+    assert "GitHub metadata" not in output.content
+    assert "Total publications" in output.content
+    assert "Teaching hours" in output.content
+    assert "Package downloads" in output.content
+    assert "Known social views" in output.content
+    assert "This academic trajectory has also been recognized" in output.content
+    assert "Predoctoral grant (FPU)" in output.content
+    assert "Destacad@s Awards 2021" in output.content
     assert "Research Stays and Publication Cities" in output.content
     assert "collaboration-map" in output.content
     assert "collaboration-map-data" in output.content
     assert "Publications by Year" in output.content
+    assert "publication-carousel" in output.content
+    assert "data-publication-carousel-prev" in output.content
+    assert "data-publication-carousel-next" in output.content
+    assert "assets/ui.js" in output.content
+    assert "carousel-control publication-carousel-control previous" in output.content
+    assert "data-publication-year-chart" in output.content
+    assert "data-publication-year-group" in output.content
+    assert "data-publication-slide" in output.content
     assert "repo-row" in output.content
+    assert "data-repo-carousel" in output.content
+    assert "data-software-carousel-track" in output.content
+    assert "data-software-carousel-item" in output.content
     assert "Software Index" in output.content
     assert "Software Packages" in output.content
+    assert "data-package-carousel" in output.content
     assert "Package: geneci" in output.content
     assert "Research Focus" in output.content
     assert "Current position" in output.content
     assert "Khaos Research" in output.content
-    assert "Education, Experience, Stays, Honors, and Grants" in output.content
+    assert "Academic Trajectory" in output.content
     assert "career-timeline-data" in output.content
     assert "data-career-timeline" in output.content
+    assert "data-career-detail-filters" in output.content
+    assert "career-organization-card experience" in output.content
+    assert "Associate Team Coordinator <- Associate Software Engineer" in output.content
     assert "Research and Teaching Innovation Projects" in output.content
     assert "project-role-legend" in output.content
+    assert "data-project-carousel" in output.content
+    assert "data-project-carousel-track" in output.content
+    assert "data-project-meta-details" in output.content
     assert "project-card type-research role-working" in output.content
     assert "project-card type-teaching role-working" in output.content
     assert "Teaching innovation project" in output.content
     assert "PIE22-114" in output.content
     assert "Classes and Supervision" in output.content
+    assert "teaching-chart-grid" in output.content
+    assert "By Academic Year" in output.content
+    assert "By Degree Programme" in output.content
     assert "teaching-timeline-stage" in output.content
     assert "teaching-timeline-item type-class" in output.content
     assert "teaching-timeline-item type-supervision" in output.content
@@ -249,6 +417,10 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert "dissemination-summary" in output.content
     assert "channel-mix" in output.content
     assert "publication-impact" in output.content
+    assert "data-dissemination-carousel" in output.content
+    assert "data-dissemination-prev" in output.content
+    assert "data-dissemination-next" in output.content
+    assert "data-media-details" in output.content
     assert "media-card category-articles" in output.content
     assert "media-card category-presentations" in output.content
     assert "media-card category-press" in output.content
@@ -256,10 +428,13 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert "media-card category-tv" in output.content
     assert "data-dissemination-filters" in output.content
     assert "Organizations" in output.content
-    assert "organization-relationship-chart" in output.content
-    assert "relationship-country-track" in output.content
-    assert "relationship-node depth-2" in output.content
-    assert "Certificates-only organizations are omitted" in output.content
+    assert "data-organization-tabs" in output.content
+    assert "data-organization-tab" in output.content
+    assert "organization-hierarchy-list" in output.content
+    assert "organization-children" in output.content
+    assert "Contained organizations" in output.content
+    assert "organization-relationship-chart" not in output.content
+    assert "relationship-country-track" not in output.content
     assert "undefined" not in output.content
     assert "null" not in output.content
     assert "None" not in output.content

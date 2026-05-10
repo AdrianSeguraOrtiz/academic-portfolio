@@ -7,6 +7,7 @@ from academic_portfolio.site.common import (
     _float_percentage,
     _month_span,
     _month_span_to_present,
+    _organization_short_label,
 )
 
 ORGANIZATION_RELATIONSHIP_TYPES = [
@@ -302,7 +303,7 @@ def _organization_relationship_node(
         return None
 
     organization = organizations_by_id[organization_id]
-    label = _organization_label(organization)
+    label = _organization_short_label(organization)
     location = organization.get("location", {}) or {}
     node_path = [*(path or []), label]
     child_nodes = [
@@ -460,11 +461,6 @@ def _relationship_lane_stack_style(max_lane: int) -> str:
 
 
 
-def _organization_label(organization: dict[str, Any]) -> str:
-    return str(organization.get("abbreviation") or organization.get("name") or organization.get("id") or "")
-
-
-
 def _organization_metric_badges(metrics: dict[str, float]) -> list[dict[str, str]]:
     badges = []
     for relationship in ORGANIZATION_RELATIONSHIP_TYPES:
@@ -532,7 +528,7 @@ def _organization_card_groups(
     ]
     card_nodes = [node for node in card_nodes if node]
     city_groups_by_country: dict[str, dict[str, list[dict[str, Any]]]] = {}
-    for node in _flatten_organization_nodes(card_nodes):
+    for node in card_nodes:
         city_groups_by_country.setdefault(str(node["country"]), {}).setdefault(
             str(node.get("city") or "Unspecified"),
             [],
@@ -546,7 +542,7 @@ def _organization_card_groups(
                     "city": city,
                     "organizations": sorted(
                         organizations,
-                        key=lambda node: (int(node["depth"]), str(node["label"])),
+                        key=lambda node: str(node["label"]),
                     ),
                 }
                 for city, organizations in sorted(city_groups.items())
@@ -579,7 +575,7 @@ def _organization_card_node(
             aggregate_values,
             relationship_ids,
             depth=depth + 1,
-            path=[*(path or []), _organization_label(organizations_by_id[organization_id])],
+            path=[*(path or []), _organization_short_label(organizations_by_id[organization_id])],
         )
         for child_id in children_by_parent.get(organization_id, [])
     ]
@@ -588,7 +584,7 @@ def _organization_card_node(
         return None
 
     organization = organizations_by_id[organization_id]
-    label = _organization_label(organization)
+    label = _organization_short_label(organization)
     location = organization.get("location", {}) or {}
     node_path = [*(path or []), label]
     return {

@@ -1,46 +1,90 @@
 {% import "macros/common.html.j2" as common %}
 <section class="section overview" id="overview">
   <div class="overview-copy">
-    {{ common.section_heading("At a Glance", "Research, Software, Teaching, and Dissemination") }}
+    {{ common.section_heading("Overview", "Portfolio Summary") }}
 
     <div class="narrative">
       <p>
-        My research activity is focused on artificial intelligence and bioinformatics,
-        with particular attention to gene regulatory network inference, evolutionary
-        biclustering, biomedical data analysis, and the integration of domain knowledge
-        into computational methods. This work has resulted in
-        <strong>{{ metrics.journal_papers }} journal papers</strong> and
-        <strong>{{ metrics.conference_papers }} conference paper</strong>, supported by
-        open research software and reproducible computational assets.
+        I am a computer scientist and researcher in artificial intelligence applied
+        to bioinformatics, working at the intersection of computational methods,
+        biomedical data analysis, evolutionary computation, and reproducible
+        scientific software.
       </p>
       <p>
-        The technological output of this portfolio includes
-        <strong>{{ metrics.software_projects }} software projects</strong> and
-        <strong>{{ metrics.software_packages }} software packages</strong>. Scientific
-        dissemination includes <strong>{{ metrics.scientific_dissemination_articles }}
-        scientific dissemination articles</strong>, <strong>{{ metrics.presentations }}
-        presentations</strong>, <strong>{{ metrics.press_items }} press items</strong>,
-        <strong>{{ metrics.social_media_items }} social media items</strong>, and
-        <strong>{{ metrics.tv_media_items }} TV media item</strong>.
+        My academic background comprises <strong>{{ overview.education.degrees_text }}</strong>.
+        My professional experience spans <strong>{{ overview.experience.by_institution_text }}</strong>,
+        complemented by research stays of <strong>{{ overview.internationalization.stays_text }}</strong>,
+        for a total of <strong>{{ overview.internationalization.total_stay_months }} months abroad</strong>.
+        Across professional appointments and research stays, this portfolio includes
+        direct work at <strong>{{ metrics.work_institutions }} institutions</strong>.
       </p>
       <p>
-        Teaching activity includes <strong>{{ metrics.courses }} university courses</strong>
-        and <strong>{{ metrics.supervisions }} academic supervision activities</strong>.
-        The academic trajectory includes <strong>{{ metrics.honors }} honors</strong>,
-        <strong>{{ metrics.grants }} grants</strong>, and
-        <strong>{{ metrics.research_stays }} international research stays</strong>.
+        My research output includes <strong>{{ overview.research.journal_papers_phrase }}</strong>
+        and <strong>{{ overview.research.conference_papers_phrase }}</strong>, including
+        <strong>{{ overview.internationalization.international_publications_phrase }}</strong> and
+        <strong>{{ overview.internationalization.national_multicity_publications_phrase }}</strong>.
+        Within funded research projects, my roles include
+        <strong>{{ overview.research.project_roles_text }}</strong>,
+        and I have completed reviews for <strong>{{ metrics.reviewed_manuscripts }} manuscripts</strong>
+        submitted to scientific journals.
+      </p>
+      <p>
+        The software portfolio includes <strong>{{ metrics.software_projects }} software
+        projects</strong> and <strong>{{ metrics.software_packages }} published packages</strong>.
+        {% if overview.software.repositories_with_stats %}
+        The public software portfolio spans <strong>{{ overview.software.repositories_with_stats }}
+        repositories</strong>, with <strong>{{ overview.software.total_stars }} stars</strong>
+        and <strong>{{ overview.software.total_forks }} forks</strong>.
+        {% endif %}
+        {% if metrics.package_downloads %}
+        Package usage records <strong>{{ overview.software.package_downloads_label }}
+        recorded downloads</strong>.
+        {% endif %}
+      </p>
+      <p>
+        My teaching activity includes <strong>{{ overview.teaching.institution_years_text }}</strong>,
+        amounting to <strong>{{ overview.teaching.total_hours_label }} classroom
+        hours</strong> across <strong>{{ overview.teaching.academic_years }} academic years</strong>,
+        <strong>{{ overview.teaching.courses }} courses</strong>, and
+        <strong>{{ overview.teaching.degree_programs }} degree programmes</strong>.
+        {% if overview.teaching.teaching_innovation_projects %}
+        This teaching activity also includes
+        <strong>{{ overview.teaching.teaching_innovation_projects_phrase }}</strong>.
+        {% endif %}
+        {% if overview.teaching.supervision_text %}
+        Academic supervision includes <strong>{{ overview.teaching.supervision_text }}</strong>.
+        {% endif %}
+      </p>
+      <p>
+        Scientific dissemination activity covers <strong>{{ overview.dissemination.activity_text }}</strong>
+        across media, institutional channels, and public-facing formats.
+        {% if overview.dissemination.press_outlets %}
+        Press coverage spans <strong>{{ overview.dissemination.press_outlets }} outlets</strong>.
+        {% endif %}
+        {% if metrics.known_social_views %}
+        Social media items with available metrics account for
+        <strong>{{ overview.dissemination.known_social_views_label }} known views</strong>; the
+        highest recorded item reaches
+        <strong>{{ overview.dissemination.highest_social_views_label }} views</strong>.
+        {% endif %}
+      </p>
+      <p>
+        This academic trajectory has also been recognized with
+        <strong>{{ overview.recognition.honors_phrase }}</strong>:
+        <strong>{{ overview.recognition.honors_text }}</strong>, and supported by
+        <strong>{{ overview.recognition.grants_phrase }}</strong>:
+        <strong>{{ overview.recognition.grants_text }}</strong>.
       </p>
     </div>
   </div>
 
   <aside class="metric-grid" aria-label="Portfolio metrics">
-    <article class="metric-card"><strong>{{ metrics.journal_papers }}</strong><span>Journal papers</span></article>
-    <article class="metric-card"><strong>{{ metrics.conference_papers }}</strong><span>Conference papers</span></article>
+    <article class="metric-card"><strong>{{ metrics.publications }}</strong><span>Total publications</span></article>
     <article class="metric-card"><strong>{{ metrics.software_projects }}</strong><span>Software projects</span></article>
-    <article class="metric-card"><strong>{{ metrics.software_packages }}</strong><span>Software packages</span></article>
-    <article class="metric-card"><strong>{{ metrics.courses }}</strong><span>Courses taught</span></article>
-    <article class="metric-card"><strong>{{ metrics.projects }}</strong><span>Projects</span></article>
-    <article class="metric-card"><strong>{{ metrics.press_items }}</strong><span>Press items</span></article>
-    <article class="metric-card"><strong>{{ metrics.social_media_items }}</strong><span>Social media items</span></article>
+    <article class="metric-card"><strong>{{ metrics.research_projects }}</strong><span>Research projects</span></article>
+    <article class="metric-card"><strong>{{ overview.teaching.total_hours_label }}</strong><span>Teaching hours</span></article>
+    <article class="metric-card"><strong>{{ metrics.work_institutions }}</strong><span>Work institutions</span></article>
+    <article class="metric-card"><strong>{{ overview.software.package_downloads_label }}</strong><span>Package downloads</span></article>
+    <article class="metric-card"><strong>{{ overview.dissemination.known_social_views_label }}</strong><span>Known social views</span></article>
   </aside>
 </section>

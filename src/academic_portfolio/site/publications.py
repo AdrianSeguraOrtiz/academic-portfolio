@@ -27,7 +27,7 @@ def _publication_year_chart(
 ) -> list[dict[str, Any]]:
     journal_counts = _year_counts(journal_papers, "publication_date")
     conference_counts = _year_counts(conference_papers, "publication_date")
-    years = sorted(set(journal_counts) | set(conference_counts))
+    years = sorted(set(journal_counts) | set(conference_counts), reverse=True)
     if not years:
         return []
 
@@ -47,6 +47,26 @@ def _publication_year_chart(
         for year in years
     ]
 
+
+def _publication_year_groups(publications: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for publication in publications:
+        year = _publication_year(publication)
+        groups.setdefault(year, []).append(publication)
+
+    return [
+        {
+            "year": year,
+            "publications": groups[year],
+            "count": len(groups[year]),
+        }
+        for year in sorted(groups, reverse=True)
+    ]
+
+
+def _publication_year(publication: dict[str, Any]) -> str:
+    publication_date = str(publication.get("publication_date") or "")
+    return publication_date[:4] if len(publication_date) >= 4 else "n.d."
 
 
 def _year_counts(records: list[dict[str, Any]], date_field: str) -> Counter[str]:
