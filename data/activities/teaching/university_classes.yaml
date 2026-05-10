@@ -4,6 +4,7 @@ university_classes:
   degree: Grado en Ingeniería de la Salud
   academic_year: 2022/2023
   department: Lenguajes y Ciencias de la Computación (LCC)
+  workload_hours: 36
   start_date: '2023-01-30'
   end_date: '2023-05-22'
   organization_ids:
@@ -13,15 +14,17 @@ university_classes:
   degree: Grado en Biología
   academic_year: 2023/2024
   department: Lenguajes y Ciencias de la Computación (LCC)
+  workload_hours: 11.2
   start_date: '2023-09-11'
   end_date: '2023-12-22'
   organization_ids:
   - organization_01
 - id: course_03
   name: Estándares de Datos
-  degree: Grado en Ingeniería de la Salud, Mención Bioinformática
+  degree: Grado en Ingeniería de la Salud
   academic_year: 2023/2024
   department: Lenguajes y Ciencias de la Computación (LCC)
+  workload_hours: 44.9
   start_date: '2023-09-12'
   end_date: '2023-12-22'
   organization_ids:
@@ -31,6 +34,7 @@ university_classes:
   degree: Grado en Ingeniería Informática
   academic_year: 2024/2025
   department: Lenguajes y Ciencias de la Computación (LCC)
+  workload_hours: 36
   start_date: '2024-09-10'
   end_date: '2024-12-20'
   organization_ids:
@@ -40,6 +44,7 @@ university_classes:
   degree: Grado en Ingeniería del Software
   academic_year: 2024/2025
   department: Lenguajes y Ciencias de la Computación (LCC)
+  workload_hours: 6
   start_date: '2024-09-10'
   end_date: '2024-12-20'
   organization_ids:
@@ -49,6 +54,7 @@ university_classes:
   degree: Grado en Ingeniería Informática
   academic_year: 2024/2025
   department: Lenguajes y Ciencias de la Computación (LCC)
+  workload_hours: 18
   start_date: '2024-09-10'
   end_date: '2024-12-20'
   organization_ids:
@@ -58,15 +64,17 @@ university_classes:
   degree: Grado en Ingeniería Informática
   academic_year: 2025/2026
   department: Lenguajes y Ciencias de la Computación (LCC)
+  workload_hours: 18
   start_date: '2025-09-09'
   end_date: '2025-12-19'
   organization_ids:
   - organization_01
 - id: course_08
   name: Biología de Sistemas
-  degree: Grado en Ingeniería de la Salud, Mención Bioinformática
+  degree: Grado en Ingeniería de la Salud
   academic_year: 2025/2026
   department: Lenguajes y Ciencias de la Computación (LCC)
+  workload_hours: 9.9
   start_date: '2025-09-09'
   end_date: '2025-12-19'
   organization_ids:

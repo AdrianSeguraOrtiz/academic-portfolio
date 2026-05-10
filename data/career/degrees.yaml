@@ -1,7 +1,7 @@
 degrees:
 - id: degree_01
   level: BSc
-  title: Bachelor's Degree in Health Engineering, Bioinformatics
+  title: Bachelor's Degree in Health Engineering with a specialization in Bioinformatics
   program: null
   organization_ids:
   - organization_01
@@ -38,7 +38,7 @@ degrees:
     area: Evolutionary machine learning for gene regulatory network inference
 - id: degree_03
   level: PhD
-  title: Ph.D. in Computer Science, Bioinformatics
+  title: Ph.D. in Computer Science
   program: Programa Oficial de Doctorado en Tecnologías Informáticas
   organization_ids:
   - organization_01
