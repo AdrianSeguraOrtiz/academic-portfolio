@@ -1,0 +1,33 @@
+name = "academic_sober"
+title = "Academic Sober CV"
+language = "en"
+template = "sober.html.j2"
+style = "sober"
+
+[sections]
+profile = "full"
+current_positions = "full"
+degrees = "full"
+certifications = "full"
+experience = "full"
+research_stays = "full"
+honors = "full"
+grants = "full"
+publications = "full"
+software_projects = "full"
+software_packages = "full"
+research_projects = "full"
+teaching = "full"
+dissemination = "full"
+reviewing = "full"
+
+[layout]
+columns = 1
+density = "normal"
+font_scale = "normal"
+include_charts = false
+include_dashboard = false
+include_profile_section = true
+include_urls = true
+include_internal_anchors = true
+reverse_chronological = true

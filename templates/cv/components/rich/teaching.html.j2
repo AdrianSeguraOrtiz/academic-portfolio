@@ -1,0 +1,67 @@
+{% import "components/rich/macros.html.j2" as cv %}
+
+{% if "teaching" in sections %}
+<section class="cv-section cv-section-teaching">
+  <h2>Classes and Supervision</h2>
+  {{ cv.metric_strip(aggregates.teaching.summary.metrics) }}
+  {% if site.teaching_hours_chart is defined %}
+  <div class="cv-chart-grid">
+    <article class="cv-chart-card">
+      <h3>Classroom Hours by Academic Year</h3>
+      <div class="cv-bar-list">
+        {% for row in site.teaching_hours_chart.by_academic_year %}
+        <div class="cv-bar-row">
+          <div class="cv-bar-label"><span>{{ row.label }}</span><strong>{{ row.hours_label }}</strong></div>
+          <div class="cv-bar-track"><span style="width: {{ row.share }}%"></span></div>
+        </div>
+        {% endfor %}
+      </div>
+    </article>
+    <article class="cv-chart-card">
+      <h3>Classroom Hours by Degree Programme</h3>
+      <div class="cv-bar-list">
+        {% for row in site.teaching_hours_chart.by_degree %}
+        <div class="cv-bar-row">
+          <div class="cv-bar-label"><span>{{ row.label }}</span><strong>{{ row.hours_label }}</strong></div>
+          <div class="cv-bar-track"><span style="width: {{ row.share }}%"></span></div>
+        </div>
+        {% endfor %}
+      </div>
+    </article>
+  </div>
+  {% endif %}
+
+  {% if site.teaching_timeline is defined %}
+  <h3>Teaching Timeline Snapshot</h3>
+  <div class="cv-compact-grid">
+    {% for event in site.teaching_timeline.events %}
+    {% if event.id %}<span id="{{ event.id }}" class="cv-anchor"></span>{% endif %}
+    <article class="cv-entry cv-teaching-event type-{{ event.type }}">
+      <header class="cv-entry-header">
+        <p class="cv-label">{{ event.type_label }}</p>
+        <p class="cv-date">{{ event.date_label }}</p>
+      </header>
+      <h4>{{ event.title | html_link(event.url) }}</h4>
+      <p>{{ event.subtitle }}</p>
+      {% for detail in event.detail_lines %}<p class="cv-reference">{{ detail }}</p>{% endfor %}
+      {% if event.repository_url %}<p>{{ "Repository" | html_link(event.repository_url) }}</p>{% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% elif section_details.teaching != "aggregate" %}
+  <h3>University Classes</h3>
+  <div class="cv-compact-grid">
+    {% for course in aggregates.teaching.classes["items"] %}
+    {{ cv.entry_card(course, "h4") }}
+    {% endfor %}
+  </div>
+  <h3>Academic Supervision</h3>
+  {% for supervision_group in aggregates.teaching.supervision["items"] | groupby("kind") %}
+  <h4>{{ supervision_group.grouper }}</h4>
+  {% for supervision in supervision_group.list %}
+  {{ cv.entry_card(supervision, "h5") }}
+  {% endfor %}
+  {% endfor %}
+  {% endif %}
+</section>
+{% endif %}

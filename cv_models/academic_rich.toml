@@ -1,0 +1,34 @@
+name = "academic_rich"
+title = "Academic Rich CV"
+language = "en"
+template = "rich.html.j2"
+style = "rich"
+
+[sections]
+profile = "full"
+current_positions = "full"
+degrees = "full"
+certifications = "full"
+experience = "full"
+research_stays = "full"
+honors = "full"
+grants = "full"
+publications = "full"
+software_projects = "full"
+software_packages = "full"
+research_projects = "full"
+teaching = "full"
+dissemination = "full"
+reviewing = "full"
+
+[layout]
+columns = 1
+density = "normal"
+font_scale = "normal"
+include_charts = true
+include_dashboard = true
+include_profile_photo = true
+include_profile_section = false
+include_urls = true
+include_internal_anchors = true
+reverse_chronological = true

@@ -1,0 +1,38 @@
+{% import "components/rich/macros.html.j2" as cv %}
+
+{% if "research_projects" in sections or "teaching" in sections %}
+<section class="cv-section cv-section-projects">
+  <h2>Research and Teaching Innovation Projects</h2>
+  <div class="cv-project-role-legend">
+    <span><i class="role-working"></i> Working team member</span>
+    <span><i class="role-research"></i> Research team member</span>
+    <span><i class="role-lead"></i> PI / Co-PI</span>
+  </div>
+  <div class="cv-card-grid">
+    {% if site.projects is defined %}
+      {% for project in site.projects %}
+      {% if project.id %}<span id="{{ project.id }}" class="cv-anchor"></span>{% endif %}
+      <article class="cv-entry cv-project-card cv-project-{{ project.project_type }} role-{{ project.participation_class }}">
+        <header class="cv-entry-header">
+          <p class="cv-label">{{ project.project_type_label }}</p>
+          {% if project.start_date or project.end_date %}<p class="cv-date">{{ project.start_date | date_range(project.end_date) }}</p>{% endif %}
+        </header>
+        <h3>{{ project.display_title }}</h3>
+        <p>{{ project.get("resolved", {}).get("organization_ids", []) | linked_names }}</p>
+        <ul class="cv-list">
+          {% if project.get("code") %}<li>Code: {{ project.code }}</li>{% endif %}
+          {% if project.project_funders %}<li>Funders: {{ project.project_funders | join(", ") }}</li>{% endif %}
+          {% if project.get("participation") %}<li>Participation: {{ project.participation }}</li>{% endif %}
+          {% if project.get("principal_investigators") %}<li>Principal investigators: {{ project.principal_investigators | join(", ") }}</li>{% endif %}
+          {% if project.get("total_amount_eur") %}<li>Total amount: {{ project.total_amount_eur }} EUR</li>{% endif %}
+        </ul>
+      </article>
+      {% endfor %}
+    {% else %}
+      {% for project in core.research_projects["items"] %}
+      {{ cv.entry_card(project, "h4") }}
+      {% endfor %}
+    {% endif %}
+  </div>
+</section>
+{% endif %}

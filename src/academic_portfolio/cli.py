@@ -6,7 +6,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from academic_portfolio.cv import generate_cv
+from academic_portfolio.cv import CVOutput, generate_cv
 from academic_portfolio.loader import load_data
 from academic_portfolio.resolver import PortfolioResolver
 from academic_portfolio.site import generate_site
@@ -81,12 +81,19 @@ def data_resolve(
 
 @cv_app.command("generate")
 def cv_generate(
-    model: str = typer.Option("academic_full", help="CV model name or TOML path."),
-    output_format: str = typer.Option("md", "--format", help="Output format."),
+    model: str = typer.Option("academic_rich", help="CV model name or TOML path."),
+    output_format: str = typer.Option("pdf", "--format", help="Output format: pdf or html."),
+    pages: int | None = typer.Option(
+        None,
+        "--pages",
+        min=1,
+        help="Optional page limit for sober CV output.",
+    ),
     output_dir: Path = typer.Option(Path("build/cv"), help="Output directory."),
     data_dir: Path = typer.Option(Path("data"), help="Portfolio data directory."),
     model_dir: Path = typer.Option(Path("cv_models"), help="CV model directory."),
     template_dir: Path = typer.Option(Path("templates/cv"), help="CV template directory."),
+    static_dir: Path = typer.Option(Path("assets/cv"), help="CV static assets directory."),
 ) -> None:
     """Generate a CV from a configured model."""
 
@@ -94,11 +101,39 @@ def cv_generate(
         model=model,
         output_dir=output_dir,
         output_format=output_format,
+        page_limit=pages,
         data_dir=data_dir,
         model_dir=model_dir,
         template_dir=template_dir,
+        static_dir=static_dir,
     )
     console.print(f"Generated [bold]{output.model.title}[/bold]: {output.output_path}")
+    if output.output_path != output.html_path:
+        console.print(f"Intermediate HTML: {output.html_path}")
+    page_status = _cv_page_status(output)
+    if page_status:
+        console.print(page_status)
+    fit_status = _cv_fit_status(output)
+    if fit_status:
+        console.print(fit_status)
+
+
+def _cv_page_status(output: CVOutput) -> str:
+    if output.page_count is None:
+        return ""
+    if output.page_limit is None:
+        return f"Pages: {output.page_count}"
+    return f"Pages: {output.page_count}/{output.page_limit}"
+
+
+def _cv_fit_status(output: CVOutput) -> str:
+    if output.page_count is None or output.fit_status in {"not_checked", "not_limited"}:
+        return ""
+
+    compression_stage = output.model.layout.get("compression_stage")
+    if compression_stage:
+        return f"Fit status: {output.fit_status} ({compression_stage})"
+    return f"Fit status: {output.fit_status}"
 
 
 @site_app.command("generate")

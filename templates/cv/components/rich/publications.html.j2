@@ -1,0 +1,75 @@
+{% import "components/rich/macros.html.j2" as cv %}
+
+{% macro publication_card(publication) -%}
+{% if publication.id %}<span id="{{ publication.id }}" class="cv-anchor"></span>{% endif %}
+<article class="cv-entry cv-entry-publication">
+  <header class="cv-entry-header">
+    <p class="cv-label">
+      <span class="cv-kind-dot {{ publication.publication_kind }}"></span>
+      {{ "Journal paper" if publication.publication_kind == "journal" else "Conference paper" }}
+    </p>
+    {% if publication.publication_date %}<p class="cv-date">{{ publication.publication_date }}</p>{% endif %}
+  </header>
+  <h3>{{ publication.title | html_link(publication.url) }}</h3>
+  {% if publication.authors %}<p>{{ publication.authors | join(", ") }}</p>{% endif %}
+  <p><strong>{{ publication.venue }}</strong>{% if publication.publisher %} · {{ publication.publisher }}{% endif %}</p>
+  <div class="cv-publication-details">
+    {% if publication.doi %}<p><strong>DOI:</strong> {{ publication.doi | html_link(publication.url) }}</p>{% endif %}
+    {% if publication.get("resolved", {}).get("organization_ids", []) %}<p><strong>Organizations:</strong> {{ publication.resolved.organization_ids | linked_names }}</p>{% endif %}
+    {% if publication.get("resolved", {}).get("position_ids", []) %}<p><strong>Positions:</strong> {{ publication.resolved.position_ids | anchor_links }}</p>{% endif %}
+    {% if publication.get("resolved", {}).get("stay_ids", []) %}<p><strong>Research stays:</strong> {{ publication.resolved.stay_ids | anchor_links }}</p>{% endif %}
+    {% if publication.get("resolved", {}).get("grant_ids", []) %}<p><strong>Grants:</strong> {{ publication.resolved.grant_ids | anchor_links }}</p>{% endif %}
+    {% if publication.get("resolved", {}).get("software_project_ids", []) %}
+    <p><strong>Software:</strong>
+      {% for software in publication.resolved.software_project_ids %}
+      {{ software.name | html_link(software.get("urls", {}).get("github")) }}{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+    {% endif %}
+  </div>
+</article>
+{%- endmacro %}
+
+{% if "publications" in sections %}
+<section class="cv-section cv-section-publications">
+  <h2>Publications</h2>
+  {% if site.publication_chart is defined and site.publication_chart %}
+  <article class="cv-chart-card cv-full-chart">
+    <h3>Publications by Year</h3>
+    <div class="cv-year-chart">
+      {% for item in site.publication_chart %}
+      <div class="cv-year-column">
+        <strong>{{ item.total }}</strong>
+        <div class="cv-year-bar" style="height: {{ item.height / 3 }}mm">
+          <span class="journal" style="height: {{ item.journal_share }}%"></span>
+          <span class="conference" style="height: {{ item.conference_share }}%"></span>
+        </div>
+        <span>{{ item.year }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="cv-chart-legend"><span class="journal"></span> Journal papers <span class="conference"></span> Conference papers</p>
+  </article>
+  {% endif %}
+
+  {% if site.publication_groups is defined %}
+    {% for group in site.publication_groups %}
+    <section class="cv-year-section">
+      <header class="cv-year-heading">
+        <h3>{{ group.year }}</h3>
+        <span>{{ group.count }} {{ "paper" if group.count == 1 else "papers" }}</span>
+      </header>
+      <div class="cv-card-grid">
+        {% for publication in group.publications %}
+        {{ publication_card(publication) }}
+        {% endfor %}
+      </div>
+    </section>
+    {% endfor %}
+  {% else %}
+    {% for publication in core.publications["items"] %}
+    {{ cv.entry_card(publication, "h4") }}
+    {% endfor %}
+  {% endif %}
+</section>
+{% endif %}

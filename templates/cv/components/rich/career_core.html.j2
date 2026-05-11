@@ -1,0 +1,87 @@
+{% import "components/rich/macros.html.j2" as cv %}
+
+<section class="cv-section cv-section-career">
+  <h2>Academic Trajectory</h2>
+  {% if site.career_timeline is defined %}
+  <article class="cv-chart-card cv-career-snapshot">
+    <h3>Timeline Snapshot</h3>
+    <div class="cv-career-lanes">
+      {% for filter in site.career_timeline.filters %}
+      {% set count = site.career_timeline["items"] | selectattr("type", "equalto", filter.id) | list | length %}
+      {% set marker_count = site.career_timeline.markers | selectattr("type", "equalto", filter.id) | list | length %}
+      <p><strong>{{ filter.label }}</strong><span>{{ count + marker_count }} records</span></p>
+      {% endfor %}
+    </div>
+  </article>
+  {% endif %}
+
+  <h3>Career Details</h3>
+  {% if site.career_details is defined %}
+  <div class="cv-career-detail-list">
+    {% for item in site.career_details["items"] %}
+      {% if item.kind == "organization_group" %}
+      <article class="cv-entry cv-career-group cv-career-{{ item.category }}">
+        <header class="cv-entry-header">
+          <p class="cv-label">{{ item.category_label }}</p>
+          <p class="cv-date">{{ item.period }}</p>
+        </header>
+        <h4>{% if item.organization.get("website") %}<a href="{{ item.organization.website }}">{{ item.title }}</a>{% else %}{{ item.title }}{% endif %}</h4>
+        {% if item.location %}<p>{{ item.location }}</p>{% endif %}
+        <p class="cv-reference">{{ item.progression }}</p>
+        <div class="cv-progression-list">
+          {% for record in item.records %}
+          {% if record.id %}<span id="{{ record.id }}" class="cv-anchor"></span>{% endif %}
+          <section>
+            <h5>{{ record.title }}</h5>
+            <p>{{ record.start_date | date_range(record.end_date) }}</p>
+            {% if item.category == "experience" and record.tasks %}
+            <ul class="cv-list">
+              {% for task in record.tasks %}
+              <li>{{ task }}</li>
+              {% endfor %}
+            </ul>
+            {% elif item.category == "stay" %}
+            {% if record.description %}<p>{{ record.description }}</p>{% endif %}
+            {% endif %}
+          </section>
+          {% endfor %}
+        </div>
+      </article>
+      {% else %}
+      {% set record = item.record %}
+      {% if record.id %}<span id="{{ record.id }}" class="cv-anchor"></span>{% endif %}
+      <article class="cv-entry cv-career-{{ item.category }}">
+        <header class="cv-entry-header">
+          <p class="cv-label">{{ item.category_label }}</p>
+          <p class="cv-date">{{ item.sort_date }}</p>
+        </header>
+        <h4>{{ item.title }}</h4>
+        {% if item.category == "education" %}
+        <p>{{ record.start_date | date_range(record.end_date) }} · {{ record.get("resolved", {}).get("organization_ids", []) | linked_names }}</p>
+        {% if record.grade %}<p>{{ record.grade }}</p>{% endif %}
+        {% if record.get("resolved", {}).get("grant_ids", []) %}<p class="cv-reference">Grants: {{ record.resolved.grant_ids | anchor_links }}</p>{% endif %}
+        {% elif item.category == "certification" %}
+        <p>{{ record.get("resolved", {}).get("organization_ids", []) | linked_names }}{% if record.duration_hours %} · {{ record.duration_hours }} hours{% endif %}</p>
+        {% elif item.category == "honor" %}
+        <p>{{ record.issue_date }} · {{ record.awarding_entities | join(", ") }}</p>
+        {% if record.context %}<p>{{ record.context }}</p>{% endif %}
+        {% elif item.category == "grant" %}
+        <p>{{ record.issue_date }} · {{ record.awarding_entity }}</p>
+        {% if record.purpose %}<p>{{ record.purpose }}</p>{% endif %}
+        {% if record.start_date or record.end_date %}<p class="cv-reference">{{ record.start_date | date_range(record.end_date) }}</p>{% endif %}
+        {% endif %}
+      </article>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% else %}
+  {% if "degrees" in sections %}
+  <h3>Education</h3>
+  {% for degree in core.education["items"] %}{{ cv.entry_card(degree, "h4") }}{% endfor %}
+  {% endif %}
+  {% if "experience" in sections %}
+  <h3>Experience</h3>
+  {% for position in core.experience["items"] %}{{ cv.entry_card(position, "h4") }}{% endfor %}
+  {% endif %}
+  {% endif %}
+</section>

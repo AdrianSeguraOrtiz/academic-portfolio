@@ -1,0 +1,50 @@
+{% macro organization_card(organization) -%}
+<article class="cv-entry cv-organization-card depth-{{ organization.depth }}">
+  <header class="cv-entry-header">
+    <p class="cv-label">{{ organization.type }}</p>
+    {% if organization.city %}<p class="cv-date">{{ organization.city }}</p>{% endif %}
+  </header>
+  <h4>{{ organization.name | html_link(organization.website) }}</h4>
+  {% if organization.full_name != organization.name %}<p>{{ organization.full_name }}</p>{% endif %}
+  <p class="cv-reference">{{ organization.path_label }}</p>
+  {% if organization.metrics %}
+  <div class="cv-metric-strip">
+    {% for metric in organization.metrics %}
+    <span><strong>{{ metric.value }}</strong>{{ metric.label }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% if organization.children %}
+  <div class="cv-organization-children">
+    {% for child in organization.children %}
+    {{ organization_card(child) }}
+    {% endfor %}
+  </div>
+  {% endif %}
+</article>
+{%- endmacro %}
+
+{% if site.organization_network is defined %}
+<section class="cv-section cv-section-organizations">
+  <h2>Organizations</h2>
+  <div class="cv-metric-strip">
+    <span><strong>{{ site.organization_network.metrics.organizations }}</strong>Linked organizations</span>
+    <span><strong>{{ site.organization_network.metrics.countries }}</strong>Countries</span>
+    <span><strong>{{ site.organization_network.metrics.cities }}</strong>Cities</span>
+  </div>
+
+  {% for country in site.organization_network.cards %}
+  <section class="cv-organization-country">
+    <h3>{{ country.country }}</h3>
+    {% for city in country.cities %}
+    <h4>{{ city.city }}</h4>
+    <div class="cv-card-grid">
+      {% for organization in city.organizations %}
+      {{ organization_card(organization) }}
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </section>
+  {% endfor %}
+</section>
+{% endif %}

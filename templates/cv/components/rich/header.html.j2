@@ -1,0 +1,62 @@
+{% set profile = core.profile %}
+{% import "components/rich/macros.html.j2" as cv %}
+
+<header class="cv-cover{% if render_options.get('include_profile_photo', false) %} cv-cover-with-photo{% endif %}">
+  <div class="cv-identity">
+    <p class="cv-eyebrow">{{ "Academic Portfolio" if model.style == "rich" else "Academic Curriculum Vitae" }}</p>
+    <h1>{{ profile.person.full_name }}</h1>
+    {% if render_options.get("include_header_summary", false) and summary.active.paragraphs %}
+    <p class="cv-summary">{{ summary.active.paragraphs[0] }}</p>
+    {% endif %}
+  </div>
+
+  {% if render_options.get("include_profile_photo", false) %}
+  <figure class="cv-photo">
+    <img src="assets/profile.jpg" alt="{{ profile.person.full_name }}">
+  </figure>
+  {% endif %}
+
+  <address class="cv-contact-card">
+    {% if profile.contact.email %}<span>{{ profile.contact.email | html_link("mailto:" ~ profile.contact.email) }}</span>{% endif %}
+    {% if profile.contact.phone %}<span>{{ profile.contact.phone }}</span>{% endif %}
+    {% if profile.contact.city %}<span>{{ profile.contact.city }}, {{ profile.contact.country }}</span>{% endif %}
+    {% if not render_options.get("include_profile_section", false) %}
+      {% if profile.person.identifiers.orcid %}<span>{{ "ORCID" | html_link("https://orcid.org/" ~ profile.person.identifiers.orcid) }}</span>{% endif %}
+      {% if profile.links.linkedin %}<span>{{ "LinkedIn" | html_link(profile.links.linkedin) }}</span>{% endif %}
+      {% if profile.links.github %}<span>{{ "GitHub" | html_link(profile.links.github) }}</span>{% endif %}
+      {% if profile.links.docker_hub %}<span>{{ "Docker Hub" | html_link(profile.links.docker_hub) }}</span>{% endif %}
+    {% endif %}
+  </address>
+
+  {% if model.style == "rich" and (core.current_activity.positions or core.current_activity.stays) %}
+  <div class="cv-current-strip" aria-label="Current activity">
+    {% for position in core.current_activity.positions %}
+    <article>
+      <span>Current position</span>
+      <strong>{{ position.title }}</strong>
+      {{ cv.entry_meta(position) }}
+      {% if position.date %}<p>{{ position.date }}</p>{% endif %}
+    </article>
+    {% endfor %}
+    {% for stay in core.current_activity.stays %}
+    <article>
+      <span>Current stay</span>
+      <strong>{{ stay.title }}</strong>
+      {{ cv.entry_meta(stay) }}
+      {% if stay.date %}<p>{{ stay.date }}</p>{% endif %}
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if render_options.get("include_research_focus", true) and not render_options.get("include_profile_section", false) and profile.research_profile.areas %}
+  <div class="cv-focus">
+    <p>Research Focus</p>
+    <div class="cv-chip-list">
+      {% for area in profile.research_profile.areas %}
+      <span>{{ area }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</header>

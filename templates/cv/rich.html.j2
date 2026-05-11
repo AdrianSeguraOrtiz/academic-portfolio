@@ -1,0 +1,19 @@
+{% set profile = core.profile %}
+{% set site = rich_view.site %}
+
+<!doctype html>
+<html lang="{{ model.language }}">
+  {% include "components/common/head.html.j2" %}
+  <body class="cv-document cv-style-{{ model.style }} cv-density-{{ model.density }} cv-font-scale-{{ model.font_scale }}{% if model.layout.get('fit_stage') %} cv-fit-{{ model.layout.get('fit_stage') }}{% endif %}">
+    {% include "components/rich/header.html.j2" %}
+    {% include "components/rich/overview.html.j2" %}
+    {% include "components/rich/collaborations.html.j2" %}
+    {% include "components/rich/publications.html.j2" %}
+    {% include "components/rich/software.html.j2" %}
+    {% include "components/rich/career_core.html.j2" %}
+    {% include "components/rich/projects.html.j2" %}
+    {% include "components/rich/teaching.html.j2" %}
+    {% include "components/rich/dissemination.html.j2" %}
+    {% include "components/rich/organizations.html.j2" %}
+  </body>
+</html>

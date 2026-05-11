@@ -1,0 +1,145 @@
+{% macro anchor(entry) -%}
+{% if entry.id %}<span id="{{ entry.id }}" class="cv-anchor"></span>{% endif %}
+{%- endmacro %}
+
+{% macro field(label, value) -%}
+{% if value %}
+<p class="sober-field"><strong class="sober-field-label">{{ label }}:</strong><span class="sober-field-value">{{ value }}</span></p>
+{% endif %}
+{%- endmacro %}
+
+{% macro linked_field(label, records) -%}
+{% if records %}
+<p class="sober-field"><strong class="sober-field-label">{{ label }}:</strong><span class="sober-field-value">{{ records | linked_names }}</span></p>
+{% endif %}
+{%- endmacro %}
+
+{% macro anchor_field(label, records) -%}
+{% if records %}
+<p class="sober-field"><strong class="sober-field-label">{{ label }}:</strong><span class="sober-field-value">{{ records | anchor_links }}</span></p>
+{% endif %}
+{%- endmacro %}
+
+{% macro detail_field(detail) -%}
+{% if detail is mapping %}
+  {% set value = detail.value | html_link(detail.url) if detail.get("url") else detail.value %}
+  {{ field(detail.label, value) }}
+{% elif ":" in detail %}
+  {% set parts = detail.split(":", 1) %}
+  {{ field(parts[0], parts[1] | trim) }}
+{% else %}
+  <p class="sober-field sober-field-text"><span class="sober-field-label"></span><span class="sober-field-value">{{ detail }}</span></p>
+{% endif %}
+{%- endmacro %}
+
+{% macro reference_fields(entry) -%}
+{% for reference in entry.references %}
+  {% if reference.label == "Organizations" %}
+    {{ linked_field(reference.label, reference.records) }}
+  {% else %}
+    {{ anchor_field(reference.label, reference.records) }}
+  {% endif %}
+{% endfor %}
+{%- endmacro %}
+
+{% macro entry_fields(entry, include_tasks=true) -%}
+{{ field("Date", entry.date) }}
+{{ linked_field("Institution", entry.organizations) }}
+{{ field(entry.meta_label or "Additional information", entry.meta) }}
+{% for detail in entry.details %}
+{{ detail_field(detail) }}
+{% endfor %}
+{{ reference_fields(entry) }}
+{% if include_tasks and entry.tasks %}
+<div class="sober-task-block">
+  <p class="sober-field"><strong class="sober-field-label">Tasks:</strong><span class="sober-field-value"></span></p>
+  <ul>
+    {% for task in entry.tasks %}
+    <li>{{ task }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{%- endmacro %}
+
+{% macro entry_block(entry, title_label="Title", include_tasks=true) -%}
+{{ anchor(entry) }}
+<article class="sober-entry">
+  <p class="sober-kind">{{ entry.kind }}</p>
+  {{ field(title_label, entry.title | html_link(entry.url)) }}
+  {{ entry_fields(entry, include_tasks) }}
+</article>
+{%- endmacro %}
+
+{% macro compact_entry_block(entry) -%}
+{{ anchor(entry) }}
+<article class="sober-entry sober-entry-compact">
+  <p class="sober-compact-line">
+    {% if entry.kind %}<span class="sober-kind">{{ entry.kind }}</span>{% endif %}
+    <strong>{{ entry.title | html_link(entry.url) }}</strong>
+    {% if entry.date %}<span>{{ entry.date }}</span>{% endif %}
+    {% if entry.organizations %}<span>{{ entry.organizations | linked_names }}</span>{% endif %}
+    {% if entry.meta %}<span>{{ entry.meta }}</span>{% endif %}
+  </p>
+</article>
+{%- endmacro %}
+
+{% macro item_list(items, detail="full", empty_text="No records available.") -%}
+{% if items %}
+  {% for item in items %}
+  {% if detail == "micro" %}
+  {{ compact_entry_block(item) }}
+  {% else %}
+  {{ entry_block(item) }}
+  {% endif %}
+  {% endfor %}
+{% else %}
+<p class="sober-empty">{{ empty_text }}</p>
+{% endif %}
+{%- endmacro %}
+
+{% macro experience_group(group, detail="full") -%}
+<article class="sober-experience-group">
+  <header class="sober-experience-group-header">
+    <h3>{{ group.title | html_link(group.url) }}</h3>
+    <p class="sober-experience-group-meta">
+      {% if group.location %}<span>{{ group.location }}</span>{% endif %}
+      {% if group.period %}<span>{{ group.period }}</span>{% endif %}
+      {% if group.duration %}<span>{{ group.duration }}</span>{% endif %}
+    </p>
+    {% if detail != "micro" and group.progression %}
+    <p class="sober-progression">{{ group.progression }}</p>
+    {% endif %}
+  </header>
+  <div class="sober-role-list">
+    {% for role in group.roles %}
+    {{ anchor(role.entry) }}
+    <section class="sober-role">
+      <p class="sober-role-title">{{ role.entry.title | html_link(role.entry.url) }}</p>
+      <p class="sober-role-meta">
+        {% if role.employment_type %}<span>{{ role.employment_type }}</span>{% endif %}
+        {% if role.dedication %}<span>{{ role.dedication }}</span>{% endif %}
+        {% if role.entry.date %}<span>{{ role.entry.date }}</span>{% endif %}
+        {% if role.duration %}<span>{{ role.duration }}</span>{% endif %}
+      </p>
+      {% if detail != "micro" %}
+      {% if role.department %}
+      <p class="sober-role-note">{{ role.department }}</p>
+      {% endif %}
+      {{ reference_fields(role.entry) }}
+      {% if role.entry.tasks %}
+      <div class="sober-task-block">
+        <p class="sober-field"><strong>Tasks:</strong></p>
+        <ul>
+          {% for task in role.entry.tasks %}
+          <li>{{ task }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% endif %}
+    </section>
+    {% endfor %}
+  </div>
+</article>
+{%- endmacro %}

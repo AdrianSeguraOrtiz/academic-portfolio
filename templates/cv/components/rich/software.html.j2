@@ -1,0 +1,121 @@
+{% import "components/rich/macros.html.j2" as cv %}
+
+{% if "software_projects" in sections or "software_packages" in sections %}
+<section class="cv-section cv-section-software">
+  <h2>Software</h2>
+  {% if site.software_timeline is defined and site.software_timeline.rows %}
+  <div class="cv-chart-grid cv-software-visual-grid">
+    <article class="cv-chart-card cv-software-activity">
+      <h3>Commit Activity</h3>
+      <div class="cv-software-years" style="grid-template-columns: repeat({{ site.software_timeline.years | length }}, minmax(0, 1fr))">
+        {% for year in site.software_timeline.years %}
+        <span>{{ year }}</span>
+        {% endfor %}
+      </div>
+      <div class="cv-software-timeline">
+        {% for item in site.software_timeline.rows %}
+        <div class="cv-software-row">
+          <a href="{{ item.project.urls.github }}">{{ item.project.name }}</a>
+          <div class="cv-software-track">
+            {% for month in item.months %}
+            <span style="--left: {{ month.left }}%; --width: {{ month.width }}%; --height: {{ month.height / 2 }}px; --language-color: {{ item.color }};" title="{{ month.count }} commits in {{ month.month }}"></span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </article>
+    {% if site.software_language_chart %}
+    <article class="cv-chart-card cv-language-card">
+      <h3>Languages</h3>
+      <div class="cv-language-stack">
+        {% for language in site.software_language_chart %}
+        <span style="width: {{ language.share }}%; background: {{ language.color }};"></span>
+        {% endfor %}
+      </div>
+      <div class="cv-language-list">
+        {% for language in site.software_language_chart %}
+        <p><span><i style="background: {{ language.color }};"></i>{{ language.name }}</span><strong>{{ language.share }}%</strong></p>
+        {% endfor %}
+      </div>
+    </article>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {{ cv.metric_strip(aggregates.software.summary.metrics) }}
+  {% if site.software_github is defined and site.software_github.repositories_with_stats %}
+  <div class="cv-metric-strip">
+    <span><strong>{{ site.software_github.total_stars }}</strong>Stars</span>
+    <span><strong>{{ site.software_github.total_forks }}</strong>Forks</span>
+    <span><strong>{{ site.software_github.open_issues }}</strong>Open issues</span>
+    {% if site.software_github.last_push_date %}<span><strong>{{ site.software_github.last_push_date }}</strong>Latest push</span>{% endif %}
+  </div>
+  {% endif %}
+
+  {% if "software_projects" in sections and section_details.software_projects != "aggregate" %}
+  <h3>Software Projects</h3>
+  <div class="cv-compact-grid">
+    {% if site.software_projects is defined %}
+      {% for project in site.software_projects %}
+      {% set github = project.get("github", {}) %}
+      <article class="cv-entry cv-entry-software">
+        <header class="cv-entry-header">
+          <p class="cv-label">{{ project.type }}</p>
+          {% if github.get("pushed_at") %}<p class="cv-date">Push {{ github.pushed_at[:10] }}</p>{% endif %}
+        </header>
+        <h4>{% if project.urls.github %}<a href="{{ project.urls.github }}">{{ project.name }}</a>{% else %}{{ project.name }}{% endif %}</h4>
+        {% if project.full_name %}<p><strong>{{ project.full_name }}</strong></p>{% endif %}
+        {% if project.description %}<p>{{ project.description }}</p>{% endif %}
+        {% if github %}
+        <p class="cv-reference">
+          {% if github.get("language") %}{{ github.language }} · {% endif %}
+          {% if github.get("license") %}{{ github.license }} · {% endif %}
+          {{ github.get("stargazers_count", 0) }} stars · {{ github.get("forks_count", 0) }} forks
+          {% if github.get("commits_count") is not none %} · {{ github.commits_count }} commits{% endif %}
+        </p>
+        {% endif %}
+      </article>
+      {% endfor %}
+    {% else %}
+      {% for project in aggregates.software.projects["items"] %}
+      {{ cv.entry_card(project, "h4") }}
+      {% endfor %}
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if "software_packages" in sections and section_details.software_packages != "aggregate" %}
+  <h3>Software Packages</h3>
+  <div class="cv-compact-grid">
+    {% if site.software_packages is defined %}
+      {% for package in site.software_packages %}
+      {% set stats = package.get("package_stats", {}) %}
+      <article class="cv-entry cv-entry-software-package">
+        <header class="cv-entry-header">
+          <p class="cv-label">{{ package.ecosystem }}</p>
+          {% if stats.get("latest_version") %}<p class="cv-date">Latest {{ stats.latest_version }}</p>{% endif %}
+        </header>
+        <h4>{{ package.name | html_link(stats.get("package_url") or stats.get("mvnrepository_url") or package.get("url")) }}</h4>
+        {% if stats.get("summary") %}<p>{{ stats.summary }}</p>{% endif %}
+        {% if package.ecosystem == "PyPI" and stats %}
+        <p class="cv-reference">{{ stats.total_downloads }} total downloads · {{ stats.release_count }} releases · Python {{ stats.requires_python or "n/a" }}</p>
+        {% elif package.ecosystem == "Maven" and stats %}
+        <p class="cv-reference">{{ stats.release_count }} releases · {{ stats.dependency_count }} dependencies · Java {{ stats.java_release or "n/a" }}</p>
+        {% else %}
+        <p class="cv-reference">
+          {% if package.get("package_name") %}Package: {{ package.package_name }}{% endif %}
+          {% if package.get("group_id") %}Coordinate: {{ package.group_id }}:{{ package.artifact_id }}{% endif %}
+        </p>
+        {% endif %}
+      </article>
+      {% endfor %}
+    {% else %}
+      {% for package in aggregates.software.packages["items"] %}
+      {{ cv.entry_card(package, "h4") }}
+      {% endfor %}
+    {% endif %}
+  </div>
+  {% endif %}
+</section>
+{% endif %}

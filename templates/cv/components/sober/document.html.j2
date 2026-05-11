@@ -1,0 +1,203 @@
+{% set profile = core.profile %}
+{% import "components/sober/macros.html.j2" as sober %}
+
+<!doctype html>
+<html lang="{{ model.language }}">
+  {% include "components/common/head.html.j2" %}
+  <body class="cv-document cv-style-sober cv-sober-document cv-density-{{ model.density }} cv-font-scale-{{ model.font_scale }}{% if model.layout.get('fit_stage') %} cv-fit-{{ model.layout.get('fit_stage') }}{% endif %}">
+    <header class="sober-header">
+      <div>
+        <p class="sober-eyebrow">Academic Curriculum Vitae</p>
+        <h1>{{ profile.person.full_name }}</h1>
+      </div>
+      <address class="sober-contact">
+        {% if profile.contact.email %}<span>{{ profile.contact.email | html_link("mailto:" ~ profile.contact.email) }}</span>{% endif %}
+        {% if profile.contact.phone %}<span>{{ profile.contact.phone }}</span>{% endif %}
+        {% if profile.contact.city %}<span>{{ profile.contact.city }}, {{ profile.contact.country }}</span>{% endif %}
+        {% if profile.person.identifiers.orcid %}<span>{{ ("ORCID " ~ profile.person.identifiers.orcid) | html_link("https://orcid.org/" ~ profile.person.identifiers.orcid) }}</span>{% endif %}
+        {% if profile.links.linkedin %}<span>{{ "LinkedIn" | html_link(profile.links.linkedin) }}</span>{% endif %}
+        {% if profile.links.github %}<span>{{ "GitHub" | html_link(profile.links.github) }}</span>{% endif %}
+        {% if profile.links.docker_hub %}<span>{{ "Docker Hub" | html_link(profile.links.docker_hub) }}</span>{% endif %}
+      </address>
+    </header>
+
+    <section class="sober-section sober-summary-section" data-summary-level="{{ summary.active_level }}">
+      <h2>Summary</h2>
+      {% if summary.active.paragraphs %}
+      {% for paragraph in summary.active.paragraphs %}
+      <p class="sober-summary">{{ paragraph }}</p>
+      {% endfor %}
+      {% else %}
+      <p class="sober-empty">No summary available.</p>
+      {% endif %}
+    </section>
+
+    {% if "degrees" in sections %}
+    <section class="sober-section">
+      <h2>Education</h2>
+      {{ sober.item_list(core.education["items"], section_details.degrees) }}
+    </section>
+    {% endif %}
+
+    {% if "experience" in sections %}
+    <section class="sober-section">
+      <h2>Experience</h2>
+      {% if core.experience.groups %}
+        {% for group in core.experience.groups %}
+        {{ sober.experience_group(group, section_details.experience) }}
+        {% endfor %}
+      {% else %}
+      {{ sober.item_list(core.experience["items"], section_details.experience) }}
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if "research_stays" in sections %}
+    <section class="sober-section">
+      <h2>Research Stays</h2>
+      {{ sober.item_list(core.research_stays["items"], section_details.research_stays) }}
+    </section>
+    {% endif %}
+
+    {% if "publications" in sections %}
+    <section class="sober-section">
+      <h2>Publications</h2>
+      {% if core.publications["items"] %}
+        {% for publication in core.publications["items"] %}
+        {% if section_details.publications == "micro" %}
+        {{ sober.compact_entry_block(publication) }}
+        {% else %}
+        {{ sober.entry_block(publication, "Publication") }}
+        {% endif %}
+        {% endfor %}
+      {% else %}
+      <p class="sober-empty">No publications available.</p>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if "research_projects" in sections %}
+    <section class="sober-section">
+      <h2>Research Projects</h2>
+      {{ sober.item_list(core.research_projects["items"], section_details.research_projects) }}
+    </section>
+    {% endif %}
+
+    {% if "honors" in sections %}
+    <section class="sober-section">
+      <h2>Honors</h2>
+      {{ sober.item_list(core.honors["items"], section_details.honors) }}
+    </section>
+    {% endif %}
+
+    {% if "grants" in sections %}
+    <section class="sober-section">
+      <h2>Grants</h2>
+      {{ sober.item_list(core.grants["items"], section_details.grants) }}
+    </section>
+    {% endif %}
+
+    {% if "certifications" in sections and section_details.certifications != "aggregate" %}
+    <section class="sober-section">
+      <h2>Certifications</h2>
+      {{ sober.item_list(aggregates.certifications["items"], section_details.certifications) }}
+    </section>
+    {% endif %}
+
+    {% if "teaching" in sections %}
+    <section class="sober-section">
+      <h2>Teaching</h2>
+      {% if aggregates.teaching.summary.metrics %}
+      <div class="sober-metrics">
+        {% for metric in aggregates.teaching.summary.metrics %}
+        <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if section_details.teaching != "aggregate" %}
+      <h3>University Classes</h3>
+      {{ sober.item_list(aggregates.teaching.classes["items"], section_details.teaching) }}
+
+      <h3>Academic Supervision</h3>
+      {{ sober.item_list(aggregates.teaching.supervision["items"], section_details.teaching) }}
+
+      <h3>Teaching Innovation Projects</h3>
+      {{ sober.item_list(aggregates.teaching.innovation_projects["items"], section_details.teaching) }}
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if "software_projects" in sections or "software_packages" in sections %}
+    <section class="sober-section">
+      <h2>Software</h2>
+      {% if aggregates.software.summary.metrics %}
+      <div class="sober-metrics">
+        {% for metric in aggregates.software.summary.metrics %}
+        <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if "software_projects" in sections and section_details.software_projects != "aggregate" %}
+      <h3>Software Projects</h3>
+      {{ sober.item_list(aggregates.software.projects["items"], section_details.software_projects) }}
+      {% endif %}
+
+      {% if "software_packages" in sections and section_details.software_packages != "aggregate" %}
+      <h3>Software Packages</h3>
+      {{ sober.item_list(aggregates.software.packages["items"], section_details.software_packages) }}
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if "dissemination" in sections and render_options.get("include_dissemination", true) %}
+    <section class="sober-section">
+      <h2>Dissemination</h2>
+      {% if aggregates.dissemination.summary.metrics %}
+      <div class="sober-metrics">
+        {% for metric in aggregates.dissemination.summary.metrics %}
+        <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if aggregates.dissemination.summary.highlights %}
+      <p class="sober-note">{{ aggregates.dissemination.summary.highlights | join(". ") }}</p>
+      {% endif %}
+
+      {% if section_details.dissemination != "aggregate" %}
+      <h3>Scientific Dissemination Articles</h3>
+      {{ sober.item_list(aggregates.dissemination.scientific_articles["items"], section_details.dissemination) }}
+
+      <h3>Presentations</h3>
+      {{ sober.item_list(aggregates.dissemination.presentations["items"], section_details.dissemination) }}
+
+      <h3>Press</h3>
+      {{ sober.item_list(aggregates.dissemination.press["items"], section_details.dissemination) }}
+
+      <h3>Social Media</h3>
+      {{ sober.item_list(aggregates.dissemination.social_media["items"], section_details.dissemination) }}
+
+      <h3>TV Media</h3>
+      {{ sober.item_list(aggregates.dissemination.tv_media["items"], section_details.dissemination) }}
+      {% endif %}
+    </section>
+    {% endif %}
+
+    {% if "reviewing" in sections %}
+    <section class="sober-section">
+      <h2>Reviewing</h2>
+      {% if aggregates.reviewing.summary.metrics %}
+      <div class="sober-metrics">
+        {% for metric in aggregates.reviewing.summary.metrics %}
+        <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if section_details.reviewing != "aggregate" %}
+      {{ sober.item_list(aggregates.reviewing["items"], section_details.reviewing) }}
+      {% endif %}
+    </section>
+    {% endif %}
+  </body>
+</html>

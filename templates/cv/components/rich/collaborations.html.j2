@@ -1,0 +1,34 @@
+{% if site.collaborations is defined %}
+<section class="cv-section cv-section-collaborations">
+  <h2>Research Stays and Publication Cities</h2>
+  <div class="cv-chart-grid">
+    <article class="cv-chart-card">
+      <h3>Publication Collaboration</h3>
+      <div class="cv-metric-strip">
+        <span><strong>{{ site.collaborations.metrics.total_papers }}</strong>Total papers</span>
+        <span><strong>{{ site.collaborations.metrics.international_papers }}</strong>International papers</span>
+        <span><strong>{{ site.collaborations.metrics.publication_countries }}</strong>Countries</span>
+      </div>
+      <div class="cv-city-list">
+        {% for city in site.collaborations.cities if city.publication_count %}
+        <p><strong>{{ city.city }}, {{ city.country }}</strong><span>{{ city.publication_count }} {{ "paper" if city.publication_count == 1 else "papers" }}</span></p>
+        {% endfor %}
+      </div>
+    </article>
+    <article class="cv-chart-card">
+      <h3>Research Stays</h3>
+      <div class="cv-metric-strip">
+        <span><strong>{{ site.collaborations.metrics.stay_cities }}</strong>Cities</span>
+        <span><strong>{{ site.collaborations.metrics.stay_countries }}</strong>Countries</span>
+        <span><strong>{{ site.collaborations.metrics.research_stays }}</strong>Stays</span>
+        <span><strong>{{ site.collaborations.metrics.stay_months }}</strong>Months abroad</span>
+      </div>
+      <div class="cv-city-list">
+        {% for city in site.collaborations.cities if city.stay_count %}
+        <p><strong>{{ city.city }}, {{ city.country }}</strong><span>{{ city.stay_months }} months</span></p>
+        {% endfor %}
+      </div>
+    </article>
+  </div>
+</section>
+{% endif %}

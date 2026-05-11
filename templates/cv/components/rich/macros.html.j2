@@ -1,0 +1,74 @@
+{% macro entry_anchor(entry) -%}
+{% if entry.id %}<span id="{{ entry.id }}" class="cv-anchor"></span>{% endif %}
+{%- endmacro %}
+
+{% macro entry_meta(entry) -%}
+{% if entry.organizations or entry.meta %}
+<p class="cv-meta">
+  {% if entry.organizations %}{{ entry.organizations | linked_names }}{% endif %}
+  {% if entry.organizations and entry.meta %} · {% endif %}
+  {% if entry.meta %}{{ entry.meta }}{% endif %}
+</p>
+{% endif %}
+{%- endmacro %}
+
+{% macro entry_references(entry) -%}
+{% for reference in entry.references %}
+<p class="cv-reference"><strong>{{ reference.label }}:</strong>
+  {% if reference.label == "Organizations" %}{{ reference.records | linked_names }}{% else %}{{ reference.records | anchor_links }}{% endif %}
+</p>
+{% endfor %}
+{%- endmacro %}
+
+{% macro entry_card(entry, title_level="h3") -%}
+{{ entry_anchor(entry) }}
+<article class="cv-entry {{ entry.css_class }}">
+  <header class="cv-entry-header">
+    <p class="cv-label">{{ entry.kind }}</p>
+    {% if entry.date %}<p class="cv-date">{{ entry.date }}</p>{% endif %}
+  </header>
+  {% if title_level == "h5" %}
+  <h5>{{ entry.title | html_link(entry.url) }}</h5>
+  {% elif title_level == "h4" %}
+  <h4>{{ entry.title | html_link(entry.url) }}</h4>
+  {% else %}
+  <h3>{{ entry.title | html_link(entry.url) }}</h3>
+  {% endif %}
+  {{ entry_meta(entry) }}
+  {% for detail in entry.details %}
+  <p{% if ":" in detail %} class="cv-reference"{% endif %}>{{ detail }}</p>
+  {% endfor %}
+  {{ entry_references(entry) }}
+  {% if entry.tasks %}
+  <ul class="cv-list">{% for task in entry.tasks %}<li>{{ task }}</li>{% endfor %}</ul>
+  {% endif %}
+</article>
+{%- endmacro %}
+
+{% macro micro_entry(entry) -%}
+{{ entry_anchor(entry) }}
+<article class="cv-micro-entry {{ entry.css_class }}">
+  <p class="cv-micro-head">
+    <span class="cv-label">{{ entry.kind }}</span>
+    {% if entry.date %}<span class="cv-date">{{ entry.date }}</span>{% endif %}
+  </p>
+  <p class="cv-micro-main">
+    <strong>{{ entry.title | html_link(entry.url) }}</strong>
+    {% if entry.meta %}<span>{{ entry.meta }}</span>{% endif %}
+    {% if entry.organizations %}<span>{{ entry.organizations | linked_names }}</span>{% endif %}
+    {% for detail in entry.details %}
+      {% if loop.first %}<span>{{ detail }}</span>{% endif %}
+    {% endfor %}
+  </p>
+</article>
+{%- endmacro %}
+
+{% macro metric_strip(metrics) -%}
+{% if metrics %}
+<div class="cv-metric-strip">
+  {% for metric in metrics %}
+  <span><strong>{{ metric.value }}</strong>{{ metric.label }}</span>
+  {% endfor %}
+</div>
+{% endif %}
+{%- endmacro %}
