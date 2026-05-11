@@ -42,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: make install
 
+      - name: Install Playwright browser
+        run: make install-playwright PLAYWRIGHT_INSTALL_ARGS="--with-deps chromium"
+
       - name: Validate data
         run: make validate-data
 

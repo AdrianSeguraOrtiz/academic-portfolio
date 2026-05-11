@@ -1,10 +1,13 @@
-.PHONY: install validate-data data-summary data-resolve cv site test lint
+.PHONY: install install-playwright validate-data data-summary data-resolve cv cv-pdf cv-html cv-all cv-check clean-cv site clean-site test lint
 
 PYTHON ?= python3
 VENV ?= .venv
-MODEL ?= academic_full
-FORMAT ?= md
+MODEL ?= academic_rich
+FORMAT ?= pdf
+PAGES ?=
 SITE_ARGS ?=
+PLAYWRIGHT_INSTALL_ARGS ?= chromium
+CV_PAGE_ARGS = $(if $(PAGES),--pages $(PAGES),)
 
 install:
 	@if command -v uv >/dev/null 2>&1; then \
@@ -13,6 +16,13 @@ install:
 		$(PYTHON) -m venv $(VENV); \
 		$(VENV)/bin/python -m pip install --upgrade pip; \
 		$(VENV)/bin/python -m pip install -e ".[dev]"; \
+	fi
+
+install-playwright:
+	@if command -v uv >/dev/null 2>&1; then \
+		uv run playwright install $(PLAYWRIGHT_INSTALL_ARGS); \
+	else \
+		$(VENV)/bin/playwright install $(PLAYWRIGHT_INSTALL_ARGS); \
 	fi
 
 validate-data:
@@ -34,10 +44,31 @@ data-resolve:
 
 cv:
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run portfolio cv generate --model $(MODEL) --format $(FORMAT); \
+		uv run portfolio cv generate --model $(MODEL) --format $(FORMAT) $(CV_PAGE_ARGS); \
 	else \
-		$(VENV)/bin/portfolio cv generate --model $(MODEL) --format $(FORMAT); \
+		$(VENV)/bin/portfolio cv generate --model $(MODEL) --format $(FORMAT) $(CV_PAGE_ARGS); \
 	fi
+
+cv-pdf:
+	$(MAKE) cv MODEL=$(MODEL) FORMAT=pdf PAGES=$(PAGES)
+
+cv-html:
+	$(MAKE) cv MODEL=$(MODEL) FORMAT=html PAGES=$(PAGES)
+
+cv-all:
+	$(MAKE) cv MODEL=academic_rich FORMAT=pdf PAGES=
+	$(MAKE) cv MODEL=academic_sober FORMAT=pdf PAGES=
+	$(MAKE) cv MODEL=academic_sober FORMAT=pdf PAGES=4
+	$(MAKE) cv MODEL=academic_sober FORMAT=pdf PAGES=3
+
+cv-check:
+	$(MAKE) lint
+	$(MAKE) test
+	$(MAKE) cv-all
+	git diff --check
+
+clean-cv:
+	rm -rf build/cv
 
 site:
 	@if command -v uv >/dev/null 2>&1; then \
@@ -45,6 +76,9 @@ site:
 	else \
 		$(VENV)/bin/portfolio site generate $(SITE_ARGS); \
 	fi
+
+clean-site:
+	rm -rf build/site
 
 test:
 	@if command -v uv >/dev/null 2>&1; then \
