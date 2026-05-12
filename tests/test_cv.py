@@ -1,4 +1,5 @@
 from pathlib import Path
+from dataclasses import replace
 from html.parser import HTMLParser
 import re
 
@@ -6,6 +7,7 @@ import pytest
 
 import academic_portfolio.cv as cv_module
 from academic_portfolio.cv import build_cv_view, generate_cv, load_cv_model
+from academic_portfolio.i18n import load_translator
 from academic_portfolio.loader import load_data
 from academic_portfolio.resolver import PortfolioResolver
 
@@ -434,6 +436,21 @@ def test_sober_cv_groups_experience_by_institution() -> None:
     )
 
 
+def test_cv_view_uses_requested_language_for_shared_formatting() -> None:
+    model = replace(load_cv_model(Path("cv_models/academic_sober.toml")), language="es")
+    view = build_cv_view(
+        model,
+        PortfolioResolver(load_data(Path("data"))),
+        load_translator("es"),
+    )
+    khaos_group = next(
+        group for group in view["core"]["experience"]["groups"] if group["title"] == "Khaos Research"
+    )
+
+    assert khaos_group["period"] == "2021-07 - Actualidad"
+    assert "años" in khaos_group["duration"]
+
+
 @pytest.mark.parametrize("model_name", DEFINITIVE_CV_MODELS)
 def test_cv_models_keep_all_core_records(model_name: str) -> None:
     view = _load_cv_view(model_name)
@@ -549,8 +566,9 @@ def test_generate_cv_writes_html(tmp_path: Path) -> None:
     output = generate_cv(output_dir=tmp_path, output_format="html")
     parser = _parse_cv_html(output.content)
 
-    assert output.output_path == tmp_path / "academic_rich.html"
-    assert output.html_path == tmp_path / "academic_rich.html"
+    assert output.model.language == "en"
+    assert output.output_path == tmp_path / "academic_rich_en.html"
+    assert output.html_path == tmp_path / "academic_rich_en.html"
     assert output.output_path.exists()
     assert tmp_path / "assets" / "common.css" in output.asset_paths
     assert tmp_path / "assets" / "rich.css" in output.asset_paths
@@ -632,6 +650,25 @@ def test_generate_cv_writes_html(tmp_path: Path) -> None:
     assert "null" not in output.content
 
 
+def test_generate_cv_accepts_explicit_spanish_language(tmp_path: Path) -> None:
+    output = generate_cv(output_dir=tmp_path, output_format="html", language="es")
+
+    assert output.model.language == "es"
+    assert output.output_path == tmp_path / "academic_rich_es.html"
+    assert output.html_path == tmp_path / "academic_rich_es.html"
+    assert '<html lang="es">' in output.content
+    assert "<h2>Resumen del portafolio</h2>" in output.content
+    assert "Investigador en inteligencia artificial y bioinformática" in output.content
+    assert "<h2>Publicaciones</h2>" in output.content
+    assert "Artículo de revista" in output.content
+    assert "Actividad de commits" in output.content
+
+
+def test_generate_cv_rejects_unsupported_language(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="Unsupported language"):
+        generate_cv(output_dir=tmp_path, output_format="html", language="fr")
+
+
 def test_rich_cv_follows_web_equivalent_editorial_contract(tmp_path: Path) -> None:
     output = generate_cv(
         model="academic_rich",
@@ -673,7 +710,7 @@ def test_generate_cv_writes_formal_full_sober_html(tmp_path: Path) -> None:
 
     assert output.model.name == "academic_sober"
     assert output.model.style == "sober"
-    assert output.output_path == tmp_path / "academic_sober.html"
+    assert output.output_path == tmp_path / "academic_sober_en.html"
     parser = _parse_cv_html(output.content)
 
     assert parser.stylesheets == ["assets/common.css", "assets/sober.css"]
@@ -816,8 +853,8 @@ def test_cv_models_generate_pdf_with_page_contracts(tmp_path: Path, model_name: 
         output_format="pdf",
     )
 
-    assert output.output_path == tmp_path / model_name / f"{model_name}.pdf"
-    assert output.html_path == tmp_path / model_name / f"{model_name}.html"
+    assert output.output_path == tmp_path / model_name / f"{model_name}_en.pdf"
+    assert output.html_path == tmp_path / model_name / f"{model_name}_en.html"
     assert output.output_path.exists()
     assert output.html_path.exists()
     assert output.output_path.read_bytes().startswith(b"%PDF")
@@ -839,8 +876,8 @@ def test_cv_internal_anchor_links_resolve(tmp_path: Path) -> None:
 def test_generate_cv_writes_pdf(tmp_path: Path) -> None:
     output = generate_cv(output_dir=tmp_path)
 
-    assert output.output_path == tmp_path / "academic_rich.pdf"
-    assert output.html_path == tmp_path / "academic_rich.html"
+    assert output.output_path == tmp_path / "academic_rich_en.pdf"
+    assert output.html_path == tmp_path / "academic_rich_en.html"
     assert output.output_path.exists()
     assert output.html_path.exists()
     assert tmp_path / "assets" / "common.css" in output.asset_paths
@@ -864,8 +901,8 @@ def test_generate_cv_compresses_until_it_fits_page_limit(tmp_path: Path) -> None
         page_limit=99,
     )
 
-    assert output.output_path == tmp_path / "academic_sober_99p.pdf"
-    assert output.html_path == tmp_path / "academic_sober_99p.html"
+    assert output.output_path == tmp_path / "academic_sober_99p_en.pdf"
+    assert output.html_path == tmp_path / "academic_sober_99p_en.html"
     assert output.page_limit == 99
     assert output.page_count is not None
     assert output.page_count <= output.page_limit
@@ -877,6 +914,25 @@ def test_generate_cv_compresses_until_it_fits_page_limit(tmp_path: Path) -> None
     assert "<h2>Research Stays</h2>" in output.content
     assert "<h2>Honors</h2>" in output.content
     assert "<h2>Grants</h2>" in output.content
+
+
+def test_generate_cv_page_limited_spanish_output_uses_language_suffix(tmp_path: Path) -> None:
+    output = generate_cv(
+        model="academic_sober",
+        output_dir=tmp_path,
+        output_format="html",
+        page_limit=4,
+        language="es",
+    )
+
+    assert output.model.language == "es"
+    assert output.output_path == tmp_path / "academic_sober_4p_es.html"
+    assert output.html_path == tmp_path / "academic_sober_4p_es.html"
+    assert '<html lang="es">' in output.content
+    assert "<h2>Resumen</h2>" in output.content
+    assert "Fecha:" in output.content
+    assert "Institución:" in output.content
+    assert "Artículo de revista" in output.content
 
 
 @pytest.mark.parametrize(
@@ -928,7 +984,33 @@ def test_page_limit_failure_reports_core_contributors(
     assert "academic_sober cannot fit all required core records in 3 pages." in message
     assert "Minimum compact render requires 99 pages." in message
     assert "Largest contributors:" in message
-    assert "- publications:" in message
+    assert "- Publications:" in message
+
+
+def test_page_limit_failure_uses_requested_language(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fake_pdf_export(_html_path: Path, output_path: Path) -> int:
+        output_path.write_bytes(b"%PDF-1.4\n/Type /Page\n%%EOF")
+        return 99
+
+    monkeypatch.setattr(cv_module, "_export_pdf_from_html", fake_pdf_export)
+
+    with pytest.raises(RuntimeError) as error:
+        generate_cv(
+            model="academic_sober",
+            output_dir=tmp_path,
+            output_format="pdf",
+            page_limit=3,
+            language="es",
+        )
+
+    message = str(error.value)
+    assert "no puede encajar todos los registros nucleares requeridos" in message
+    assert "La renderización compacta mínima requiere 99 páginas." in message
+    assert "Mayores contribuyentes:" in message
+    assert "- Publicaciones:" in message
 
 
 def test_dynamic_page_limits_are_sober_only(tmp_path: Path) -> None:

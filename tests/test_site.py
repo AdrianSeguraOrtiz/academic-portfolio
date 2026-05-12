@@ -1,10 +1,15 @@
 from pathlib import Path
+import shutil
 from typing import Any
+from urllib.parse import urljoin
+
+import pytest
+import yaml
 
 from academic_portfolio.github import github_repository_from_url
 from academic_portfolio.loader import load_data
 from academic_portfolio.resolver import PortfolioResolver
-from academic_portfolio.site import build_site_view, generate_site
+from academic_portfolio.site import build_site_view, generate_all_sites, generate_site
 from academic_portfolio.site.collaborations import _collaboration_view
 
 
@@ -334,24 +339,26 @@ def test_build_site_view_uses_package_stats_for_software_packages() -> None:
 def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     output = generate_site(output_dir=tmp_path)
 
-    assert output.output_path == tmp_path / "index.html"
+    assert output.language == "en"
+    assert output.output_path == tmp_path / "en" / "index.html"
     assert output.output_path.exists()
-    assert (tmp_path / "assets" / "site.css").exists()
-    assert (tmp_path / "assets" / "ui.js").exists()
-    assert (tmp_path / "assets" / "collaborations.js").exists()
-    assert (tmp_path / "assets" / "publications.js").exists()
-    assert (tmp_path / "assets" / "software-timeline.js").exists()
-    assert (tmp_path / "assets" / "career-timeline.js").exists()
-    assert (tmp_path / "assets" / "career-details.js").exists()
-    assert (tmp_path / "assets" / "projects.js").exists()
-    assert (tmp_path / "assets" / "teaching-timeline.js").exists()
-    assert (tmp_path / "assets" / "dissemination.js").exists()
-    assert (tmp_path / "assets" / "organizations.js").exists()
-    assert (tmp_path / "assets" / "profile.jpg").exists()
+    assert (tmp_path / "en" / "assets" / "site.css").exists()
+    assert (tmp_path / "en" / "assets" / "ui.js").exists()
+    assert (tmp_path / "en" / "assets" / "collaborations.js").exists()
+    assert (tmp_path / "en" / "assets" / "publications.js").exists()
+    assert (tmp_path / "en" / "assets" / "software-timeline.js").exists()
+    assert (tmp_path / "en" / "assets" / "career-timeline.js").exists()
+    assert (tmp_path / "en" / "assets" / "career-details.js").exists()
+    assert (tmp_path / "en" / "assets" / "projects.js").exists()
+    assert (tmp_path / "en" / "assets" / "teaching-timeline.js").exists()
+    assert (tmp_path / "en" / "assets" / "dissemination.js").exists()
+    assert (tmp_path / "en" / "assets" / "organizations.js").exists()
+    assert (tmp_path / "en" / "assets" / "profile.jpg").exists()
     assert "Adrián Segura Ortiz" in output.content
     assert 'class="profile-photo"' in output.content
     assert "Portfolio Summary" in output.content
     assert "artificial intelligence applied" in output.content
+    assert "Repository for the GENECI software ecosystem" in output.content
     assert "journal papers" in output.content
     assert "conference paper" in output.content
     assert "paper in international collaboration" in output.content
@@ -405,8 +412,8 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert "PIE22-114" in output.content
     assert "Classes and Supervision" in output.content
     assert "teaching-chart-grid" in output.content
-    assert "By Academic Year" in output.content
-    assert "By Degree Programme" in output.content
+    assert "Classroom Hours by Academic Year" in output.content
+    assert "Classroom Hours by Degree Programme" in output.content
     assert "teaching-timeline-stage" in output.content
     assert "teaching-timeline-item type-class" in output.content
     assert "teaching-timeline-item type-supervision" in output.content
@@ -438,6 +445,85 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert "undefined" not in output.content
     assert "null" not in output.content
     assert "None" not in output.content
+
+
+def test_generate_site_accepts_explicit_spanish_language(tmp_path: Path) -> None:
+    output = generate_site(output_dir=tmp_path, language="es")
+
+    assert output.language == "es"
+    assert output.output_path == tmp_path / "es" / "index.html"
+    assert '<html lang="es">' in output.content
+    assert (tmp_path / "es" / "assets" / "site.css").exists()
+    assert "Resumen del portafolio" in output.content
+    assert "Investigador en inteligencia artificial y bioinformática" in output.content
+    assert "Repositorio del ecosistema software GENECI" in output.content
+    assert "Publicaciones por año" in output.content
+    assert "68.300 visualizaciones" in output.content
+    assert "17 acciones en redes sociales y 1 acción en televisión" in output.content
+    assert ", y 1 acción en televisión" not in output.content
+    assert "Puesto actual" in output.content
+    assert "Selector de idioma" in output.content
+    assert "Publicaciones y detalles" in output.content
+    assert "Current position" not in output.content
+    assert "Publication details" not in output.content
+
+
+def test_generate_all_sites_writes_bilingual_routes_and_root_redirect(tmp_path: Path) -> None:
+    output = generate_all_sites(output_dir=tmp_path)
+    outputs_by_language = {site_output.language: site_output for site_output in output.outputs}
+
+    assert set(outputs_by_language) == {"en", "es"}
+    assert outputs_by_language["en"].output_path == tmp_path / "en" / "index.html"
+    assert outputs_by_language["es"].output_path == tmp_path / "es" / "index.html"
+    assert output.redirect_path == tmp_path / "index.html"
+    assert output.redirect_path.exists()
+    assert (tmp_path / "en" / "assets" / "site.css").exists()
+    assert (tmp_path / "es" / "assets" / "site.css").exists()
+
+    redirect_content = output.redirect_path.read_text(encoding="utf-8")
+    assert '<meta http-equiv="refresh" content="0; url=en/">' in redirect_content
+    assert 'window.location.replace("en/" + window.location.search + window.location.hash)' in (
+        redirect_content
+    )
+
+    english_content = outputs_by_language["en"].content
+    spanish_content = outputs_by_language["es"].content
+    assert '<html lang="en">' in english_content
+    assert '<html lang="es">' in spanish_content
+    assert 'href="../es/" hreflang="es"' in english_content
+    assert 'href="../en/" hreflang="en"' in spanish_content
+    assert (
+        urljoin("https://adrianseguraortiz.github.io/academic-portfolio/", "en/")
+        == "https://adrianseguraortiz.github.io/academic-portfolio/en/"
+    )
+    assert (
+        urljoin("https://adrianseguraortiz.github.io/academic-portfolio/en/", "../es/")
+        == "https://adrianseguraortiz.github.io/academic-portfolio/es/"
+    )
+
+
+def test_generate_site_renders_localized_yaml_maps(tmp_path: Path) -> None:
+    data_dir = tmp_path / "data"
+    shutil.copytree(Path("data"), data_dir)
+    software_path = data_dir / "research" / "software_projects.yaml"
+    document = yaml.safe_load(software_path.read_text(encoding="utf-8"))
+    document["projects"][0]["description"] = {
+        "en": "English localized software description.",
+        "es": "Descripción localizada del software.",
+    }
+    software_path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+
+    english = generate_site(output_dir=tmp_path / "site-en", data_dir=data_dir, language="en")
+    spanish = generate_site(output_dir=tmp_path / "site-es", data_dir=data_dir, language="es")
+
+    assert "English localized software description." in english.content
+    assert "Descripción localizada del software." in spanish.content
+    assert "English localized software description." not in spanish.content
+
+
+def test_generate_site_rejects_unsupported_language(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="Unsupported language"):
+        generate_site(output_dir=tmp_path, language="fr")
 
 
 def test_github_repository_from_url() -> None:
