@@ -128,6 +128,7 @@ site:
     current_language: Idioma actual
     current_activity: Actividad actual
     profile_links: Enlaces del perfil
+    cv_downloads: Descarga de CV
     research_focus: Líneas de investigación
     portfolio_metrics: Métricas del portafolio
     world_map: Mapa mundial de estancias de investigación y colaboraciones en publicaciones
@@ -173,8 +174,11 @@ site:
     next_project: Proyecto siguiente
     previous_dissemination_items: Acciones de divulgación anteriores
     next_dissemination_items: Acciones de divulgación siguientes
+    download_rich_cv: Descargar CV visual
+    download_sober_cv: Descargar CV sobrio
   labels:
     academic_portfolio: Portafolio académico
+    download_cv: Descargar CV
     aggregated_repository_languages: Lenguajes agregados de los repositorios
     career_timeline_data_unavailable: Datos de línea temporal de trayectoria no disponibles
     career_timeline_dependency_unavailable: Librería de línea temporal no disponible

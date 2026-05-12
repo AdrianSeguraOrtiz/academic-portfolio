@@ -42,6 +42,12 @@
       {% endif %}
       <a href="mailto:{{ profile.contact.email }}">{{ profile.contact.email }}</a>
     </div>
+
+    <div class="cv-downloads" aria-label="{{ t("site.aria.cv_downloads") }}">
+      <span>{{ t("site.labels.download_cv") }}</span>
+      <a href="downloads/academic_rich_{{ language }}.pdf" download>{{ t("site.actions.download_rich_cv") }}</a>
+      <a href="downloads/academic_sober_{{ language }}.pdf" download>{{ t("site.actions.download_sober_cv") }}</a>
+    </div>
   </div>
 
   <aside class="hero-panel" aria-label="{{ t("site.aria.research_focus") }}">

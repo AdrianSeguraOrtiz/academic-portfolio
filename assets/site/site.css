@@ -255,6 +255,42 @@ h3 {
   text-decoration: none;
 }
 
+.cv-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  max-width: 900px;
+  margin-top: 14px;
+}
+
+.cv-downloads span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.cv-downloads a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 4px 12px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 0.84rem;
+  font-weight: 850;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cv-downloads a:hover {
+  background: var(--accent);
+  color: var(--surface);
+}
+
 .hero-panel {
   align-self: center;
   min-width: 0;

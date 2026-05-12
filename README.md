@@ -121,6 +121,12 @@ Generate the active CV outputs in both languages:
 make cv-all-lang
 ```
 
+Generate the website CV downloads used by GitHub Pages:
+
+```bash
+make cv-site-downloads
+```
+
 ### Language Output Paths
 
 Website outputs are language-scoped:
@@ -131,6 +137,10 @@ build/site/en/index.html
 build/site/es/index.html
 build/site/en/assets/
 build/site/es/assets/
+build/site/en/downloads/academic_rich_en.pdf
+build/site/en/downloads/academic_sober_en.pdf
+build/site/es/downloads/academic_rich_es.pdf
+build/site/es/downloads/academic_sober_es.pdf
 ```
 
 CV outputs include the language suffix:
@@ -416,6 +426,14 @@ make site-all
 `build/site/index.html` as a relative redirect to `build/site/en/`. The language
 switcher links between the equivalent language routes.
 
+The public website can also expose the full rich and sober CVs for the active
+language. Generate and copy those PDFs into the language-specific site folders
+with:
+
+```bash
+make cv-site-downloads
+```
+
 `make site` refreshes dynamic GitHub and package data by default. To render from
 YAML and cached data without network refresh:
 
@@ -492,8 +510,9 @@ The bilingual deployment contract is:
 /academic-portfolio/     redirects to /academic-portfolio/en/
 ```
 
-The workflow runs `make site-all`, so the static site artifact contains both
-language folders plus the root redirect page. It also writes `.nojekyll` so
+The workflow runs `make site-all` and `make cv-site-downloads`, so the static
+site artifact contains both language folders, the root redirect page, and the
+full rich/sober CV downloads for each language. It also writes `.nojekyll` so
 GitHub Pages serves the generated assets without Jekyll processing.
 
 To enable deployment for this repository:

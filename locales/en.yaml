@@ -128,6 +128,7 @@ site:
     current_language: Current language
     current_activity: Current activity
     profile_links: Profile links
+    cv_downloads: CV downloads
     research_focus: Research focus
     portfolio_metrics: Portfolio metrics
     world_map: World map of research stays and publication collaborations
@@ -173,8 +174,11 @@ site:
     next_project: Next project
     previous_dissemination_items: Previous dissemination items
     next_dissemination_items: Next dissemination items
+    download_rich_cv: Download rich CV
+    download_sober_cv: Download sober CV
   labels:
     academic_portfolio: Academic Portfolio
+    download_cv: Download CV
     aggregated_repository_languages: Aggregated repository languages
     career_timeline_data_unavailable: Career timeline data unavailable
     career_timeline_dependency_unavailable: Career timeline library unavailable

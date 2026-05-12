@@ -356,6 +356,9 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert (tmp_path / "en" / "assets" / "profile.jpg").exists()
     assert "Adrián Segura Ortiz" in output.content
     assert 'class="profile-photo"' in output.content
+    assert "Download CV" in output.content
+    assert 'href="downloads/academic_rich_en.pdf" download' in output.content
+    assert 'href="downloads/academic_sober_en.pdf" download' in output.content
     assert "Portfolio Summary" in output.content
     assert "artificial intelligence applied" in output.content
     assert "Repository for the GENECI software ecosystem" in output.content
@@ -463,6 +466,9 @@ def test_generate_site_accepts_explicit_spanish_language(tmp_path: Path) -> None
     assert ", y 1 acción en televisión" not in output.content
     assert "Puesto actual" in output.content
     assert "Selector de idioma" in output.content
+    assert "Descargar CV" in output.content
+    assert 'href="downloads/academic_rich_es.pdf" download' in output.content
+    assert 'href="downloads/academic_sober_es.pdf" download' in output.content
     assert "Publicaciones y detalles" in output.content
     assert "Current position" not in output.content
     assert "Publication details" not in output.content

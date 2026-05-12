@@ -1,4 +1,4 @@
-.PHONY: install install-playwright validate-data data-summary data-resolve cv cv-pdf cv-html cv-all cv-all-lang cv-check clean-cv site site-all clean-site test lint
+.PHONY: install install-playwright validate-data data-summary data-resolve cv cv-pdf cv-html cv-all cv-all-lang cv-site-downloads cv-check clean-cv site site-all clean-site test lint
 
 PYTHON ?= python3
 VENV ?= .venv
@@ -67,6 +67,17 @@ cv-all:
 cv-all-lang:
 	$(MAKE) cv-all PORTFOLIO_LANG=en
 	$(MAKE) cv-all PORTFOLIO_LANG=es
+
+cv-site-downloads:
+	$(MAKE) cv MODEL=academic_rich FORMAT=pdf PORTFOLIO_LANG=en PAGES=
+	$(MAKE) cv MODEL=academic_sober FORMAT=pdf PORTFOLIO_LANG=en PAGES=
+	$(MAKE) cv MODEL=academic_rich FORMAT=pdf PORTFOLIO_LANG=es PAGES=
+	$(MAKE) cv MODEL=academic_sober FORMAT=pdf PORTFOLIO_LANG=es PAGES=
+	mkdir -p build/site/en/downloads build/site/es/downloads
+	cp build/cv/academic_rich_en.pdf build/site/en/downloads/academic_rich_en.pdf
+	cp build/cv/academic_sober_en.pdf build/site/en/downloads/academic_sober_en.pdf
+	cp build/cv/academic_rich_es.pdf build/site/es/downloads/academic_rich_es.pdf
+	cp build/cv/academic_sober_es.pdf build/site/es/downloads/academic_sober_es.pdf
 
 cv-check:
 	$(MAKE) lint
