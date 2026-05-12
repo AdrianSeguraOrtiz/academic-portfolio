@@ -10,6 +10,16 @@ DATA_DIR = if ARGV[0]
              File.expand_path("../data", __dir__)
            end
 FILES = Dir[File.join(DATA_DIR, "**", "*.yaml")].sort
+SUPPORTED_LANGUAGES = %w[en es].freeze
+FALLBACK_LANGUAGE = "en"
+LANGUAGE_CODE_PATTERN = /\A[a-z]{2}(?:-[A-Z]{2})?\z/
+URL_LIKE_FIELDS = %w[
+  doi
+  repository_url
+  url
+  urls
+  website
+].freeze
 
 REFERENCE_PREFIXES = {
   "organization_ids" => "organization_",
@@ -146,10 +156,73 @@ def fail_with(message)
   exit 1
 end
 
+def blank_value?(value)
+  value.nil? || (value.respond_to?(:empty?) && value.empty?)
+end
+
+def language_key?(key)
+  key.to_s.match?(LANGUAGE_CODE_PATTERN)
+end
+
+def localized_map_candidate?(hash)
+  keys = hash.keys.map(&:to_s)
+  return false if keys.empty?
+
+  keys.any? { |key| SUPPORTED_LANGUAGES.include?(key) } || keys.all? { |key| language_key?(key) }
+end
+
+def scalar_only_field?(field)
+  field = field.to_s
+  field == "id" || field.end_with?("_id") || field.end_with?("_ids") || URL_LIKE_FIELDS.include?(field)
+end
+
+def scalar_localized_value?(value)
+  value.nil? || value.is_a?(String) || value.is_a?(Numeric) || value == true || value == false
+end
+
 data = FILES.to_h do |file|
   [Pathname.new(file).relative_path_from(Pathname.new(DATA_DIR)).to_s, YAML.load_file(file)]
 rescue Psych::SyntaxError => e
   fail_with("Invalid YAML in #{file}: #{e.message}")
+end
+
+localized_walk = lambda do |object, path = []|
+  case object
+  when Hash
+    if localized_map_candidate?(object)
+      field = path.last.to_s
+      fail_with("#{path.join('.')}: #{field} must remain scalar") if scalar_only_field?(field)
+
+      keys = object.keys.map(&:to_s)
+      unsupported_languages = keys - SUPPORTED_LANGUAGES
+      unless unsupported_languages.empty?
+        fail_with("#{path.join('.')}: unsupported localized languages: #{unsupported_languages.join(', ')}")
+      end
+
+      fallback_value = object[FALLBACK_LANGUAGE]
+      if blank_value?(fallback_value)
+        fail_with("#{path.join('.')}: localized map must define non-empty #{FALLBACK_LANGUAGE}")
+      end
+
+      object.each_value do |localized_value|
+        unless scalar_localized_value?(localized_value)
+          fail_with("#{path.join('.')}: localized values must be scalar")
+        end
+      end
+    end
+
+    object.each do |key, value|
+      localized_walk.call(value, path + [key.to_s])
+    end
+  when Array
+    object.each_with_index do |value, index|
+      localized_walk.call(value, path + [index.to_s])
+    end
+  end
+end
+
+data.each do |file, document|
+  localized_walk.call(document, [file])
 end
 
 data.each do |file, document|

@@ -1,0 +1,554 @@
+language:
+  code: en
+  name: English
+
+nav:
+  profile: Profile
+  overview: Overview
+  collaborations: Collaborations
+  publications: Publications
+  software: Software
+  career: Career
+  projects: Projects
+  teaching: Teaching
+  dissemination: Dissemination
+  organizations: Organizations
+
+labels:
+  date: Date
+  present: Present
+  institution: Institution
+  authors: Authors
+  journal: Journal
+  conference: Conference
+  publisher: Publisher
+  organizations: Organizations
+  software: Software
+  positions: Positions
+  research_stays: Research stays
+  grants: Grants
+  tasks: Tasks
+  title: Title
+
+lists:
+  conjunction: and
+
+units:
+  activity:
+    one: "{count} activity"
+    other: "{count} activities"
+  city:
+    one: "{count} city"
+    other: "{count} cities"
+  country:
+    one: "{count} country"
+    other: "{count} countries"
+  course:
+    one: "{count} course"
+    other: "{count} courses"
+  degree_program:
+    one: "{count} degree programme"
+    other: "{count} degree programmes"
+  download:
+    one: "{count} download"
+    other: "{count} downloads"
+  fork:
+    one: "{count} fork"
+    other: "{count} forks"
+  grant:
+    one: "{count} grant"
+    other: "{count} grants"
+  honor:
+    one: "{count} honor"
+    other: "{count} honors"
+  hour:
+    one: "{count} hour"
+    other: "{count} hours"
+  item:
+    one: "{count} item"
+    other: "{count} items"
+  institution:
+    one: "{count} institution"
+    other: "{count} institutions"
+  manuscript:
+    one: "{count} manuscript"
+    other: "{count} manuscripts"
+  month:
+    one: "{count} month"
+    other: "{count} months"
+  outlet:
+    one: "{count} outlet"
+    other: "{count} outlets"
+  open_issue:
+    one: "{count} open issue"
+    other: "{count} open issues"
+  paper:
+    one: "{count} paper"
+    other: "{count} papers"
+  project:
+    one: "{count} project"
+    other: "{count} projects"
+  publication:
+    one: "{count} publication"
+    other: "{count} publications"
+  repository:
+    one: "{count} repository"
+    other: "{count} repositories"
+  record:
+    one: "{count} record"
+    other: "{count} records"
+  release:
+    one: "{count} release"
+    other: "{count} releases"
+  star:
+    one: "{count} star"
+    other: "{count} stars"
+  commit:
+    one: "{count} commit"
+    other: "{count} commits"
+  dependency:
+    one: "{count} dependency"
+    other: "{count} dependencies"
+  view:
+    one: "{count} view"
+    other: "{count} views"
+  year:
+    one: "{count} year"
+    other: "{count} years"
+
+summary:
+  baseline_interpolation_example: "{count} publications"
+
+site:
+  document:
+    title_suffix: Academic Portfolio
+  aria:
+    primary_navigation: Primary navigation
+    language_switcher: Language selector
+    current_language: Current language
+    current_activity: Current activity
+    profile_links: Profile links
+    research_focus: Research focus
+    portfolio_metrics: Portfolio metrics
+    world_map: World map of research stays and publication collaborations
+    map_legend: Map legend
+    publications_by_year: Publications by year
+    publications_grouped_by_year: Publications grouped by year
+    aggregated_repository_languages: Aggregated repository languages
+    software_portfolio_metrics: Software portfolio metrics
+    career_timeline_filters: Career timeline filters
+    career_timeline_zoom_controls: Career timeline zoom controls
+    career_timeline_visualization: Career timeline visualization
+    career_timeline_legend: Career timeline legend
+    career_detail_filters: Career detail filters
+    project_role_legend: Project role legend
+    teaching_workload_charts: Teaching workload charts
+    academic_year_chart_legend: Academic year chart organization legend
+    degree_chart_legend: Degree chart organization legend
+    teaching_organization_legend: Teaching organization color legend
+    teaching_type_legend: Teaching item type legend
+    teaching_timeline_zoom_controls: Teaching timeline zoom controls
+    dissemination_channel_mix: Dissemination channel mix
+    dissemination_filters: Dissemination filters
+    organization_countries: Organization countries
+  actions:
+    all: All
+    reset: Reset
+    reset_zoom: Reset zoom
+    zoom_in: Zoom in
+    zoom_out: Zoom out
+    zoom_in_career_timeline: Zoom in career timeline
+    zoom_out_career_timeline: Zoom out career timeline
+    reset_teaching_timeline_zoom: Reset teaching timeline zoom
+    zoom_in_teaching_timeline: Zoom in teaching timeline
+    zoom_out_teaching_timeline: Zoom out teaching timeline
+    show_publications_from: "Show publications from {year}"
+    previous_publication: Previous publication
+    next_publication: Next publication
+    previous_repository: Previous repository
+    next_repository: Next repository
+    previous_software_package: Previous software package
+    next_software_package: Next software package
+    previous_project: Previous project
+    next_project: Next project
+    previous_dissemination_items: Previous dissemination items
+    next_dissemination_items: Next dissemination items
+  labels:
+    academic_portfolio: Academic Portfolio
+    aggregated_repository_languages: Aggregated repository languages
+    career_timeline_data_unavailable: Career timeline data unavailable
+    career_timeline_dependency_unavailable: Career timeline library unavailable
+    career_timeline_loading: Loading career timeline
+    city:
+      one: city
+      other: cities
+    class: Class
+    clickpy_dashboard: ClickPy dashboard
+    codebase: Codebase
+    commits_date_range: "Commits {start} - {end}"
+    contained_organizations: Contained organizations
+    countries: Countries
+    countries_in_papers: Countries in papers
+    credential_id: Credential ID
+    current_category: "Current {category}"
+    dominant_language: Dominant language
+    entities: Entities
+    grant_linked_block: Grant-linked block
+    latest_push: Latest push
+    knowledge_transfer: Knowledge Transfer
+    location: Location
+    map_loading: Loading world map
+    month_short: "{count} mo"
+    mvnrepository: MvnRepository
+    open: open
+    open_research_software: Open Research Software
+    output: Output
+    package: Package
+    packages: Packages
+    project: Project
+    project_details: Project details
+    publication_city: Publication city
+    publications_and_details: Publications and details
+    python: Python
+    repos: Repos
+    repositories: Repositories
+    repository: Repository
+    repository_created: "Repository created: {date}"
+    research_output: Research Output
+    research_stay: Research stay
+    snapshot: Snapshot
+    software_index: Software Index
+    supervision: Supervision
+    total_dissemination_items: Total dissemination items
+    type: Type
+    host_group: Host group
+    purpose: Purpose
+    version_downloads_chart: "{package} monthly downloads by version"
+    versions: Versions
+    work_institutions: Work institutions
+  overview:
+    intro: "I am a computer scientist and researcher in artificial intelligence applied to bioinformatics, working at the intersection of computational methods, biomedical data analysis, evolutionary computation, and reproducible scientific software."
+    academic_background: "My academic background comprises {degrees}."
+    professional_and_stays: "My professional experience spans {experience}, complemented by research stays of {stays}, for a total of {months} abroad."
+    direct_work: "Across professional appointments and research stays, this portfolio includes direct work at {institutions}."
+    research_output: "My research output includes {journal} and {conference}, including {international} and {national}."
+    research_roles_reviews: "Within funded research projects, my roles include {roles}, and I have completed reviews for {manuscripts} submitted to scientific journals."
+    software_counts: "The software portfolio includes {projects} and {packages}."
+    software_public_activity: "The public software portfolio spans {repositories}, with {stars} and {forks}."
+    package_usage: "Package usage records {downloads}."
+    teaching_activity: "My teaching activity includes {institutions}, amounting to {hours} across {years}, {courses}, and {degree_programmes}."
+    teaching_innovation: "This teaching activity also includes {projects}."
+    academic_supervision: "Academic supervision includes {supervision}."
+    dissemination_activity: "Scientific dissemination activity covers {items} across media, institutional channels, and public-facing formats."
+    press_coverage: "Press coverage spans {outlets}."
+    social_views: "Social media items with available metrics account for {views}; the highest recorded item reaches {highest}."
+    recognition: "This academic trajectory has also been recognized with {honors}: {honors_list}, and supported by {grants}: {grants_list}."
+
+cv:
+  document:
+    academic_portfolio: Academic Portfolio
+    academic_cv: Academic Curriculum Vitae
+    no_summary: No summary available.
+    no_publications: No publications available.
+    no_records: No records available.
+    page_limit_failure: "{model} cannot fit all required core records in {pages} pages."
+    minimum_compact_render: "Minimum compact render requires {pages} pages."
+    largest_contributors: "Largest contributors:"
+    contributor_item_count: "- {label}: {count}"
+  labels:
+    current_activity: Current activity
+    current_position: Current position
+    current_stay: Current stay
+    research_focus: Research Focus
+    portfolio_metrics: Portfolio metrics
+    records: records
+    code: Code
+    funders: Funders
+    participation: Participation
+    principal_investigators: Principal investigators
+    total_amount: Total amount
+    push: Push
+    stars: stars
+    forks: forks
+    commits: commits
+    latest: Latest
+    package: Package
+    coordinate: Coordinate
+    repository: Repository
+    publication: Publication
+    title: Title
+    working_team_member: Working team member
+    research_team_member: Research team member
+    pi_copi: PI / Co-PI
+  sections:
+    summary: Summary
+    portfolio_summary: Portfolio Summary
+    collaborations: Research Stays and Publication Cities
+    publication_collaboration: Publication Collaboration
+    research_stays: Research Stays
+    publications: Publications
+    publications_by_year: Publications by Year
+    software: Software
+    commit_activity: Commit Activity
+    languages: Languages
+    software_projects: Software Projects
+    software_packages: Software Packages
+    academic_trajectory: Academic Trajectory
+    timeline_snapshot: Timeline Snapshot
+    career_details: Career Details
+    education: Education
+    experience: Experience
+    projects: Research and Teaching Innovation Projects
+    classes_supervision: Classes and Supervision
+    classroom_hours_by_year: Classroom Hours by Academic Year
+    classroom_hours_by_degree: Classroom Hours by Degree Programme
+    teaching_timeline_snapshot: Teaching Timeline Snapshot
+    university_classes: University Classes
+    academic_supervision: Academic Supervision
+    teaching_innovation_projects: Teaching Innovation Projects
+    dissemination_media: Dissemination and Media
+    total_dissemination_items: Total Dissemination Items
+    items_by_type: Items by Type
+    by_research_output: By Research Output
+    dissemination_items: Dissemination Items
+    organizations: Organizations
+    research_projects: Research Projects
+    honors: Honors
+    grants: Grants
+    certifications: Certifications
+    teaching: Teaching
+    dissemination: Dissemination
+    reviewing: Reviewing
+    scientific_dissemination_articles: Scientific Dissemination Articles
+    presentations: Presentations
+    press: Press
+    social_media: Social Media
+    tv_media: TV Media
+  metrics:
+    total_publications: Total publications
+    software_projects: Software projects
+    research_projects: Research projects
+    teaching_hours: Teaching hours
+    work_institutions: Work institutions
+    package_downloads: Package downloads
+    known_social_views: Known social views
+    total_papers: Total papers
+    international_papers: International papers
+    countries: Countries
+    cities: Cities
+    stays: Stays
+    months_abroad: Months abroad
+    stars: Stars
+    forks: Forks
+    open_issues: Open issues
+    latest_push: Latest push
+    published_packages: Published packages
+    research_domains: Research domains
+    classroom_hours: Classroom hours
+    academic_years: Academic years
+    courses: Courses
+    degree_programmes: Degree programmes
+    supervisions: Supervisions
+    teaching_innovation_projects: Teaching innovation projects
+    dissemination_items: Dissemination items
+    scientific_articles: Scientific articles
+    presentations: Presentations
+    press_items: Press items
+    social_media_items: Social media items
+    tv_media_items: TV media items
+    reviewed_manuscripts: Reviewed manuscripts
+    journals: Journals
+    linked_organizations: Linked organizations
+  fields:
+    accounts: Accounts
+    conference: Conference
+    context: Context
+    coordinate: Coordinate
+    degree_programme: Degree programme
+    dependencies: Dependencies
+    department: Department
+    description: Description
+    doi: DOI
+    domains: Domains
+    download_period: Download period
+    downloads_dashboard: Downloads dashboard
+    duration: Duration
+    funding_entity: Funding entity
+    funders: Funders
+    grade: Grade
+    group: Group
+    hours: Hours
+    issue_with_value: "Issue {value}"
+    java_release: Java release
+    journal: Journal
+    last_updated: Last updated
+    latest_version: Latest version
+    license: License
+    maven_repository: Maven Repository
+    notes: Notes
+    package_name: Package name
+    period: Period
+    principal_investigators: Principal investigators
+    program: Program
+    project_url: Project URL
+    publisher: Publisher
+    purpose: Purpose
+    releases: Releases
+    repository: Repository
+    requires_python: Requires Python
+    reviewed_manuscripts: Reviewed manuscripts
+    role: Role
+    summary: Summary
+    thesis: Thesis
+    total_downloads: Total downloads
+    views: Views
+  meta:
+    additional_information: Additional information
+    authors: Authors
+  kinds:
+    academic_supervision: Academic supervision
+    article: Article
+    certification: Certification
+    conference_paper: Conference paper
+    degree: Degree
+    grant: Grant
+    honor: Honor
+    journal_paper: Journal paper
+    package: Package
+    position: Position
+    presentation: Presentation
+    press: Press
+    research_project: Research project
+    research_stay: Research stay
+    reviewing: Reviewing
+    social_media: Social media
+    software_project: Software project
+    teaching_innovation_project: Teaching innovation project
+    tv_media: TV media
+    university_class: University class
+  references:
+    grants: Grants
+    honors: Honors
+    organizations: Organizations
+    positions: Positions
+    projects: Projects
+    publications: Publications
+    related_education: Related education
+    related_positions: Related positions
+    related_stays: Related stays
+    software: Software
+    software_packages: Software packages
+    stays: Stays
+  counts:
+    academic_year:
+      one: "{count} academic year"
+      other: "{count} academic years"
+    conference_paper:
+      one: "{count} conference paper"
+      other: "{count} conference papers"
+    course:
+      one: "{count} course"
+      other: "{count} courses"
+    degree_programme:
+      one: "{count} degree programme"
+      other: "{count} degree programmes"
+    doctoral_thesis:
+      one: "{count} doctoral thesis"
+      other: "{count} doctoral theses"
+    external_internship:
+      one: "{count} external internship"
+      other: "{count} external internships"
+    final_degree_project:
+      one: "{count} final degree project"
+      other: "{count} final degree projects"
+    final_master_project:
+      one: "{count} final master project"
+      other: "{count} final master projects"
+    grant:
+      one: "{count} grant"
+      other: "{count} grants"
+    honor:
+      one: "{count} honor"
+      other: "{count} honors"
+    journal_paper:
+      one: "{count} journal paper"
+      other: "{count} journal papers"
+    paper_in_international_collaboration:
+      one: "{count} paper in international collaboration"
+      other: "{count} papers in international collaboration"
+    paper_in_national_collaboration:
+      one: "{count} paper in national collaboration"
+      other: "{count} papers in national collaboration"
+    presentation:
+      one: "{count} presentation"
+      other: "{count} presentations"
+    press_item:
+      one: "{count} press item"
+      other: "{count} press items"
+    published_package:
+      one: "{count} published package"
+      other: "{count} published packages"
+    research_project:
+      one: "{count} research project"
+      other: "{count} research projects"
+    scientific_dissemination_article:
+      one: "{count} scientific dissemination article"
+      other: "{count} scientific dissemination articles"
+    social_media_item:
+      one: "{count} social media item"
+      other: "{count} social media items"
+    software_project:
+      one: "{count} software project"
+      other: "{count} software projects"
+    teaching_innovation_project:
+      one: "{count} teaching innovation project"
+      other: "{count} teaching innovation projects"
+    tv_media_item:
+      one: "{count} TV media item"
+      other: "{count} TV media items"
+  summary:
+    academic_background: "My academic background comprises {value}."
+    academic_supervision_includes: "Academic supervision includes {value}."
+    classroom_hours_phrase: "{hours} classroom hours"
+    dissemination_activity: "Scientific dissemination activity covers {value}."
+    dissemination_covers: "Dissemination covers {value}."
+    for_scientific_journals: for scientific journals
+    funded_research_roles: "Within funded research projects, my roles include {value}."
+    github_activity: "The public software portfolio spans {repositories}, with {stars} and {forks}."
+    intro_generated: "I am a computer scientist and researcher in artificial intelligence applied to bioinformatics, working at the intersection of computational methods, biomedical data analysis, evolutionary computation, and reproducible scientific software."
+    package_downloads: "Package usage records {downloads}."
+    press_coverage: "Press coverage spans {count}."
+    professional_experience: "My professional experience spans {value}."
+    publication_collaboration: "The publication record includes {value}."
+    recognition: "This academic trajectory has been recognized and supported through {value}."
+    recognition_counts: "The trajectory has been recognized and supported through {value}."
+    research_output_pair: "My research output includes {journal} and {conference}."
+    research_output_single: "My research output includes {value}."
+    research_project_roles: "Research project roles include {value}."
+    research_stays_single: "This is complemented by research stays of {value}."
+    research_stays_with_total: "This is complemented by research stays of {stays}, for a total of {total} abroad."
+    reviewed_manuscripts: "I have reviewed {count} {suffix}."
+    social_views: "Social media items with available metrics account for {views}."
+    social_views_with_highest: "Social media items with available metrics account for {views}, with the highest recorded item reaching {highest}."
+    software_output: "The software portfolio includes {value}."
+    teaching_activity: "My teaching activity{context}, amounting to {value}."
+    teaching_context: " includes {value}"
+    teaching_innovation_includes: "It also includes {value}."
+    teaching_micro: "Teaching activity totals {value}."
+  summary_fragments:
+    at: "{value} at {organization}"
+    belonging_to: "{value}, belonging to {organization}"
+    covering: "{grant}, covering {records}"
+    degree_from: "{degree} from {organization}"
+    located_in: "{organization}, located in {place}"
+    role_in_projects: "{role} in {projects}"
+  summary_labels:
+    grants: "grants: {value}"
+    highest_known_social_media_item: "Highest known social media item: {value}"
+    honors: "honors: {value}"
+    main_domains: "Main domains: {value}"
+    main_journals: "Main journals: {value}"
+    package_ecosystems: "Package ecosystems: {value}"
+    platform_item: "{platform} item"
+    supervision: "Supervision: {value}"
+    teaching_innovation: "Teaching innovation: {value}"

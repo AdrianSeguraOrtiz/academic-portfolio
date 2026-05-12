@@ -1,0 +1,554 @@
+language:
+  code: es
+  name: Español
+
+nav:
+  profile: Perfil
+  overview: Resumen
+  collaborations: Colaboraciones
+  publications: Publicaciones
+  software: Software
+  career: Trayectoria
+  projects: Proyectos
+  teaching: Docencia
+  dissemination: Divulgación
+  organizations: Organizaciones
+
+labels:
+  date: Fecha
+  present: Actualidad
+  institution: Institución
+  authors: Autores
+  journal: Revista
+  conference: Congreso
+  publisher: Editorial
+  organizations: Organizaciones
+  software: Software
+  positions: Puestos
+  research_stays: Estancias de investigación
+  grants: Ayudas
+  tasks: Tareas
+  title: Título
+
+lists:
+  conjunction: y
+
+units:
+  activity:
+    one: "{count} actividad"
+    other: "{count} actividades"
+  city:
+    one: "{count} ciudad"
+    other: "{count} ciudades"
+  country:
+    one: "{count} país"
+    other: "{count} países"
+  course:
+    one: "{count} curso"
+    other: "{count} cursos"
+  degree_program:
+    one: "{count} titulación"
+    other: "{count} titulaciones"
+  download:
+    one: "{count} descarga"
+    other: "{count} descargas"
+  fork:
+    one: "{count} fork"
+    other: "{count} forks"
+  grant:
+    one: "{count} ayuda"
+    other: "{count} ayudas"
+  honor:
+    one: "{count} reconocimiento"
+    other: "{count} reconocimientos"
+  hour:
+    one: "{count} hora"
+    other: "{count} horas"
+  item:
+    one: "{count} elemento"
+    other: "{count} elementos"
+  institution:
+    one: "{count} institución"
+    other: "{count} instituciones"
+  manuscript:
+    one: "{count} manuscrito"
+    other: "{count} manuscritos"
+  month:
+    one: "{count} mes"
+    other: "{count} meses"
+  outlet:
+    one: "{count} medio"
+    other: "{count} medios"
+  open_issue:
+    one: "{count} issue abierta"
+    other: "{count} issues abiertas"
+  paper:
+    one: "{count} artículo"
+    other: "{count} artículos"
+  project:
+    one: "{count} proyecto"
+    other: "{count} proyectos"
+  publication:
+    one: "{count} publicación"
+    other: "{count} publicaciones"
+  repository:
+    one: "{count} repositorio"
+    other: "{count} repositorios"
+  record:
+    one: "{count} registro"
+    other: "{count} registros"
+  release:
+    one: "{count} versión"
+    other: "{count} versiones"
+  star:
+    one: "{count} estrella"
+    other: "{count} estrellas"
+  commit:
+    one: "{count} commit"
+    other: "{count} commits"
+  dependency:
+    one: "{count} dependencia"
+    other: "{count} dependencias"
+  view:
+    one: "{count} visualización"
+    other: "{count} visualizaciones"
+  year:
+    one: "{count} año"
+    other: "{count} años"
+
+summary:
+  baseline_interpolation_example: "{count} publicaciones"
+
+site:
+  document:
+    title_suffix: Portafolio académico
+  aria:
+    primary_navigation: Navegación principal
+    language_switcher: Selector de idioma
+    current_language: Idioma actual
+    current_activity: Actividad actual
+    profile_links: Enlaces del perfil
+    research_focus: Líneas de investigación
+    portfolio_metrics: Métricas del portafolio
+    world_map: Mapa mundial de estancias de investigación y colaboraciones en publicaciones
+    map_legend: Leyenda del mapa
+    publications_by_year: Publicaciones por año
+    publications_grouped_by_year: Publicaciones agrupadas por año
+    aggregated_repository_languages: Lenguajes agregados de los repositorios
+    software_portfolio_metrics: Métricas del portafolio de software
+    career_timeline_filters: Filtros de la línea temporal de trayectoria
+    career_timeline_zoom_controls: Controles de zoom de la línea temporal de trayectoria
+    career_timeline_visualization: Visualización de la línea temporal de trayectoria
+    career_timeline_legend: Leyenda de la línea temporal de trayectoria
+    career_detail_filters: Filtros de detalle de trayectoria
+    project_role_legend: Leyenda de roles en proyectos
+    teaching_workload_charts: Gráficas de carga docente
+    academic_year_chart_legend: Leyenda de organizaciones en la gráfica por curso académico
+    degree_chart_legend: Leyenda de organizaciones en la gráfica por titulación
+    teaching_organization_legend: Leyenda de color de organizaciones docentes
+    teaching_type_legend: Leyenda de tipos de docencia
+    teaching_timeline_zoom_controls: Controles de zoom de la línea temporal docente
+    dissemination_channel_mix: Distribución de canales de divulgación
+    dissemination_filters: Filtros de divulgación
+    organization_countries: Países de organizaciones
+  actions:
+    all: Todos
+    reset: Restablecer
+    reset_zoom: Restablecer zoom
+    zoom_in: Acercar
+    zoom_out: Alejar
+    zoom_in_career_timeline: Acercar línea temporal de trayectoria
+    zoom_out_career_timeline: Alejar línea temporal de trayectoria
+    reset_teaching_timeline_zoom: Restablecer zoom de la línea temporal docente
+    zoom_in_teaching_timeline: Acercar línea temporal docente
+    zoom_out_teaching_timeline: Alejar línea temporal docente
+    show_publications_from: "Mostrar publicaciones de {year}"
+    previous_publication: Publicación anterior
+    next_publication: Publicación siguiente
+    previous_repository: Repositorio anterior
+    next_repository: Repositorio siguiente
+    previous_software_package: Paquete software anterior
+    next_software_package: Paquete software siguiente
+    previous_project: Proyecto anterior
+    next_project: Proyecto siguiente
+    previous_dissemination_items: Acciones de divulgación anteriores
+    next_dissemination_items: Acciones de divulgación siguientes
+  labels:
+    academic_portfolio: Portafolio académico
+    aggregated_repository_languages: Lenguajes agregados de los repositorios
+    career_timeline_data_unavailable: Datos de línea temporal de trayectoria no disponibles
+    career_timeline_dependency_unavailable: Librería de línea temporal no disponible
+    career_timeline_loading: Cargando línea temporal de trayectoria
+    city:
+      one: ciudad
+      other: ciudades
+    class: Clase
+    clickpy_dashboard: Panel de ClickPy
+    codebase: Código fuente
+    commits_date_range: "Commits {start} - {end}"
+    contained_organizations: Organizaciones contenidas
+    countries: Países
+    countries_in_papers: Países en publicaciones
+    credential_id: ID de credencial
+    current_category: "{category} actual"
+    dominant_language: Lenguaje dominante
+    entities: Entidades
+    grant_linked_block: Bloque vinculado a ayuda
+    latest_push: Último push
+    knowledge_transfer: Transferencia de conocimiento
+    location: Ubicación
+    map_loading: Cargando mapa mundial
+    month_short: "{count} meses"
+    mvnrepository: MvnRepository
+    open: abiertas
+    open_research_software: Software científico abierto
+    output: Producción
+    package: Paquete
+    packages: Paquetes
+    project: Proyecto
+    project_details: Detalles del proyecto
+    publication_city: Ciudad de publicación
+    publications_and_details: Publicaciones y detalles
+    python: Python
+    repos: Repos
+    repositories: Repositorios
+    repository: Repositorio
+    repository_created: "Repositorio creado: {date}"
+    research_output: Producción investigadora
+    research_stay: Estancia de investigación
+    snapshot: Instantánea
+    software_index: Índice de software
+    supervision: Supervisión
+    total_dissemination_items: Total de acciones de divulgación
+    type: Tipo
+    host_group: Grupo anfitrión
+    purpose: Finalidad
+    version_downloads_chart: "Descargas mensuales por versión de {package}"
+    versions: Versiones
+    work_institutions: Instituciones de trabajo
+  overview:
+    intro: "Soy investigador en inteligencia artificial aplicada a bioinformática, con una base sólida en informática y trabajo en la intersección de métodos computacionales, análisis de datos biomédicos, computación evolutiva y software científico reproducible."
+    academic_background: "Mi formación académica comprende {degrees}."
+    professional_and_stays: "Mi experiencia profesional abarca {experience}, complementada con estancias de investigación de {stays}, para un total de {months} en el extranjero."
+    direct_work: "Entre nombramientos profesionales y estancias de investigación, este portafolio recoge trabajo directo en {institutions}."
+    research_output: "Mi producción investigadora incluye {journal} y {conference}, incluyendo {international} y {national}."
+    research_roles_reviews: "En proyectos de investigación financiados, he participado como {roles} y he revisado {manuscripts} enviados a revistas científicas."
+    software_counts: "El portafolio de software incluye {projects} y {packages}."
+    software_public_activity: "La actividad pública de software abarca {repositories}, con {stars} y {forks}."
+    package_usage: "El uso de paquetes suma {downloads}."
+    teaching_activity: "Mi actividad docente incluye {institutions}, alcanzando {hours} en {years}, {courses} y {degree_programmes}."
+    teaching_innovation: "Esta actividad docente también incluye {projects}."
+    academic_supervision: "La supervisión académica incluye {supervision}."
+    dissemination_activity: "La actividad de divulgación científica incluye {items} en medios, canales institucionales y formatos dirigidos al público."
+    press_coverage: "La cobertura en prensa abarca {outlets}."
+    social_views: "Las acciones en redes sociales con métricas disponibles acumulan {views}; la acción más vista alcanza {highest}."
+    recognition: "Esta trayectoria académica también ha sido reconocida con {honors}: {honors_list}, y apoyada mediante {grants}: {grants_list}."
+
+cv:
+  document:
+    academic_portfolio: Portafolio académico
+    academic_cv: Curriculum vitae académico
+    no_summary: No hay resumen disponible.
+    no_publications: No hay publicaciones disponibles.
+    no_records: No hay registros disponibles.
+    page_limit_failure: "{model} no puede encajar todos los registros nucleares requeridos en {pages} páginas."
+    minimum_compact_render: "La renderización compacta mínima requiere {pages} páginas."
+    largest_contributors: "Mayores contribuyentes:"
+    contributor_item_count: "- {label}: {count}"
+  labels:
+    current_activity: Actividad actual
+    current_position: Puesto actual
+    current_stay: Estancia actual
+    research_focus: Líneas de investigación
+    portfolio_metrics: Métricas del portafolio
+    records: registros
+    code: Código
+    funders: Entidades financiadoras
+    participation: Participación
+    principal_investigators: Investigadores principales
+    total_amount: Importe total
+    push: Push
+    stars: estrellas
+    forks: forks
+    commits: commits
+    latest: Última
+    package: Paquete
+    coordinate: Coordenada
+    repository: Repositorio
+    publication: Publicación
+    title: Título
+    working_team_member: Miembro del equipo de trabajo
+    research_team_member: Miembro del equipo de investigación
+    pi_copi: IP / Co-IP
+  sections:
+    summary: Resumen
+    portfolio_summary: Resumen del portafolio
+    collaborations: Estancias de investigación y ciudades de publicación
+    publication_collaboration: Colaboración en publicaciones
+    research_stays: Estancias de investigación
+    publications: Publicaciones
+    publications_by_year: Publicaciones por año
+    software: Software
+    commit_activity: Actividad de commits
+    languages: Lenguajes
+    software_projects: Proyectos software
+    software_packages: Paquetes software
+    academic_trajectory: Trayectoria académica
+    timeline_snapshot: Instantánea temporal
+    career_details: Detalle de trayectoria
+    education: Formación
+    experience: Experiencia
+    projects: Proyectos de investigación e innovación docente
+    classes_supervision: Clases y supervisión
+    classroom_hours_by_year: Horas de docencia por curso académico
+    classroom_hours_by_degree: Horas de docencia por titulación
+    teaching_timeline_snapshot: Instantánea temporal de docencia
+    university_classes: Docencia universitaria
+    academic_supervision: Supervisión académica
+    teaching_innovation_projects: Proyectos de innovación docente
+    dissemination_media: Divulgación y medios
+    total_dissemination_items: Total de acciones de divulgación
+    items_by_type: Acciones por tipo
+    by_research_output: Por resultado de investigación
+    dissemination_items: Acciones de divulgación
+    organizations: Organizaciones
+    research_projects: Proyectos de investigación
+    honors: Reconocimientos
+    grants: Ayudas
+    certifications: Certificaciones
+    teaching: Docencia
+    dissemination: Divulgación
+    reviewing: Revisión científica
+    scientific_dissemination_articles: Artículos de divulgación científica
+    presentations: Presentaciones
+    press: Prensa
+    social_media: Redes sociales
+    tv_media: Televisión
+  metrics:
+    total_publications: Publicaciones totales
+    software_projects: Proyectos software
+    research_projects: Proyectos de investigación
+    teaching_hours: Horas de docencia
+    work_institutions: Instituciones de trabajo
+    package_downloads: Descargas de paquetes
+    known_social_views: Visualizaciones registradas en redes
+    total_papers: Artículos totales
+    international_papers: Artículos internacionales
+    countries: Países
+    cities: Ciudades
+    stays: Estancias
+    months_abroad: Meses en el extranjero
+    stars: Estrellas
+    forks: Forks
+    open_issues: Issues abiertas
+    latest_push: Último push
+    published_packages: Paquetes publicados
+    research_domains: Dominios de investigación
+    classroom_hours: Horas de docencia
+    academic_years: Cursos académicos
+    courses: Asignaturas
+    degree_programmes: Titulaciones
+    supervisions: Supervisiones
+    teaching_innovation_projects: Proyectos de innovación docente
+    dissemination_items: Acciones de divulgación
+    scientific_articles: Artículos de divulgación científica
+    presentations: Presentaciones
+    press_items: Noticias de prensa
+    social_media_items: Acciones en redes sociales
+    tv_media_items: Acciones en televisión
+    reviewed_manuscripts: Manuscritos revisados
+    journals: Revistas
+    linked_organizations: Organizaciones vinculadas
+  fields:
+    accounts: Cuentas
+    conference: Congreso
+    context: Contexto
+    coordinate: Coordenada
+    degree_programme: Titulación
+    dependencies: Dependencias
+    department: Departamento
+    description: Descripción
+    doi: DOI
+    domains: Dominios
+    download_period: Periodo de descargas
+    downloads_dashboard: Panel de descargas
+    duration: Duración
+    funding_entity: Entidad financiadora
+    funders: Entidades financiadoras
+    grade: Calificación
+    group: Grupo
+    hours: Horas
+    issue_with_value: "Número {value}"
+    java_release: Versión Java
+    journal: Revista
+    last_updated: Última actualización
+    latest_version: Última versión
+    license: Licencia
+    maven_repository: Repositorio Maven
+    notes: Notas
+    package_name: Nombre del paquete
+    period: Periodo
+    principal_investigators: Investigadores principales
+    program: Programa
+    project_url: URL del proyecto
+    publisher: Editorial
+    purpose: Finalidad
+    releases: Versiones
+    repository: Repositorio
+    requires_python: Requiere Python
+    reviewed_manuscripts: Manuscritos revisados
+    role: Función
+    summary: Resumen
+    thesis: Tesis
+    total_downloads: Descargas totales
+    views: Visualizaciones
+  meta:
+    additional_information: Información adicional
+    authors: Autores
+  kinds:
+    academic_supervision: Supervisión académica
+    article: Artículo
+    certification: Certificación
+    conference_paper: Artículo de congreso
+    degree: Título académico
+    grant: Ayuda
+    honor: Reconocimiento
+    journal_paper: Artículo de revista
+    package: Paquete
+    position: Puesto
+    presentation: Presentación
+    press: Prensa
+    research_project: Proyecto de investigación
+    research_stay: Estancia de investigación
+    reviewing: Revisión
+    social_media: Redes sociales
+    software_project: Proyecto software
+    teaching_innovation_project: Proyecto de innovación docente
+    tv_media: Aparición en televisión
+    university_class: Docencia universitaria
+  references:
+    grants: Ayudas
+    honors: Reconocimientos
+    organizations: Organizaciones
+    positions: Puestos
+    projects: Proyectos
+    publications: Publicaciones
+    related_education: Formación relacionada
+    related_positions: Puestos relacionados
+    related_stays: Estancias relacionadas
+    software: Software
+    software_packages: Paquetes software
+    stays: Estancias
+  counts:
+    academic_year:
+      one: "{count} curso académico"
+      other: "{count} cursos académicos"
+    conference_paper:
+      one: "{count} artículo de congreso"
+      other: "{count} artículos de congreso"
+    course:
+      one: "{count} asignatura"
+      other: "{count} asignaturas"
+    degree_programme:
+      one: "{count} titulación"
+      other: "{count} titulaciones"
+    doctoral_thesis:
+      one: "{count} tesis doctoral"
+      other: "{count} tesis doctorales"
+    external_internship:
+      one: "{count} práctica externa"
+      other: "{count} prácticas externas"
+    final_degree_project:
+      one: "{count} trabajo fin de grado"
+      other: "{count} trabajos fin de grado"
+    final_master_project:
+      one: "{count} trabajo fin de máster"
+      other: "{count} trabajos fin de máster"
+    grant:
+      one: "{count} ayuda"
+      other: "{count} ayudas"
+    honor:
+      one: "{count} reconocimiento"
+      other: "{count} reconocimientos"
+    journal_paper:
+      one: "{count} artículo de revista"
+      other: "{count} artículos de revista"
+    paper_in_international_collaboration:
+      one: "{count} artículo en colaboración internacional"
+      other: "{count} artículos en colaboración internacional"
+    paper_in_national_collaboration:
+      one: "{count} artículo en colaboración nacional"
+      other: "{count} artículos en colaboración nacional"
+    presentation:
+      one: "{count} presentación"
+      other: "{count} presentaciones"
+    press_item:
+      one: "{count} noticia de prensa"
+      other: "{count} noticias de prensa"
+    published_package:
+      one: "{count} paquete publicado"
+      other: "{count} paquetes publicados"
+    research_project:
+      one: "{count} proyecto de investigación"
+      other: "{count} proyectos de investigación"
+    scientific_dissemination_article:
+      one: "{count} artículo de divulgación científica"
+      other: "{count} artículos de divulgación científica"
+    social_media_item:
+      one: "{count} acción en redes sociales"
+      other: "{count} acciones en redes sociales"
+    software_project:
+      one: "{count} proyecto software"
+      other: "{count} proyectos software"
+    teaching_innovation_project:
+      one: "{count} proyecto de innovación docente"
+      other: "{count} proyectos de innovación docente"
+    tv_media_item:
+      one: "{count} acción en televisión"
+      other: "{count} acciones en televisión"
+  summary:
+    academic_background: "Mi formación académica comprende {value}."
+    academic_supervision_includes: "La supervisión académica incluye {value}."
+    classroom_hours_phrase: "{hours} horas de docencia"
+    dissemination_activity: "La actividad de divulgación científica incluye {value}."
+    dissemination_covers: "La divulgación incluye {value}."
+    for_scientific_journals: para revistas científicas
+    funded_research_roles: "En proyectos de investigación financiados, he participado como {value}."
+    github_activity: "La actividad pública de software abarca {repositories}, con {stars} y {forks}."
+    intro_generated: "Soy investigador en inteligencia artificial aplicada a bioinformática, con una base sólida en informática y trabajo en la intersección de métodos computacionales, análisis de datos biomédicos, computación evolutiva y software científico reproducible."
+    package_downloads: "El uso de paquetes suma {downloads}."
+    press_coverage: "La cobertura en prensa abarca {count}."
+    professional_experience: "Mi experiencia profesional abarca {value}."
+    publication_collaboration: "El registro de publicaciones incluye {value}."
+    recognition: "Esta trayectoria académica ha sido reconocida y apoyada mediante {value}."
+    recognition_counts: "La trayectoria ha sido reconocida y apoyada mediante {value}."
+    research_output_pair: "Mi producción investigadora incluye {journal} y {conference}."
+    research_output_single: "Mi producción investigadora incluye {value}."
+    research_project_roles: "La participación en proyectos de investigación incluye {value}."
+    research_stays_single: "Esta trayectoria se complementa con estancias de investigación de {value}."
+    research_stays_with_total: "Esta trayectoria se complementa con estancias de investigación de {stays}, para un total de {total} en el extranjero."
+    reviewed_manuscripts: "He revisado {count} {suffix}."
+    social_views: "Las acciones en redes sociales con métricas disponibles acumulan {views}."
+    social_views_with_highest: "Las acciones en redes sociales con métricas disponibles acumulan {views}, con una acción destacada de {highest}."
+    software_output: "El portafolio de software incluye {value}."
+    teaching_activity: "Mi actividad docente{context}, alcanzando {value}."
+    teaching_context: " incluye {value}"
+    teaching_innovation_includes: "También incluye {value}."
+    teaching_micro: "La actividad docente suma {value}."
+  summary_fragments:
+    at: "{value} en {organization}"
+    belonging_to: "{value}, perteneciente a {organization}"
+    covering: "{grant}, vinculada a {records}"
+    degree_from: "{degree} por {organization}"
+    located_in: "{organization}, ubicado en {place}"
+    role_in_projects: "{role} en {projects}"
+  summary_labels:
+    grants: "ayudas: {value}"
+    highest_known_social_media_item: "Acción en redes sociales más destacada: {value}"
+    honors: "reconocimientos: {value}"
+    main_domains: "Dominios principales: {value}"
+    main_journals: "Revistas principales: {value}"
+    package_ecosystems: "Ecosistemas de paquetes: {value}"
+    platform_item: "Elemento de {platform}"
+    supervision: "Supervisión: {value}"
+    teaching_innovation: "Innovación docente: {value}"

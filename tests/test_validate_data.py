@@ -90,3 +90,62 @@ def test_validate_data_rejects_unsorted_dated_lists(tmp_path: Path) -> None:
         "career/experience.yaml: positions is not sorted ascending by start_date"
         in result.stderr
     )
+
+
+def test_validate_data_accepts_supported_localized_maps(tmp_path: Path) -> None:
+    def localize_software_description(data_dir: Path) -> None:
+        path = data_dir / "research" / "software_projects.yaml"
+        document = _load_yaml(path)
+        document["projects"][0]["description"] = {
+            "en": "English software description.",
+            "es": "Descripción del software en español.",
+        }
+        _write_yaml(path, document)
+
+    result = _run_validator_with_mutation(tmp_path, localize_software_description)
+
+    assert result.returncode == 0
+
+
+def test_validate_data_rejects_unsupported_localized_language(tmp_path: Path) -> None:
+    def add_unsupported_language(data_dir: Path) -> None:
+        path = data_dir / "research" / "software_projects.yaml"
+        document = _load_yaml(path)
+        document["projects"][0]["description"] = {
+            "en": "English software description.",
+            "fr": "Description francaise.",
+        }
+        _write_yaml(path, document)
+
+    result = _run_validator_with_mutation(tmp_path, add_unsupported_language)
+
+    assert result.returncode == 1
+    assert "unsupported localized languages: fr" in result.stderr
+
+
+def test_validate_data_rejects_localized_maps_without_fallback(tmp_path: Path) -> None:
+    def remove_fallback_language(data_dir: Path) -> None:
+        path = data_dir / "research" / "software_projects.yaml"
+        document = _load_yaml(path)
+        document["projects"][0]["description"] = {
+            "es": "Descripción del software en español.",
+        }
+        _write_yaml(path, document)
+
+    result = _run_validator_with_mutation(tmp_path, remove_fallback_language)
+
+    assert result.returncode == 1
+    assert "localized map must define non-empty en" in result.stderr
+
+
+def test_validate_data_rejects_localized_url_fields(tmp_path: Path) -> None:
+    def localize_url(data_dir: Path) -> None:
+        path = data_dir / "activities" / "dissemination" / "press.yaml"
+        document = _load_yaml(path)
+        document["press_items"][0]["url"] = {"en": "https://example.com"}
+        _write_yaml(path, document)
+
+    result = _run_validator_with_mutation(tmp_path, localize_url)
+
+    assert result.returncode == 1
+    assert "url must remain scalar" in result.stderr

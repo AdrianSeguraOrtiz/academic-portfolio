@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from academic_portfolio.i18n import localized_value
 from academic_portfolio.loader import LoadedData, load_data
 
 
@@ -62,7 +63,7 @@ def record_label(record: Mapping[str, Any]) -> str:
     for field in ("title", "name", "journal", "full_name"):
         value = record.get(field)
         if value:
-            return str(value)
+            return str(localized_value(value))
     return str(record.get("id", "unknown"))
 
 
