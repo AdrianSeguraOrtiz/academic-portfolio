@@ -1,6 +1,8 @@
 stays:
 - id: stay_01
-  title: Predoctoral Researcher (International Stay)
+  title:
+    en: Predoctoral Researcher (International Stay)
+    es: Investigador predoctoral (estancia internacional)
   organization_ids:
   - organization_04
   - organization_08
@@ -14,21 +16,36 @@ stays:
       longitude: 3.0573
   start_date: 2024-04
   end_date: 2024-06
-  employment_type: Full-time
-  work_mode: On-site
-  purpose: Doctorate
-  type: International stay
-  host_group: ORKAD research group, CRIStAL centre
+  employment_type:
+    en: Full-time
+    es: Tiempo completo
+  work_mode:
+    en: On-site
+    es: Presencial
+  purpose:
+    en: Doctorate
+    es: Doctorado
+  type:
+    en: International stay
+    es: Estancia internacional
+  host_group:
+    en: ORKAD research group, CRIStAL centre
+    es: Grupo de investigación ORKAD, centro CRIStAL
   grant_ids:
   - grant_02
   tasks:
-  - Designed an evolutionary biclustering framework specialised in biomedical data
-    and guided by domain context.
-  description: Predoctoral international stay at the CRIStAL centre of the University
-    of Lille.
+  - en: Designed an evolutionary biclustering framework specialised in biomedical data
+      and guided by domain context.
+    es: Diseñé un framework de biclustering evolutivo especializado en datos biomédicos
+      y guiado por contexto de dominio.
+  description:
+    en: Predoctoral international stay at the CRIStAL centre of the University of Lille.
+    es: Estancia internacional predoctoral en el centro CRIStAL de la Universidad de Lille.
   notes: null
 - id: stay_02
-  title: Postdoctoral Researcher (International Stay)
+  title:
+    en: Postdoctoral Researcher (International Stay)
+    es: Investigador postdoctoral (estancia internacional)
   organization_ids:
   - organization_05
   location:
@@ -40,12 +57,22 @@ stays:
       longitude: 23.7275
   start_date: 2026-04
   end_date: 2026-06
-  employment_type: Full-time
-  work_mode: On-site
-  purpose: Postdoctoral research
-  type: International stay
+  employment_type:
+    en: Full-time
+    es: Tiempo completo
+  work_mode:
+    en: On-site
+    es: Presencial
+  purpose:
+    en: Postdoctoral research
+    es: Investigación postdoctoral
+  type:
+    en: International stay
+    es: Estancia internacional
   host_group: null
   grant_ids: []
   tasks: []
-  description: Postdoctoral international research stay.
+  description:
+    en: Postdoctoral international research stay.
+    es: Estancia internacional de investigación postdoctoral.
   notes: null

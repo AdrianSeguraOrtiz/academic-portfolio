@@ -31,15 +31,27 @@ current_position_ids:
 current_stay_ids:
 - stay_02
 research_profile:
-  summary: Researcher in artificial intelligence and bioinformatics focused on context-guided
-    computational methods for biomedical data analysis.
+  summary:
+    en: Researcher in artificial intelligence and bioinformatics focused on context-guided
+      computational methods for biomedical data analysis.
+    es: Investigador en inteligencia artificial y bioinformática centrado en métodos
+      computacionales guiados por contexto para el análisis de datos biomédicos.
   areas:
-  - Artificial intelligence
-  - Bioinformatics
-  - Biomedical data analysis
-  - Gene regulatory network inference
-  - Evolutionary biclustering
-  - Co-expression pattern detection
-  - Context-guided computational methods
-  - Domain knowledge integration
-  - Interpretable AI
+  - en: Artificial intelligence
+    es: Inteligencia artificial
+  - en: Bioinformatics
+    es: Bioinformática
+  - en: Biomedical data analysis
+    es: Análisis de datos biomédicos
+  - en: Gene regulatory network inference
+    es: Inferencia de redes de regulación génica
+  - en: Evolutionary biclustering
+    es: Biclustering evolutivo
+  - en: Co-expression pattern detection
+    es: Detección de patrones de coexpresión
+  - en: Context-guided computational methods
+    es: Métodos computacionales guiados por contexto
+  - en: Domain knowledge integration
+    es: Integración de conocimiento de dominio
+  - en: Interpretable AI
+    es: IA interpretable

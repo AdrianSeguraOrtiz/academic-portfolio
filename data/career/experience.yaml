@@ -7,20 +7,28 @@ positions:
   department: null
   group: null
   location: Málaga, Andalusia, Spain
-  work_mode: Hybrid
-  employment_type: Internship
+  work_mode:
+    en: Hybrid
+    es: Híbrido
+  employment_type:
+    en: Internship
+    es: Prácticas
   dedication: null
   start_date: 2021-03
   end_date: 2021-06
   tasks:
-  - Developed an automated NGS analysis pipeline for tumor samples on the Picasso
-    supercomputer.
-  - Programmed Bash and R scripts with GNU Parallel for large-scale sample processing.
-  - Integrated FastQC, MultiQC, Qualimap, and vcftoolz compare for quality control
-    and visualization.
-  - Evaluated multiple aligners and variant callers to reduce false positives.
-  - Annotated variants using ANNOVAR, OpenCRAVAT, MyVariant, and biomedical databases.
-  - Detected copy number alterations and gene fusions with unified R reporting.
+  - en: Developed an automated NGS analysis pipeline for tumor samples on the Picasso supercomputer.
+    es: Desarrollé un pipeline automatizado de análisis NGS para muestras tumorales en el supercomputador Picasso.
+  - en: Programmed Bash and R scripts with GNU Parallel for large-scale sample processing.
+    es: Programé scripts en Bash y R con GNU Parallel para procesamiento de muestras a gran escala.
+  - en: Integrated FastQC, MultiQC, Qualimap, and vcftoolz compare for quality control and visualization.
+    es: Integré FastQC, MultiQC, Qualimap y vcftoolz compare para control de calidad y visualización.
+  - en: Evaluated multiple aligners and variant callers to reduce false positives.
+    es: Evalué distintos alineadores y detectores de variantes para reducir falsos positivos.
+  - en: Annotated variants using ANNOVAR, OpenCRAVAT, MyVariant, and biomedical databases.
+    es: Anoté variantes usando ANNOVAR, OpenCRAVAT, MyVariant y bases de datos biomédicas.
+  - en: Detected copy number alterations and gene fusions with unified R reporting.
+    es: Detecté alteraciones en el número de copias y fusiones génicas mediante informes unificados en R.
 - id: position_02
   title: Junior Software Engineer
   organization_ids:
@@ -28,20 +36,28 @@ positions:
   department: null
   group: Khaos Research
   location: Málaga, Andalusia, Spain
-  work_mode: On-site
-  employment_type: Full-time
-  dedication: Full-time
+  work_mode:
+    en: On-site
+    es: Presencial
+  employment_type:
+    en: Full-time
+    es: Tiempo completo
+  dedication:
+    en: Full-time
+    es: Tiempo completo
   start_date: 2021-07
   end_date: 2022-12
   tasks:
-  - Developed Progressive Web Applications with Next.js and MongoDB for crop sample
-    data recording and analysis.
-  - Encapsulated Python, Java, and R scripts into Docker containers for EnBiC2-Lab
-    components.
-  - Developed an evolutionary algorithm with JMetal and EPANET simulations to predict
-    irrigation connector properties.
-  - Contributed to Angular interfaces for scientific workflow execution.
-  - Managed project tasks and coordination through OpenProject.
+  - en: Developed Progressive Web Applications with Next.js and MongoDB for crop sample data recording and analysis.
+    es: Desarrollé aplicaciones web progresivas con Next.js y MongoDB para registro y análisis de muestras agrícolas.
+  - en: Encapsulated Python, Java, and R scripts into Docker containers for EnBiC2-Lab components.
+    es: Encapsulé scripts en Python, Java y R en contenedores Docker para componentes de EnBiC2-Lab.
+  - en: Developed an evolutionary algorithm with JMetal and EPANET simulations to predict irrigation connector properties.
+    es: Desarrollé un algoritmo evolutivo con JMetal y simulaciones EPANET para predecir propiedades de conectores de riego.
+  - en: Contributed to Angular interfaces for scientific workflow execution.
+    es: Contribuí a interfaces Angular para ejecución de flujos de trabajo científicos.
+  - en: Managed project tasks and coordination through OpenProject.
+    es: Gestioné tareas y coordinación de proyectos mediante OpenProject.
 - id: position_03
   title: Associate Software Engineer
   organization_ids:
@@ -49,22 +65,28 @@ positions:
   department: null
   group: Khaos Research
   location: Málaga, Andalusia, Spain
-  work_mode: On-site
-  employment_type: Part-time
-  dedication: Part-time
+  work_mode:
+    en: On-site
+    es: Presencial
+  employment_type:
+    en: Part-time
+    es: Tiempo parcial
+  dedication:
+    en: Part-time
+    es: Tiempo parcial
   start_date: 2022-12
   end_date: 2025-12
   tasks:
-  - Developed a workflow orchestration tool in Go with SQLite storage, JSON/YAML component
-    definitions, and Kubernetes and Nomad execution support.
-  - Administered computational resources using Proxmox and vSphere for deployment,
-    maintenance, and monitoring of virtual machines.
-  - Processed multisource satellite imagery from Sentinel-2, PlanetScope, and Landsat,
-    including download automation, temporal composites, spectral indices, and band
-    manipulation.
-  - Developed Gradio interfaces for remote sensing model execution and result visualization.
-  - Maintained OpenProject installations, upgrades, deployments, and project-management
-    workflows.
+  - en: Developed a workflow orchestration tool in Go with SQLite storage, JSON/YAML component definitions, and Kubernetes and Nomad execution support.
+    es: Desarrollé una herramienta de orquestación de flujos de trabajo en Go con almacenamiento SQLite, definiciones de componentes en JSON/YAML y soporte de ejecución en Kubernetes y Nomad.
+  - en: Administered computational resources using Proxmox and vSphere for deployment, maintenance, and monitoring of virtual machines.
+    es: Administré recursos computacionales con Proxmox y vSphere para despliegue, mantenimiento y monitorización de máquinas virtuales.
+  - en: Processed multisource satellite imagery from Sentinel-2, PlanetScope, and Landsat, including download automation, temporal composites, spectral indices, and band manipulation.
+    es: Procesé imágenes satelitales multifuente de Sentinel-2, PlanetScope y Landsat, incluyendo automatización de descargas, compuestos temporales, índices espectrales y manipulación de bandas.
+  - en: Developed Gradio interfaces for remote sensing model execution and result visualization.
+    es: Desarrollé interfaces Gradio para ejecución de modelos de teledetección y visualización de resultados.
+  - en: Maintained OpenProject installations, upgrades, deployments, and project-management workflows.
+    es: Mantuve instalaciones, actualizaciones, despliegues y flujos de gestión de proyectos en OpenProject.
 - id: position_04
   title: PhD candidate - FPU Fellowship
   organization_ids:
@@ -72,23 +94,32 @@ positions:
   department: Lenguajes y Ciencias de la Computación (LCC)
   group: null
   location: Málaga, Andalusia, Spain
-  work_mode: On-site
-  employment_type: Full-time
-  dedication: Full-time
+  work_mode:
+    en: On-site
+    es: Presencial
+  employment_type:
+    en: Full-time
+    es: Tiempo completo
+  dedication:
+    en: Full-time
+    es: Tiempo completo
   start_date: 2022-12
   end_date: 2025-12
   tasks:
-  - Designed evolutionary algorithms and hybrid artificial intelligence methods for
-    bioinformatics problems.
-  - Integrated over 25 gene regulatory network inference techniques in reproducible
-    Docker environments and PyPI packages.
-  - Developed asynchronous and parallel evolutionary algorithms for biologically informed
-    network consensus.
-  - Implemented multi-objective biclustering algorithms for clinical and genomic data.
-  - Published results in peer-reviewed journals and presented work at conferences
-    with open-source reproducibility assets.
-  - Taught 8 undergraduate courses across 4 degree programmes over 4 academic years.
-  - Supervised 1 Bachelor's thesis and 1 external internship.
+  - en: Designed evolutionary algorithms and hybrid artificial intelligence methods for bioinformatics problems.
+    es: Diseñé algoritmos evolutivos y métodos híbridos de inteligencia artificial para problemas de bioinformática.
+  - en: Integrated over 25 gene regulatory network inference techniques in reproducible Docker environments and PyPI packages.
+    es: Integré más de 25 técnicas de inferencia de redes de regulación génica en entornos Docker reproducibles y paquetes PyPI.
+  - en: Developed asynchronous and parallel evolutionary algorithms for biologically informed network consensus.
+    es: Desarrollé algoritmos evolutivos asíncronos y paralelos para consenso de redes informado biológicamente.
+  - en: Implemented multi-objective biclustering algorithms for clinical and genomic data.
+    es: Implementé algoritmos de biclustering multiobjetivo para datos clínicos y genómicos.
+  - en: Published results in peer-reviewed journals and presented work at conferences with open-source reproducibility assets.
+    es: Publiqué resultados en revistas revisadas por pares y presenté trabajos en congresos con activos abiertos de reproducibilidad.
+  - en: Taught 8 undergraduate courses across 4 degree programmes over 4 academic years.
+    es: Impartí 8 asignaturas de grado en 4 titulaciones durante 4 cursos académicos.
+  - en: Supervised 1 Bachelor's thesis and 1 external internship.
+    es: Supervisé 1 trabajo fin de grado y 1 práctica externa.
 - id: position_05
   title: Associate Team Coordinator
   organization_ids:
@@ -96,9 +127,15 @@ positions:
   department: null
   group: Khaos Research
   location: Málaga, Andalusia, Spain
-  work_mode: On-site
-  employment_type: Part-time
-  dedication: Part-time
+  work_mode:
+    en: On-site
+    es: Presencial
+  employment_type:
+    en: Part-time
+    es: Tiempo parcial
+  dedication:
+    en: Part-time
+    es: Tiempo parcial
   start_date: 2025-12
   end_date: null
   tasks: []
@@ -109,9 +146,15 @@ positions:
   department: Lenguajes y Ciencias de la Computación (LCC)
   group: null
   location: Málaga, Andalusia, Spain
-  work_mode: On-site
-  employment_type: Full-time
-  dedication: Full-time
+  work_mode:
+    en: On-site
+    es: Presencial
+  employment_type:
+    en: Full-time
+    es: Tiempo completo
+  dedication:
+    en: Full-time
+    es: Tiempo completo
   start_date: 2025-12
   end_date: null
   tasks: []

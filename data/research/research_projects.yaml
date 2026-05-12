@@ -7,7 +7,9 @@ funded_projects:
   - Juan Teodomiro López Navarrete
   funders:
   - FEDER
-  participation: Working team member
+  participation:
+    en: Working team member
+    es: Miembro del equipo de trabajo
   start_date: '2019-01-01'
   end_date: '2023-06-30'
   total_amount_eur: 11298828.13
@@ -24,7 +26,9 @@ funded_projects:
   - Ismael Navas Delgado
   funders:
   - Agencia Estatal de Investigación
-  participation: Working team member
+  participation:
+    en: Working team member
+    es: Miembro del equipo de trabajo
   start_date: '2021-01-01'
   end_date: '2024-12-31'
   total_amount_eur: 201102
@@ -40,7 +44,9 @@ funded_projects:
   - José Manuel García Nieto
   funders:
   - Plan Nacional de Proyectos de Generación de Conocimiento
-  participation: Working team member
+  participation:
+    en: Working team member
+    es: Miembro del equipo de trabajo
   start_date: '2025-09-01'
   end_date: null
   total_amount_eur: 197500
@@ -57,7 +63,9 @@ funded_projects:
   - José Manuel García Nieto
   funders:
   - Plan Andaluz de Investigación
-  participation: Working team member
+  participation:
+    en: Working team member
+    es: Miembro del equipo de trabajo
   start_date: null
   end_date: null
   total_amount_eur: 132000

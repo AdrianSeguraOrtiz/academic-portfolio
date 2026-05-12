@@ -1,11 +1,15 @@
 academic_supervision:
 - id: supervision_01
-  type: Final degree project supervision
+  type:
+    en: Final degree project supervision
+    es: Dirección de trabajo fin de grado
   title: Optimización multi-objetivo para biclustering en datos de expresión génica
   student: Pablo Moreno García-Espina
   degree: Grado en Ingeniería de la Salud
   academic_year: 2024/2025
-  role: Co-supervisor
+  role:
+    en: Co-supervisor
+    es: Codirector
   date: 2025-06
   workload_hours: null
   modality: null
@@ -14,15 +18,23 @@ academic_supervision:
   organization_ids:
   - organization_01
 - id: supervision_02
-  type: External internship tutoring
-  title: External extracurricular internship tutoring
+  type:
+    en: External internship tutoring
+    es: Tutorización de prácticas externas
+  title:
+    en: External extracurricular internship tutoring
+    es: Tutorización de prácticas externas extracurriculares
   student: Nina Souto Blanco
   degree: Grado en Bioquímica
   academic_year: 2024/2025
-  role: External internship tutor
+  role:
+    en: External internship tutor
+    es: Tutor externo de prácticas
   date: '2025-10-22'
   workload_hours: 300
-  modality: Extracurricular
+  modality:
+    en: Extracurricular
+    es: Extracurricular
   url: null
   repository_url: null
   organization_ids:

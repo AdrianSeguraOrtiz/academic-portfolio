@@ -2,149 +2,252 @@ projects:
 - id: software_01
   name: DNATranslatorAnalyzer
   full_name: null
-  type: Software project
-  description: >-
-    DNA sequence analyzer for reverse and reverse-complement construction, nucleotide frequency
-    calculation, six-frame translation, and stop-codon fragment detection.
+  type:
+    en: Software project
+    es: Proyecto software
+  description:
+    en: >-
+      DNA sequence analyzer for reverse and reverse-complement construction, nucleotide frequency
+      calculation, six-frame translation, and stop-codon fragment detection.
+    es: >-
+      Analizador de secuencias de ADN para construcción inversa y reverso-complementaria,
+      cálculo de frecuencias nucleotídicas, traducción en seis marcos y detección
+      de fragmentos con codones de parada.
   domains:
-  - DNA sequence analysis
-  - Bioinformatics
+  - en: DNA sequence analysis
+    es: Análisis de secuencias de ADN
+  - en: Bioinformatics
+    es: Bioinformática
   urls:
     github: https://github.com/AdrianSeguraOrtiz/DNATranslatorAnalyzer
 - id: software_02
   name: KmerCounter
   full_name: null
-  type: Software project
-  description: Java project for k-mer frequency analysis in FASTA and multi-FASTA files.
+  type:
+    en: Software project
+    es: Proyecto software
+  description:
+    en: Java project for k-mer frequency analysis in FASTA and multi-FASTA files.
+    es: Proyecto Java para análisis de frecuencias de k-mers en archivos FASTA y multi-FASTA.
   domains:
-  - K-mer analysis
-  - Bioinformatics
+  - en: K-mer analysis
+    es: Análisis de k-mers
+  - en: Bioinformatics
+    es: Bioinformática
   urls:
     github: https://github.com/AdrianSeguraOrtiz/KmerCounter
 - id: software_03
   name: PrimerDesigner
   full_name: null
-  type: Software project
-  description: >-
-    Program for designing an optimal universal primer with maximum hybridization over aligned
-    FASTA sequences.
+  type:
+    en: Software project
+    es: Proyecto software
+  description:
+    en: >-
+      Program for designing an optimal universal primer with maximum hybridization over aligned
+      FASTA sequences.
+    es: >-
+      Programa para diseñar un cebador universal óptimo con máxima hibridación sobre
+      secuencias FASTA alineadas.
   domains:
-  - Primer design
-  - Bioinformatics
+  - en: Primer design
+    es: Diseño de cebadores
+  - en: Bioinformatics
+    es: Bioinformática
   urls:
     github: https://github.com/AdrianSeguraOrtiz/PrimerDesigner
 - id: software_04
   name: PsycoTreat
   full_name: null
-  type: Software project
-  description: >-
-    Application for registration and treatment workflows for patients associated with mental
-    health centers, including roles, appointments, diagnoses, medication search, and messaging.
+  type:
+    en: Software project
+    es: Proyecto software
+  description:
+    en: >-
+      Application for registration and treatment workflows for patients associated with mental
+      health centers, including roles, appointments, diagnoses, medication search, and messaging.
+    es: >-
+      Aplicación para flujos de registro y tratamiento de pacientes asociados a centros
+      de salud mental, incluyendo roles, citas, diagnósticos, búsqueda de medicación
+      y mensajería.
   domains:
-  - Health software
-  - Patient management
+  - en: Health software
+    es: Software sanitario
+  - en: Patient management
+    es: Gestión de pacientes
   urls:
     github: https://github.com/AdrianSeguraOrtiz/PsycoTreat
 - id: software_05
   name: Single-GENECI
   full_name: Single-Objective GEne NEtwork Consensus Inference
-  type: Research software project
-  description: >-
-    Software project implementing an evolutionary algorithm to determine an optimal ensemble
-    of machine learning techniques for gene regulatory network inference.
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Software project implementing an evolutionary algorithm to determine an optimal ensemble
+      of machine learning techniques for gene regulatory network inference.
+    es: >-
+      Proyecto software que implementa un algoritmo evolutivo para determinar un conjunto
+      óptimo de técnicas de aprendizaje automático para inferencia de redes de regulación
+      génica.
   domains:
-  - Gene regulatory network inference
-  - Evolutionary machine learning
-  - Bioinformatics
+  - en: Gene regulatory network inference
+    es: Inferencia de redes de regulación génica
+  - en: Evolutionary machine learning
+    es: Aprendizaje automático evolutivo
+  - en: Bioinformatics
+    es: Bioinformática
   urls:
     github: https://github.com/AdrianSeguraOrtiz/Single-GENECI
 - id: software_06
   name: Hector
   full_name: Software tool for workflow orchestration
-  type: Software project
-  description: >-
-    Workflow orchestrator that records grouped topological order for workflows and controls
-    execution from component and definition specifications.
+  type:
+    en: Software project
+    es: Proyecto software
+  description:
+    en: >-
+      Workflow orchestrator that records grouped topological order for workflows and controls
+      execution from component and definition specifications.
+    es: >-
+      Orquestador de flujos de trabajo que registra el orden topológico agrupado y
+      controla la ejecución a partir de especificaciones de componentes y definiciones.
   domains:
-  - Workflow orchestration
-  - Research software
+  - en: Workflow orchestration
+    es: Orquestación de flujos de trabajo
+  - en: Research software
+    es: Software científico
   urls:
     github: https://github.com/AdrianSeguraOrtiz/Hector
 - id: software_07
   name: MO-GENECI
   full_name: Multi-Objective GEne NEtwork Consensus Inference
-  type: Research software project
-  description: >-
-    Software project for multi-objective consensus inference of gene regulatory networks using
-    confidence levels, topology, and recurrent biological motifs.
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Software project for multi-objective consensus inference of gene regulatory networks using
+      confidence levels, topology, and recurrent biological motifs.
+    es: >-
+      Proyecto software para inferencia multiobjetivo por consenso de redes de regulación
+      génica usando niveles de confianza, topología y motivos biológicos recurrentes.
   domains:
-  - Gene regulatory network inference
-  - Multi-objective optimization
-  - Bioinformatics
+  - en: Gene regulatory network inference
+    es: Inferencia de redes de regulación génica
+  - en: Multi-objective optimization
+    es: Optimización multiobjetivo
+  - en: Bioinformatics
+    es: Bioinformática
   urls:
     github: https://github.com/AdrianSeguraOrtiz/MO-GENECI
 - id: software_08
   name: BIO-INSIGHT
   full_name: >-
     Biologically Informed Optimizator - INtegrating Software to Infer Grns by Holistic Thinking
-  type: Research software project
-  description: >-
-    Software project for biologically informed consensus inference of gene regulatory networks
-    using many-objective evolutionary optimization.
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Software project for biologically informed consensus inference of gene regulatory networks
+      using many-objective evolutionary optimization.
+    es: >-
+      Proyecto software para inferencia de consenso biológicamente informada de redes
+      de regulación génica mediante optimización evolutiva de muchos objetivos.
   domains:
-  - Gene regulatory network inference
-  - Evolutionary algorithms
-  - Bioinformatics
+  - en: Gene regulatory network inference
+    es: Inferencia de redes de regulación génica
+  - en: Evolutionary algorithms
+    es: Algoritmos evolutivos
+  - en: Bioinformatics
+    es: Bioinformática
   urls:
     github: https://github.com/AdrianSeguraOrtiz/BIO-INSIGHT
 - id: software_09
   name: Memetic-GENECI
   full_name: Memetic GEne NEtwork Consensus Inference
-  type: Research software project
-  description: >-
-    Software project derived from Single-GENECI with a local search phase guided by known
-    interactions.
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Software project derived from Single-GENECI with a local search phase guided by known
+      interactions.
+    es: >-
+      Proyecto software derivado de Single-GENECI con una fase de búsqueda local guiada
+      por interacciones conocidas.
   domains:
-  - Gene regulatory network inference
-  - Memetic algorithms
-  - Bioinformatics
+  - en: Gene regulatory network inference
+    es: Inferencia de redes de regulación génica
+  - en: Memetic algorithms
+    es: Algoritmos meméticos
+  - en: Bioinformatics
+    es: Bioinformática
   urls:
     github: https://github.com/AdrianSeguraOrtiz/Memetic-GENECI
 - id: software_10
   name: MOEBA-BIO
   full_name: Multi-Objective Evolutionary Biclustering Algorithm for BIOmedical applications
-  type: Research software project
-  description: >-
-    Java framework for evolutionary biclustering in biomedical data with domain-knowledge
-    integration and self-configuration of biclustering parameters.
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Java framework for evolutionary biclustering in biomedical data with domain-knowledge
+      integration and self-configuration of biclustering parameters.
+    es: >-
+      Framework Java para biclustering evolutivo en datos biomédicos con integración
+      de conocimiento de dominio y autoconfiguración de parámetros de biclustering.
   domains:
-  - Evolutionary biclustering
-  - Biomedical data
-  - Domain knowledge integration
+  - en: Evolutionary biclustering
+    es: Biclustering evolutivo
+  - en: Biomedical data
+    es: Datos biomédicos
+  - en: Domain knowledge integration
+    es: Integración de conocimiento de dominio
   urls:
     github: https://github.com/AdrianSeguraOrtiz/MOEBA-BIO
 - id: software_11
   name: PBEvoGen
   full_name: Preference-Based Evolutionary Gene Network Inference
-  type: Research software project
-  description: >-
-    Preference-guided multi-objective consensus optimization framework for gene regulatory
-    network inference.
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Preference-guided multi-objective consensus optimization framework for gene regulatory
+      network inference.
+    es: >-
+      Framework de optimización multiobjetivo guiada por preferencias para inferencia
+      por consenso de redes de regulación génica.
   domains:
-  - Gene regulatory network inference
-  - Preference-based optimization
-  - Bioinformatics
+  - en: Gene regulatory network inference
+    es: Inferencia de redes de regulación génica
+  - en: Preference-based optimization
+    es: Optimización basada en preferencias
+  - en: Bioinformatics
+    es: Bioinformática
   urls:
     github: https://github.com/AdrianSeguraOrtiz/PBEvoGen
 - id: software_12
   name: GENECI
   full_name: GEne NEtwork Consensus Inference
-  type: Research software project
-  description: >-
-    Repository for the GENECI software ecosystem for consensus inference of gene regulatory
-    networks.
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Repository for the GENECI software ecosystem for consensus inference of gene regulatory
+      networks.
+    es: >-
+      Repositorio del ecosistema software GENECI para inferencia por consenso de redes
+      de regulación génica.
   domains:
-  - Gene regulatory network inference
-  - Bioinformatics
+  - en: Gene regulatory network inference
+    es: Inferencia de redes de regulación génica
+  - en: Bioinformatics
+    es: Bioinformática
   urls:
     github: https://github.com/AdrianSeguraOrtiz/GENECI
