@@ -2,15 +2,15 @@
 
 {% if "dissemination" in sections and render_options.get("include_dissemination", true) %}
 <section class="cv-section cv-section-dissemination">
-  <h2>Dissemination and Media</h2>
+  <h2>{{ t("cv.sections.dissemination_media") }}</h2>
   {% if site.dissemination_hub is defined %}
   <div class="cv-dissemination-summary">
     <article class="cv-chart-card">
-      <h3>Total Dissemination Items</h3>
+      <h3>{{ t("cv.sections.total_dissemination_items") }}</h3>
       <strong class="cv-big-number">{{ site.dissemination_hub.total }}</strong>
     </article>
     <article class="cv-chart-card">
-      <h3>Items by Type</h3>
+      <h3>{{ t("cv.sections.items_by_type") }}</h3>
       <div class="cv-bar-list compact">
         {% for category in site.dissemination_hub.categories %}
         <div class="cv-bar-row">
@@ -23,7 +23,7 @@
   </div>
 
   {% if site.dissemination_hub.publication_groups %}
-  <h3>By Research Output</h3>
+  <h3>{{ t("cv.sections.by_research_output") }}</h3>
   <div class="cv-compact-grid">
     {% for group in site.dissemination_hub.publication_groups %}
     <article class="cv-entry cv-dissemination-output">
@@ -38,7 +38,7 @@
   </div>
   {% endif %}
 
-  <h3>Dissemination Items</h3>
+  <h3>{{ t("cv.sections.dissemination_items") }}</h3>
   <div class="cv-compact-grid">
     {% for item in site.dissemination_hub["items"] %}
     {% if item.id %}<span id="{{ item.id }}" class="cv-anchor"></span>{% endif %}
@@ -51,8 +51,8 @@
       {% if item.source %}<p><strong>{{ item.source }}</strong></p>{% endif %}
       {% if item.description %}<p>{{ item.description }}</p>{% endif %}
       {% for detail in item.detail_lines %}<p class="cv-reference">{{ detail }}</p>{% endfor %}
-      {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="cv-reference">Publications: {{ item.resolved.publication_ids | linked_names }}</p>{% endif %}
-      {% if item.get("resolved", {}).get("software_package_ids", []) %}<p class="cv-reference">Software packages: {{ item.resolved.software_package_ids | linked_names }}</p>{% endif %}
+      {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="cv-reference">{{ t("cv.references.publications") }}: {{ item.resolved.publication_ids | linked_names }}</p>{% endif %}
+      {% if item.get("resolved", {}).get("software_package_ids", []) %}<p class="cv-reference">{{ t("cv.references.software_packages") }}: {{ item.resolved.software_package_ids | linked_names }}</p>{% endif %}
     </article>
     {% endfor %}
   </div>

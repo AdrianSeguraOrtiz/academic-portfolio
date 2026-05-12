@@ -1,15 +1,27 @@
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass, replace
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass, fields, replace
 from datetime import date
 import json
 from pathlib import Path
+import re
 from shutil import copy2
 from typing import Any
-import re
 import tomllib
 
+from academic_portfolio.i18n import (
+    DEFAULT_LANGUAGE,
+    SUPPORTED_LANGUAGES,
+    Translator,
+    format_date_range,
+    format_duration,
+    format_number,
+    load_translator,
+    resolve_localized_values,
+)
 from academic_portfolio.loader import load_data
 from academic_portfolio.render import render_template
 from academic_portfolio.resolver import PortfolioResolver
@@ -82,6 +94,10 @@ AGGREGABLE_SECTIONS = {
     "reviewing",
 }
 PDF_PAGE_PATTERN = re.compile(rb"/Type\s*/Page\b")
+_ACTIVE_TRANSLATOR: ContextVar[Translator | None] = ContextVar(
+    "academic_portfolio_cv_translator",
+    default=None,
+)
 
 
 @dataclass(frozen=True)
@@ -306,8 +322,20 @@ def model_path_for(model: str, model_dir: Path | str = "cv_models") -> Path:
     return Path(model_dir) / f"{model}.toml"
 
 
-def build_cv_view(model: CVModel, resolver: PortfolioResolver) -> dict[str, Any]:
+def build_cv_view(
+    model: CVModel,
+    resolver: PortfolioResolver,
+    translator: Translator | None = None,
+) -> dict[str, Any]:
+    active_translator = translator or load_translator(model.language)
+    with _using_translator(active_translator):
+        view = _build_cv_view(model, resolver)
+    return resolve_localized_values(view, active_translator)
+
+
+def _build_cv_view(model: CVModel, resolver: PortfolioResolver) -> dict[str, Any]:
     source_records = _load_cv_records(model, resolver)
+    source_records = _localized_record_set(source_records, _current_translator())
     aggregate_records = _aggregate_record_mapping(source_records)
     records = _records_for_model(model, source_records)
     record_mapping = _record_mapping(records)
@@ -332,6 +360,15 @@ def build_cv_view(model: CVModel, resolver: PortfolioResolver) -> dict[str, Any]
         view["sober_view"] = _sober_cv_view(core, aggregates)
 
     return view
+
+
+def _localized_record_set(records: CVRecordSet, translator: Translator) -> CVRecordSet:
+    return CVRecordSet(
+        **{
+            field.name: resolve_localized_values(getattr(records, field.name), translator)
+            for field in fields(CVRecordSet)
+        }
+    )
 
 
 def _load_cv_records(model: CVModel, resolver: PortfolioResolver) -> CVRecordSet:
@@ -562,6 +599,52 @@ def _record_mapping(records: CVRecordSet) -> dict[str, Any]:
     }
 
 
+@contextmanager
+def _using_translator(translator: Translator) -> Any:
+    token = _ACTIVE_TRANSLATOR.set(translator)
+    try:
+        yield
+    finally:
+        _ACTIVE_TRANSLATOR.reset(token)
+
+
+def _current_translator() -> Translator:
+    return _ACTIVE_TRANSLATOR.get() or load_translator()
+
+
+def _t(key: str, **values: Any) -> str:
+    return _current_translator().t(key, **values)
+
+
+def _cv_key(namespace: str, key: str) -> str:
+    return f"cv.{namespace}.{key}"
+
+
+def _cv_text(namespace: str, key: str, **values: Any) -> str:
+    return _t(_cv_key(namespace, key), **values)
+
+
+def _localized_participation(value: Any) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    normalized = f" {text.lower().replace('/', ' ').replace('-', ' ').replace('.', ' ')} "
+    if (
+        "principal investigator" in normalized
+        or "investigador principal" in normalized
+        or " co pi " in normalized
+        or " co ip " in normalized
+        or " pi " in normalized
+        or " ip " in normalized
+    ):
+        return _cv_text("labels", "pi_copi")
+    if "research team" in normalized or "equipo de investigación" in normalized:
+        return _cv_text("labels", "research_team_member")
+    if "working team" in normalized or "equipo de trabajo" in normalized:
+        return _cv_text("labels", "working_team_member")
+    return text
+
+
 def _aggregate_record_mapping(records: CVRecordSet) -> dict[str, Any]:
     return {
         "certifications": records.certifications,
@@ -650,6 +733,7 @@ def _cv_site_view(resolver: PortfolioResolver) -> dict[str, Any]:
         resolver,
         github_stats_by_url=_cached_github_stats(),
         package_stats_by_id=_cached_package_stats(),
+        translator=_current_translator(),
     )
 
 
@@ -721,11 +805,11 @@ def _summary_full(site_view: dict[str, Any], profile: dict[str, Any]) -> list[st
         _summary_intro(profile),
         _summary_paragraph(
             _sentence(
-                "My academic background comprises",
+                "academic_background",
                 education.get("degrees_text"),
             ),
             _sentence(
-                "My professional experience spans",
+                "professional_experience",
                 experience.get("by_institution_text"),
             ),
             _stay_sentence(internationalization),
@@ -734,14 +818,14 @@ def _summary_full(site_view: dict[str, Any], profile: dict[str, Any]) -> list[st
             _research_output_sentence(research),
             _collaboration_sentence(internationalization),
             _sentence(
-                "Within funded research projects, my roles include",
+                "funded_research_roles",
                 research.get("project_roles_text"),
             ),
             _count_sentence(
-                "I have reviewed",
+                "reviewed_manuscripts",
                 metrics.get("reviewed_manuscripts"),
                 "manuscript",
-                "for scientific journals",
+                "for_scientific_journals",
             ),
         ),
         _summary_paragraph(
@@ -752,21 +836,21 @@ def _summary_full(site_view: dict[str, Any], profile: dict[str, Any]) -> list[st
         _summary_paragraph(
             _teaching_sentence(teaching),
             _sentence(
-                "It also includes",
+                "teaching_innovation_includes",
                 teaching.get("teaching_innovation_projects_phrase"),
             ),
             _sentence(
-                "Academic supervision includes",
+                "academic_supervision_includes",
                 teaching.get("supervision_text"),
             ),
         ),
         _summary_paragraph(
             _sentence(
-                "Scientific dissemination activity covers",
+                "dissemination_activity",
                 dissemination.get("activity_text"),
             ),
             _count_sentence(
-                "Press coverage spans",
+                "press_coverage",
                 dissemination.get("press_outlets"),
                 "outlet",
             ),
@@ -791,20 +875,20 @@ def _summary_compact(site_view: dict[str, Any], profile: dict[str, Any]) -> list
     return [
         _summary_paragraph(
             _summary_intro(profile),
-            _sentence("My academic background comprises", education.get("degrees_text")),
-            _sentence("My professional experience spans", experience.get("by_institution_text")),
+            _sentence("academic_background", education.get("degrees_text")),
+            _sentence("professional_experience", experience.get("by_institution_text")),
             _stay_sentence(internationalization),
         ),
         _summary_paragraph(
             _research_output_sentence(research),
             _collaboration_sentence(internationalization),
-            _sentence("Research project roles include", research.get("project_roles_text")),
+            _sentence("research_project_roles", research.get("project_roles_text")),
             _software_output_sentence(metrics),
             _downloads_sentence(metrics, software),
         ),
         _summary_paragraph(
             _teaching_sentence(teaching),
-            _sentence("Dissemination covers", dissemination.get("activity_text")),
+            _sentence("dissemination_covers", dissemination.get("activity_text")),
             _social_views_sentence(metrics, dissemination),
             _recognition_sentence(recognition),
         ),
@@ -833,12 +917,7 @@ def _summary_micro(site_view: dict[str, Any], profile: dict[str, Any]) -> list[s
 
 def _summary_intro(profile: dict[str, Any]) -> str:
     profile_summary = str(profile.get("research_profile", {}).get("summary") or "")
-    generated_intro = (
-        "I am a computer scientist and researcher in artificial intelligence applied "
-        "to bioinformatics, working at the intersection of computational methods, "
-        "biomedical data analysis, evolutionary computation, and reproducible "
-        "scientific software."
-    )
+    generated_intro = _cv_text("summary", "intro_generated")
     if profile_summary:
         return f"{profile_summary} {generated_intro}"
     return generated_intro
@@ -848,34 +927,43 @@ def _summary_paragraph(*sentences: str) -> str:
     return " ".join(sentence for sentence in sentences if sentence)
 
 
-def _sentence(prefix: str, value: Any) -> str:
+def _sentence(key: str, value: Any) -> str:
     value_text = str(value or "")
     if not value_text:
         return ""
-    return f"{prefix} {value_text}."
+    return _cv_text("summary", key, value=value_text)
 
 
 def _count_sentence(
-    prefix: str,
+    key: str,
     count: Any,
-    singular_label: str,
-    suffix: str = "",
+    unit_key: str,
+    suffix_key: str = "",
 ) -> str:
     try:
         parsed_count = int(count)
     except (TypeError, ValueError):
         return ""
-    label = singular_label if parsed_count == 1 else f"{singular_label}s"
-    suffix_text = f" {suffix}" if suffix else ""
-    return f"{prefix} {_format_number(parsed_count)} {label}{suffix_text}."
+    count_text = _current_translator().unit(
+        unit_key,
+        parsed_count,
+        display_count=_format_number(parsed_count),
+    )
+    suffix = _cv_text("summary", suffix_key) if suffix_key else ""
+    return _cv_text("summary", key, count=count_text, suffix=suffix)
 
 
 def _research_output_sentence(research: dict[str, Any]) -> str:
     journal_phrase = research.get("journal_papers_phrase")
     conference_phrase = research.get("conference_papers_phrase")
     if journal_phrase and conference_phrase:
-        return f"My research output includes {journal_phrase} and {conference_phrase}."
-    return _sentence("My research output includes", journal_phrase or conference_phrase)
+        return _cv_text(
+            "summary",
+            "research_output_pair",
+            journal=journal_phrase,
+            conference=conference_phrase,
+        )
+    return _sentence("research_output_single", journal_phrase or conference_phrase)
 
 
 def _collaboration_sentence(internationalization: dict[str, Any]) -> str:
@@ -890,7 +978,7 @@ def _collaboration_sentence(internationalization: dict[str, Any]) -> str:
     collaboration_text = _join_summary_phrases(phrases)
     if not collaboration_text:
         return ""
-    return f"The publication record includes {collaboration_text}."
+    return _cv_text("summary", "publication_collaboration", value=collaboration_text)
 
 
 def _stay_sentence(internationalization: dict[str, Any]) -> str:
@@ -899,11 +987,17 @@ def _stay_sentence(internationalization: dict[str, Any]) -> str:
     if not stays_text and not total_months:
         return ""
     if stays_text and total_months:
-        return (
-            f"This is complemented by research stays of {stays_text}, "
-            f"for a total of {_format_number(total_months)} months abroad."
+        return _cv_text(
+            "summary",
+            "research_stays_with_total",
+            stays=stays_text,
+            total=_current_translator().unit(
+                "month",
+                total_months,
+                display_count=_format_number(total_months),
+            ),
         )
-    return _sentence("This is complemented by research stays of", stays_text)
+    return _sentence("research_stays_single", stays_text)
 
 
 def _software_output_sentence(metrics: dict[str, Any]) -> str:
@@ -916,17 +1010,31 @@ def _software_output_sentence(metrics: dict[str, Any]) -> str:
     output_text = _join_summary_phrases(phrases)
     if not output_text:
         return ""
-    return f"The software portfolio includes {output_text}."
+    return _cv_text("summary", "software_output", value=output_text)
 
 
 def _github_sentence(software: dict[str, Any]) -> str:
     repositories = int(software.get("repositories_with_stats") or 0)
     if not repositories:
         return ""
-    return (
-        f"The public software portfolio spans {_format_number(repositories)} repositories, "
-        f"with {_format_number(software.get('total_stars') or 0)} stars and "
-        f"{_format_number(software.get('total_forks') or 0)} forks."
+    return _cv_text(
+        "summary",
+        "github_activity",
+        repositories=_current_translator().unit(
+            "repository",
+            repositories,
+            display_count=_format_number(repositories),
+        ),
+        stars=_current_translator().unit(
+            "star",
+            int(software.get("total_stars") or 0),
+            display_count=_format_number(int(software.get("total_stars") or 0)),
+        ),
+        forks=_current_translator().unit(
+            "fork",
+            int(software.get("total_forks") or 0),
+            display_count=_format_number(int(software.get("total_forks") or 0)),
+        ),
     )
 
 
@@ -934,10 +1042,14 @@ def _downloads_sentence(metrics: dict[str, Any], software: dict[str, Any]) -> st
     downloads = int(metrics.get("package_downloads") or 0)
     if not downloads:
         return ""
-    return (
-        "Package usage records "
-        f"{software.get('package_downloads_label') or _format_number(downloads)} "
-        "recorded downloads."
+    return _cv_text(
+        "summary",
+        "package_downloads",
+        downloads=_current_translator().unit(
+            "download",
+            downloads,
+            display_count=software.get("package_downloads_label") or _format_number(downloads),
+        ),
     )
 
 
@@ -949,14 +1061,14 @@ def _teaching_sentence(teaching: dict[str, Any]) -> str:
     degree_programs = int(teaching.get("degree_programs") or 0)
     if not total_hours and not courses:
         return ""
-    context = f" includes {institution_years}" if institution_years else ""
+    context = _cv_text("summary", "teaching_context", value=institution_years) if institution_years else ""
     parts = [
-        f"{total_hours} classroom hours" if total_hours else "",
+        _cv_text("summary", "classroom_hours_phrase", hours=total_hours) if total_hours else "",
         _count_phrase("academic year", academic_years) if academic_years else "",
         _count_phrase("course", courses) if courses else "",
         _count_phrase("degree programme", degree_programs) if degree_programs else "",
     ]
-    return f"My teaching activity{context}, amounting to {_join_summary_phrases(parts)}."
+    return _cv_text("summary", "teaching_activity", context=context, value=_join_summary_phrases(parts))
 
 
 def _teaching_micro_sentence(teaching: dict[str, Any]) -> str:
@@ -965,28 +1077,35 @@ def _teaching_micro_sentence(teaching: dict[str, Any]) -> str:
     if not total_hours and not courses:
         return ""
     parts = [
-        f"{total_hours} classroom hours" if total_hours else "",
+        _cv_text("summary", "classroom_hours_phrase", hours=total_hours) if total_hours else "",
         _count_phrase("course", courses) if courses else "",
     ]
-    return f"Teaching activity totals {_join_summary_phrases(parts)}."
+    return _cv_text("summary", "teaching_micro", value=_join_summary_phrases(parts))
 
 
 def _social_views_sentence(metrics: dict[str, Any], dissemination: dict[str, Any]) -> str:
     known_views = int(metrics.get("known_social_views") or 0)
     if not known_views:
         return ""
-    sentence = (
-        "Social media items with available metrics account for "
-        f"{dissemination.get('known_social_views_label') or _format_number(known_views)} "
-        "known views"
+    views_text = _current_translator().unit(
+        "view",
+        known_views,
+        display_count=dissemination.get("known_social_views_label") or _format_number(known_views),
     )
     highest_views = int(dissemination.get("highest_social_views") or 0)
     if highest_views:
-        sentence += (
-            ", with the highest recorded item reaching "
-            f"{dissemination.get('highest_social_views_label') or _format_number(highest_views)} views"
+        return _cv_text(
+            "summary",
+            "social_views_with_highest",
+            views=views_text,
+            highest=_current_translator().unit(
+                "view",
+                highest_views,
+                display_count=dissemination.get("highest_social_views_label")
+                or _format_number(highest_views),
+            ),
         )
-    return f"{sentence}."
+    return _cv_text("summary", "social_views", views=views_text)
 
 
 def _recognition_sentence(recognition: dict[str, Any]) -> str:
@@ -994,12 +1113,12 @@ def _recognition_sentence(recognition: dict[str, Any]) -> str:
     honors_text = str(recognition.get("honors_text") or "")
     grants_text = str(recognition.get("grants_text") or "")
     if honors_text:
-        parts.append(f"{recognition.get('honors_phrase')}: {honors_text}")
+        parts.append(_cv_text("summary_labels", "honors", value=honors_text))
     if grants_text:
-        parts.append(f"{recognition.get('grants_phrase')}: {grants_text}")
+        parts.append(_cv_text("summary_labels", "grants", value=grants_text))
     if not parts:
         return ""
-    return f"This academic trajectory has been recognized and supported through {'; '.join(parts)}."
+    return _cv_text("summary", "recognition", value="; ".join(parts))
 
 
 def _recognition_counts_sentence(recognition: dict[str, Any]) -> str:
@@ -1010,23 +1129,26 @@ def _recognition_counts_sentence(recognition: dict[str, Any]) -> str:
     recognition_text = _join_summary_phrases(parts)
     if not recognition_text:
         return ""
-    return f"The trajectory has been recognized and supported through {recognition_text}."
+    return _cv_text("summary", "recognition_counts", value=recognition_text)
 
 
 def _count_phrase(label: str, count: int) -> str:
+    label_key = label.replace(" ", "_").replace("/", "_").lower()
+    phrase_key = f"cv.counts.{label_key}"
+    text = _current_translator().plural(
+        phrase_key,
+        count,
+        display_count=_format_number(count),
+    )
+    if text != phrase_key:
+        return text
     suffix = "" if count == 1 else "s"
     return f"{_format_number(count)} {label}{suffix}"
 
 
 def _join_summary_phrases(values: Any) -> str:
     items = [str(value) for value in values if value]
-    if not items:
-        return ""
-    if len(items) == 1:
-        return items[0]
-    if len(items) == 2:
-        return f"{items[0]} and {items[1]}"
-    return f"{', '.join(items[:-1])}, and {items[-1]}"
+    return _current_translator().format_list(items)
 
 
 def _cached_github_stats(
@@ -1409,22 +1531,22 @@ def _combined_detail(model: CVModel, *sections: str) -> str:
 def _prepare_degree(record: dict[str, Any], detail: str) -> dict[str, Any]:
     details = []
     if _detail_at_least(detail, "compact") and record.get("program"):
-        details.append(_detail("Program", record["program"]))
+        details.append(_detail_key("program", record["program"]))
     if _detail_at_least(detail, "standard") and record.get("grade"):
-        details.append(_detail("Grade", record["grade"]))
+        details.append(_detail_key("grade", record["grade"]))
     thesis = record.get("thesis") or {}
     if _detail_at_least(detail, "standard") and thesis.get("title"):
-        details.append(_detail(str(thesis.get("type") or "Thesis"), thesis["title"]))
+        details.append(_detail(str(thesis.get("type") or _cv_text("fields", "thesis")), thesis["title"]))
     return _entry(
         record,
-        kind=str(record.get("level") or "Degree"),
+        kind=str(record.get("level") or _cv_text("kinds", "degree")),
         title=str(record.get("title") or ""),
         date=str(_date_span(record) or record.get("date_awarded") or ""),
         meta="",
         details=details,
         references=_references(
-            _reference("Honors", record.get("related_honors", [])),
-            _reference("Grants", _resolved(record, "grant_ids")),
+            _reference("honors", record.get("related_honors", [])),
+            _reference("grants", _resolved(record, "grant_ids")),
         ),
         css_class="cv-entry-education",
     )
@@ -1433,12 +1555,22 @@ def _prepare_degree(record: dict[str, Any], detail: str) -> dict[str, Any]:
 def _prepare_certification(record: dict[str, Any], detail: str) -> dict[str, Any]:
     details = []
     if record.get("duration_hours"):
-        details.append(_detail("Duration", f"{_format_number(float(record['duration_hours']))} hours"))
+        hours = _format_number(float(record["duration_hours"]))
+        details.append(
+            _detail_key(
+                "duration",
+                _current_translator().unit(
+                    "hour",
+                    float(record["duration_hours"]),
+                    display_count=hours,
+                ),
+            )
+        )
     if _detail_at_least(detail, "standard") and record.get("notes"):
-        details.append(_detail("Notes", record["notes"]))
+        details.append(_detail_key("notes", record["notes"]))
     return _entry(
         record,
-        kind="Certification",
+        kind=_cv_text("kinds", "certification"),
         title=str(record.get("title") or ""),
         date=str(record.get("issue_date") or _date_span(record)),
         meta=_organization_names_text(record) or str(record.get("issuer") or ""),
@@ -1455,11 +1587,11 @@ def _prepare_position(record: dict[str, Any], detail: str) -> dict[str, Any]:
         meta_parts.append(str(record["location"]))
     return _entry(
         record,
-        kind=str(record.get("employment_type") or "Position"),
+        kind=str(record.get("employment_type") or _cv_text("kinds", "position")),
         title=str(record.get("title") or ""),
         date=_date_span(record),
         meta=_join_nonempty(meta_parts, separator=" · "),
-        references=_references(_reference("Grants", record.get("related_grants", []))),
+        references=_references(_reference("grants", record.get("related_grants", []))),
         tasks=list(record.get("tasks") or []) if _detail_at_least(detail, "full") else [],
         css_class="cv-entry-experience",
     )
@@ -1468,9 +1600,9 @@ def _prepare_position(record: dict[str, Any], detail: str) -> dict[str, Any]:
 def _prepare_stay(record: dict[str, Any], detail: str) -> dict[str, Any]:
     details = []
     if _detail_at_least(detail, "standard") and record.get("purpose"):
-        details.append(_detail("Purpose", record["purpose"]))
+        details.append(_detail_key("purpose", record["purpose"]))
     if _detail_at_least(detail, "full") and record.get("description"):
-        details.append(_detail("Description", record["description"]))
+        details.append(_detail_key("description", record["description"]))
     location = record.get("location") or {}
     location_text = _join_nonempty(
         [location.get("city"), location.get("country")],
@@ -1478,12 +1610,12 @@ def _prepare_stay(record: dict[str, Any], detail: str) -> dict[str, Any]:
     )
     return _entry(
         record,
-        kind=str(record.get("type") or "Research stay"),
+        kind=str(record.get("type") or _cv_text("kinds", "research_stay")),
         title=str(record.get("title") or ""),
         date=_date_span(record),
         meta=location_text,
         details=details,
-        references=_references(_reference("Grants", record.get("related_grants", []))),
+        references=_references(_reference("grants", record.get("related_grants", []))),
         css_class="cv-entry-stay",
     )
 
@@ -1491,15 +1623,15 @@ def _prepare_stay(record: dict[str, Any], detail: str) -> dict[str, Any]:
 def _prepare_honor(record: dict[str, Any], detail: str) -> dict[str, Any]:
     details = []
     if _detail_at_least(detail, "standard") and record.get("context"):
-        details.append(_detail("Context", record["context"]))
+        details.append(_detail_key("context", record["context"]))
     return _entry(
         record,
-        kind="Honor",
+        kind=_cv_text("kinds", "honor"),
         title=str(record.get("title") or ""),
         date=str(record.get("issue_date") or ""),
         meta=", ".join(record.get("awarding_entities") or []),
         details=details,
-        references=_references(_reference("Related education", _resolved(record, "degree_ids"))),
+        references=_references(_reference("related_education", _resolved(record, "degree_ids"))),
         css_class="cv-entry-honor",
     )
 
@@ -1507,19 +1639,19 @@ def _prepare_honor(record: dict[str, Any], detail: str) -> dict[str, Any]:
 def _prepare_grant(record: dict[str, Any], detail: str) -> dict[str, Any]:
     details = []
     if _detail_at_least(detail, "standard") and record.get("purpose"):
-        details.append(_detail("Purpose", record["purpose"]))
+        details.append(_detail_key("purpose", record["purpose"]))
     if _detail_at_least(detail, "compact") and _date_span(record):
-        details.append(_detail("Period", _date_span(record)))
+        details.append(_detail_key("period", _date_span(record)))
     return _entry(
         record,
-        kind=str(record.get("awarding_entity_type") or "Grant"),
+        kind=str(record.get("awarding_entity_type") or _cv_text("kinds", "grant")),
         title=str(record.get("name") or record.get("title") or ""),
         date=str(record.get("issue_date") or ""),
         meta=str(record.get("awarding_entity") or ""),
         details=details,
         references=_references(
-            _reference("Related positions", _resolved(record, "position_ids")),
-            _reference("Related stays", _resolved(record, "stay_ids")),
+            _reference("related_positions", _resolved(record, "position_ids")),
+            _reference("related_stays", _resolved(record, "stay_ids")),
         ),
         css_class="cv-entry-grant",
     )
@@ -1532,41 +1664,45 @@ def _prepare_publication(record: dict[str, Any], detail: str) -> dict[str, Any]:
         or record.get("type")
         or ""
     )
-    kind = "Conference paper" if "conference" in publication_type.lower() else "Journal paper"
+    is_conference = "conference" in publication_type.lower()
+    kind = _cv_text("kinds", "conference_paper" if is_conference else "journal_paper")
     details = []
     if record.get("venue"):
-        venue_label = "Conference" if kind == "Conference paper" else "Journal"
-        details.append(_detail(venue_label, record["venue"]))
+        venue_label_key = "conference" if is_conference else "journal"
+        details.append(_detail_key(venue_label_key, record["venue"]))
     if _detail_at_least(detail, "standard") and record.get("publisher"):
-        details.append(_detail("Publisher", record["publisher"]))
+        details.append(_detail_key("publisher", record["publisher"]))
     if _detail_at_least(detail, "compact") and record.get("doi"):
         doi = str(record["doi"])
-        details.append(_detail("DOI", doi, f"https://doi.org/{doi}"))
+        details.append(_detail_key("doi", doi, f"https://doi.org/{doi}"))
     return _entry(
         record,
         kind=kind,
         title=str(record.get("title") or ""),
         date=str(record.get("publication_date") or ""),
         meta=_author_line(record, detail),
-        meta_label="Authors",
+        meta_label=_cv_text("meta", "authors"),
         url=str(record.get("url") or ""),
         details=details,
         references=_publication_references(record) if _detail_at_least(detail, "standard") else [],
         organizations=[],
-        css_class="cv-entry-conference" if kind == "Conference paper" else "cv-entry-publication",
+        css_class="cv-entry-conference" if is_conference else "cv-entry-publication",
     )
 
 
 def _prepare_research_project(record: dict[str, Any], detail: str) -> dict[str, Any]:
     details = []
     if _detail_at_least(detail, "standard") and record.get("funders"):
-        details.append(_detail("Funders", ", ".join(record["funders"])))
+        details.append(_detail_key("funders", ", ".join(record["funders"])))
     if _detail_at_least(detail, "standard") and record.get("principal_investigators"):
-        details.append(_detail("Principal investigators", ", ".join(record["principal_investigators"])))
+        details.append(
+            _detail_key("principal_investigators", ", ".join(record["principal_investigators"]))
+        )
     title = _join_nonempty([record.get("acronym"), record.get("title")], separator=": ")
     return _entry(
         record,
-        kind=str(record.get("participation") or "Research project"),
+        kind=_localized_participation(record.get("participation"))
+        or _cv_text("kinds", "research_project"),
         title=title,
         date=_date_span(record),
         meta=str(record.get("code") or ""),
@@ -1578,12 +1714,12 @@ def _prepare_research_project(record: dict[str, Any], detail: str) -> dict[str, 
 def _prepare_software_project(record: dict[str, Any], detail: str) -> dict[str, Any]:
     details = []
     if _detail_at_least(detail, "standard") and record.get("description"):
-        details.append(_detail("Description", record["description"]))
+        details.append(_detail_key("description", record["description"]))
     if _detail_at_least(detail, "standard") and record.get("domains"):
-        details.append(_detail("Domains", ", ".join(record["domains"])))
+        details.append(_detail_key("domains", ", ".join(record["domains"])))
     return _entry(
         record,
-        kind=str(record.get("type") or "Software project"),
+        kind=_cv_text("kinds", "software_project"),
         title=str(record.get("name") or ""),
         meta=str(record.get("full_name") or ""),
         url=_record_url(record),
@@ -1600,7 +1736,7 @@ def _prepare_software_package(record: dict[str, Any], detail: str) -> dict[str, 
     stats = record.get("package_stats") or {}
     return _entry(
         record,
-        kind=str(record.get("ecosystem") or "Package"),
+        kind=str(record.get("ecosystem") or _cv_text("kinds", "package")),
         title=str(record.get("name") or ""),
         meta="",
         url=str(stats.get("package_url") or stats.get("mvnrepository_url") or ""),
@@ -1610,14 +1746,14 @@ def _prepare_software_package(record: dict[str, Any], detail: str) -> dict[str, 
 
 
 def _prepare_university_class(record: dict[str, Any], _detail_level: str) -> dict[str, Any]:
-    details = [_detail("Degree programme", record.get("degree") or "")]
+    details = [_detail_key("degree_programme", record.get("degree") or "")]
     if record.get("department"):
-        details.append(_detail("Department", record["department"]))
+        details.append(_detail_key("department", record["department"]))
     if record.get("workload_hours"):
-        details.append(_detail("Hours", _format_number(float(record["workload_hours"]))))
+        details.append(_detail_key("hours", _format_number(float(record["workload_hours"]))))
     return _entry(
         record,
-        kind="University class",
+        kind=_cv_text("kinds", "university_class"),
         title=str(record.get("name") or ""),
         date=str(record.get("academic_year") or _date_span(record)),
         meta="",
@@ -1628,20 +1764,22 @@ def _prepare_university_class(record: dict[str, Any], _detail_level: str) -> dic
 
 def _prepare_academic_supervision(record: dict[str, Any], _detail_level: str) -> dict[str, Any]:
     details = [
-        _detail(label, value)
-        for label, value in (
-            ("Degree programme", record.get("degree")),
-            ("Role", record.get("role")),
+        _detail_key(label_key, value)
+        for label_key, value in (
+            ("degree_programme", record.get("degree")),
+            ("role", record.get("role")),
         )
         if value
     ]
     if record.get("workload_hours"):
-        details.append(_detail("Hours", _format_number(float(record["workload_hours"]))))
+        details.append(_detail_key("hours", _format_number(float(record["workload_hours"]))))
     if record.get("repository_url"):
-        details.append(_detail("Repository", "Repository", record["repository_url"]))
+        details.append(
+            _detail_key("repository", _cv_text("fields", "repository"), record["repository_url"])
+        )
     return _entry(
         record,
-        kind=str(record.get("type") or "Academic supervision"),
+        kind=str(record.get("type") or _cv_text("kinds", "academic_supervision")),
         title=str(record.get("title") or ""),
         date=str(record.get("date") or ""),
         url=str(record.get("url") or record.get("repository_url") or ""),
@@ -1657,10 +1795,11 @@ def _prepare_teaching_innovation_project(
     title = _join_nonempty([record.get("code"), record.get("title")], separator=": ")
     details = []
     if record.get("funding_entity"):
-        details.append(_detail("Funding entity", record["funding_entity"]))
+        details.append(_detail_key("funding_entity", record["funding_entity"]))
     return _entry(
         record,
-        kind=str(record.get("participation") or "Teaching innovation project"),
+        kind=_localized_participation(record.get("participation"))
+        or _cv_text("kinds", "teaching_innovation_project"),
         title=title,
         date=_date_span(record),
         meta="",
@@ -1671,19 +1810,24 @@ def _prepare_teaching_innovation_project(
 
 def _prepare_scientific_article(record: dict[str, Any], _detail_level: str) -> dict[str, Any]:
     meta = _join_nonempty(
-        [record.get("outlet"), f"Issue {record['issue']}" if record.get("issue") else ""],
+        [
+            record.get("outlet"),
+            _cv_text("fields", "issue_with_value", value=record["issue"])
+            if record.get("issue")
+            else "",
+        ],
         separator=" · ",
     )
     return _entry(
         record,
-        kind="Article",
+        kind=_cv_text("kinds", "article"),
         title=str(record.get("title") or ""),
         date=str(record.get("date") or ""),
         meta=meta,
         url=str(record.get("url") or ""),
         references=_references(
-            _reference("Publications", _resolved(record, "publication_ids")),
-            _reference("Software packages", _resolved(record, "software_package_ids")),
+            _reference("publications", _resolved(record, "publication_ids")),
+            _reference("software_packages", _resolved(record, "software_package_ids")),
         ),
         css_class="cv-entry-dissemination",
     )
@@ -1692,13 +1836,13 @@ def _prepare_scientific_article(record: dict[str, Any], _detail_level: str) -> d
 def _prepare_presentation(record: dict[str, Any], _detail_level: str) -> dict[str, Any]:
     return _entry(
         record,
-        kind=str(record.get("type") or "Presentation"),
+        kind=str(record.get("type") or _cv_text("kinds", "presentation")),
         title=str(record.get("title") or ""),
         date=_date_span(record),
         meta=_join_nonempty([record.get("event"), record.get("location")], separator=" · "),
         references=_references(
-            _reference("Publications", _resolved(record, "publication_ids")),
-            _reference("Software packages", _resolved(record, "software_package_ids")),
+            _reference("publications", _resolved(record, "publication_ids")),
+            _reference("software_packages", _resolved(record, "software_package_ids")),
         ),
         css_class="cv-entry-dissemination",
     )
@@ -1707,11 +1851,11 @@ def _prepare_presentation(record: dict[str, Any], _detail_level: str) -> dict[st
 def _prepare_press_item(record: dict[str, Any], _detail_level: str) -> dict[str, Any]:
     return _entry(
         record,
-        kind=str(record.get("outlet") or "Press"),
+        kind=str(record.get("outlet") or _cv_text("kinds", "press")),
         title=str(record.get("title") or ""),
         date=str(record.get("date") or ""),
         url=str(record.get("url") or ""),
-        references=_references(_reference("Publications", _resolved(record, "publication_ids"))),
+        references=_references(_reference("publications", _resolved(record, "publication_ids"))),
         css_class="cv-entry-press",
     )
 
@@ -1719,19 +1863,19 @@ def _prepare_press_item(record: dict[str, Any], _detail_level: str) -> dict[str,
 def _prepare_social_media_item(record: dict[str, Any], detail: str) -> dict[str, Any]:
     details = []
     if record.get("accounts"):
-        details.append(_detail("Accounts", ", ".join(_account_names(record["accounts"]))))
+        details.append(_detail_key("accounts", ", ".join(_account_names(record["accounts"]))))
     if record.get("views"):
-        details.append(_detail("Views", _format_number(float(record["views"]))))
+        details.append(_detail_key("views", _format_number(float(record["views"]))))
     if _detail_at_least(detail, "standard") and record.get("description"):
-        details.append(_detail("Description", record["description"]))
+        details.append(_detail_key("description", record["description"]))
     return _entry(
         record,
-        kind=str(record.get("platform") or "Social media"),
+        kind=str(record.get("platform") or _cv_text("kinds", "social_media")),
         title=str(record.get("platform") or ""),
         date=str(record.get("date") or ""),
         url=str(record.get("url") or ""),
         details=details,
-        references=_references(_reference("Publications", _resolved(record, "publication_ids"))),
+        references=_references(_reference("publications", _resolved(record, "publication_ids"))),
         css_class="cv-entry-social",
     )
 
@@ -1739,28 +1883,32 @@ def _prepare_social_media_item(record: dict[str, Any], detail: str) -> dict[str,
 def _prepare_tv_item(record: dict[str, Any], detail: str) -> dict[str, Any]:
     details = []
     if _detail_at_least(detail, "standard") and record.get("description"):
-        details.append(_detail("Description", record["description"]))
+        details.append(_detail_key("description", record["description"]))
     return _entry(
         record,
-        kind=str(record.get("channel") or "TV media"),
+        kind=str(record.get("channel") or _cv_text("kinds", "tv_media")),
         title=str(record.get("program") or ""),
         date=str(record.get("date") or ""),
         url=str(record.get("url") or ""),
         details=details,
-        references=_references(_reference("Publications", _resolved(record, "publication_ids"))),
+        references=_references(_reference("publications", _resolved(record, "publication_ids"))),
         css_class="cv-entry-tv",
     )
 
 
 def _prepare_reviewing(record: dict[str, Any], _detail_level: str) -> dict[str, Any]:
     count = int(record.get("manuscripts_reviewed") or 0)
-    suffix = "" if count == 1 else "s"
     return _entry(
         record,
-        kind=str(record.get("publisher") or "Reviewing"),
+        kind=str(record.get("publisher") or _cv_text("kinds", "reviewing")),
         title=str(record.get("journal") or ""),
         date=str(record.get("last_updated") or ""),
-        details=[_detail("Reviewed manuscripts", f"{count} manuscript{suffix}")],
+        details=[
+            _detail_key(
+                "reviewed_manuscripts",
+                _current_translator().unit("manuscript", count),
+            )
+        ],
         css_class="cv-entry-reviewing",
     )
 
@@ -1772,7 +1920,7 @@ def _entry(
     title: str,
     date: str = "",
     meta: str = "",
-    meta_label: str = "Additional information",
+    meta_label: str = "",
     url: str = "",
     details: list[Any] | None = None,
     references: list[dict[str, Any]] | None = None,
@@ -1788,7 +1936,7 @@ def _entry(
         "title": title,
         "date": date,
         "meta": meta,
-        "meta_label": meta_label,
+        "meta_label": meta_label or _cv_text("meta", "additional_information"),
         "url": url,
         "details": [detail for detail in details or [] if detail],
         "references": references or [],
@@ -1808,6 +1956,10 @@ def _detail(label: str, value: Any, url: Any = "") -> dict[str, str]:
     }
 
 
+def _detail_key(label_key: str, value: Any, url: Any = "") -> dict[str, str]:
+    return _detail(_cv_text("fields", label_key), value, url)
+
+
 def _software_package_details(
     record: dict[str, Any],
     stats: dict[str, Any],
@@ -1822,11 +1974,11 @@ def _software_package_details(
     package_name = str(record.get("package_name") or "")
 
     if package_name:
-        details.append(_detail("Package name", package_name, stats.get("package_url")))
+        details.append(_detail_key("package_name", package_name, stats.get("package_url")))
     if package_coordinates:
         details.append(
-            _detail(
-                "Coordinate",
+            _detail_key(
+                "coordinate",
                 package_coordinates,
                 stats.get("mvnrepository_url") or stats.get("package_url"),
             )
@@ -1836,40 +1988,42 @@ def _software_package_details(
         return [item for item in details if item]
 
     if stats.get("summary"):
-        details.append(_detail("Summary", stats["summary"]))
+        details.append(_detail_key("summary", stats["summary"]))
     if stats.get("latest_version"):
-        details.append(_detail("Latest version", stats["latest_version"]))
+        details.append(_detail_key("latest_version", stats["latest_version"]))
     if stats.get("release_count") not in (None, ""):
-        details.append(_detail("Releases", _format_number(float(stats["release_count"]))))
+        details.append(_detail_key("releases", _format_number(float(stats["release_count"]))))
     if stats.get("license"):
-        details.append(_detail("License", stats["license"]))
+        details.append(_detail_key("license", stats["license"]))
 
     if ecosystem.lower() == "pypi":
         if stats.get("total_downloads") not in (None, ""):
             details.append(
-                _detail("Total downloads", _format_number(float(stats["total_downloads"])))
+                _detail_key("total_downloads", _format_number(float(stats["total_downloads"])))
             )
         download_period = _join_nonempty(
             [stats.get("first_download_date"), stats.get("last_download_date")],
             separator=" - ",
         )
         if download_period:
-            details.append(_detail("Download period", download_period))
+            details.append(_detail_key("download_period", download_period))
         if stats.get("requires_python"):
-            details.append(_detail("Requires Python", stats["requires_python"]))
+            details.append(_detail_key("requires_python", stats["requires_python"]))
         if stats.get("clickpy_url"):
-            details.append(_detail("Downloads dashboard", "ClickPy", stats["clickpy_url"]))
+            details.append(_detail_key("downloads_dashboard", "ClickPy", stats["clickpy_url"]))
     elif ecosystem.lower() == "maven":
         if stats.get("last_updated"):
-            details.append(_detail("Last updated", stats["last_updated"]))
+            details.append(_detail_key("last_updated", stats["last_updated"]))
         if stats.get("java_release"):
-            details.append(_detail("Java release", stats["java_release"]))
+            details.append(_detail_key("java_release", stats["java_release"]))
         if stats.get("dependency_count") not in (None, ""):
-            details.append(_detail("Dependencies", _format_number(float(stats["dependency_count"]))))
+            details.append(_detail_key("dependencies", _format_number(float(stats["dependency_count"]))))
         if stats.get("project_url"):
-            details.append(_detail("Project URL", stats["project_url"], stats["project_url"]))
+            details.append(_detail_key("project_url", stats["project_url"], stats["project_url"]))
         if stats.get("mvnrepository_url"):
-            details.append(_detail("Maven Repository", "MvnRepository", stats["mvnrepository_url"]))
+            details.append(
+                _detail_key("maven_repository", "MvnRepository", stats["mvnrepository_url"])
+            )
 
     return [item for item in details if item]
 
@@ -1895,13 +2049,13 @@ def _software_summary(
             "research_domains": len(domain_counts),
         },
         "metrics": [
-            _metric("Software projects", len(software_projects)),
-            _metric("Published packages", len(software_packages)),
-            _metric("Research domains", len(domain_counts)),
+            _metric_key("software_projects", len(software_projects)),
+            _metric_key("published_packages", len(software_packages)),
+            _metric_key("research_domains", len(domain_counts)),
         ],
         "highlights": _summary_lines(
-            ("Main domains", _counter_list(domain_counts, limit=3)),
-            ("Package ecosystems", _counter_list(ecosystem_counts, limit=3)),
+            ("main_domains", _counter_list(domain_counts, limit=3)),
+            ("package_ecosystems", _counter_list(ecosystem_counts, limit=3)),
         ),
     }
 
@@ -1934,16 +2088,16 @@ def _teaching_summary(
             "teaching_innovation_projects": len(teaching_innovation_projects),
         },
         "metrics": [
-            _metric("Classroom hours", _format_number(total_hours)),
-            _metric("Academic years", len(academic_years)),
-            _metric("Courses", len(university_classes)),
-            _metric("Degree programmes", len(degrees)),
-            _metric("Supervisions", len(academic_supervision)),
-            _metric("Teaching innovation projects", len(teaching_innovation_projects)),
+            _metric_key("classroom_hours", _format_number(total_hours)),
+            _metric_key("academic_years", len(academic_years)),
+            _metric_key("courses", len(university_classes)),
+            _metric_key("degree_programmes", len(degrees)),
+            _metric_key("supervisions", len(academic_supervision)),
+            _metric_key("teaching_innovation_projects", len(teaching_innovation_projects)),
         ],
         "highlights": _summary_lines(
-            ("Supervision", _counter_list(supervision_counts, limit=3)),
-            ("Teaching innovation", "; ".join(innovation_titles[:2])),
+            ("supervision", _counter_list(supervision_counts, limit=3)),
+            ("teaching_innovation", "; ".join(innovation_titles[:2])),
         ),
     }
 
@@ -1978,16 +2132,25 @@ def _dissemination_summary(
             "known_social_views": _format_number(sum(known_views)),
         },
         "metrics": [
-            _metric("Dissemination items", total_items),
-            _metric("Scientific articles", len(scientific_articles)),
-            _metric("Presentations", len(presentations)),
-            _metric("Press items", len(press)),
-            _metric("Social media items", len(social_media)),
-            _metric("TV media items", len(tv_media)),
-            _metric("Known social views", _format_number(sum(known_views))),
+            _metric_key("dissemination_items", total_items),
+            _metric_key("scientific_articles", len(scientific_articles)),
+            _metric_key("presentations", len(presentations)),
+            _metric_key("press_items", len(press)),
+            _metric_key("social_media_items", len(social_media)),
+            _metric_key("tv_media_items", len(tv_media)),
+            _metric_key("known_social_views", _format_number(sum(known_views))),
         ],
         "highlights": _summary_lines(
-            ("Highest known social media item", f"{_format_number(max(known_views))} views" if known_views else ""),
+            (
+                "highest_known_social_media_item",
+                _current_translator().unit(
+                    "view",
+                    max(known_views),
+                    display_count=_format_number(max(known_views)),
+                )
+                if known_views
+                else "",
+            ),
         ),
     }
 
@@ -2004,12 +2167,12 @@ def _reviewing_summary(reviewing: list[dict[str, Any]]) -> dict[str, Any]:
             "journals": len(reviewing),
         },
         "metrics": [
-            _metric("Reviewed manuscripts", total_reviews),
-            _metric("Journals", len(reviewing)),
+            _metric_key("reviewed_manuscripts", total_reviews),
+            _metric_key("journals", len(reviewing)),
         ],
         "highlights": _summary_lines(
             (
-                "Main journals",
+                "main_journals",
                 ", ".join(str(item.get("journal")) for item in top_journals[:3] if item.get("journal")),
             ),
         ),
@@ -2028,8 +2191,12 @@ def _metric(label: str, value: int | str) -> dict[str, str]:
     return {"label": label, "value": str(value)}
 
 
+def _metric_key(label_key: str, value: int | str) -> dict[str, str]:
+    return _metric(_cv_text("metrics", label_key), value)
+
+
 def _summary_lines(*items: tuple[str, str]) -> list[str]:
-    return [f"{label}: {value}" for label, value in items if value]
+    return [_cv_text("summary_labels", label_key, value=value) for label_key, value in items if value]
 
 
 def _counter_list(counter: Counter[str], *, limit: int) -> str:
@@ -2039,19 +2206,23 @@ def _counter_list(counter: Counter[str], *, limit: int) -> str:
 
 def _publication_references(record: dict[str, Any]) -> list[dict[str, Any]]:
     return _references(
-        _reference("Organizations", _resolved(record, "organization_ids")),
-        _reference("Software", _resolved(record, "software_project_ids")),
-        _reference("Projects", _resolved(record, "research_project_ids")),
-        _reference("Positions", _resolved(record, "position_ids")),
-        _reference("Stays", _resolved(record, "stay_ids")),
-        _reference("Grants", _resolved(record, "grant_ids")),
+        _reference("organizations", _resolved(record, "organization_ids")),
+        _reference("software", _resolved(record, "software_project_ids")),
+        _reference("projects", _resolved(record, "research_project_ids")),
+        _reference("positions", _resolved(record, "position_ids")),
+        _reference("stays", _resolved(record, "stay_ids")),
+        _reference("grants", _resolved(record, "grant_ids")),
     )
 
 
-def _reference(label: str, records: list[dict[str, Any]]) -> dict[str, Any] | None:
+def _reference(reference_id: str, records: list[dict[str, Any]]) -> dict[str, Any] | None:
     if not records:
         return None
-    return {"label": label, "records": records}
+    return {
+        "id": reference_id,
+        "label": _cv_text("references", reference_id),
+        "records": records,
+    }
 
 
 def _references(*references: dict[str, Any] | None) -> list[dict[str, Any]]:
@@ -2088,11 +2259,11 @@ def _record_url(record: dict[str, Any]) -> str:
 
 
 def _date_span(record: dict[str, Any]) -> str:
-    start = record.get("start_date")
-    end = record.get("end_date")
-    if not start and not end:
-        return ""
-    return f"{start} - {end or 'Present'}" if start else str(end)
+    return format_date_range(
+        record.get("start_date"),
+        record.get("end_date"),
+        _current_translator(),
+    )
 
 
 def _author_line(record: dict[str, Any], detail: str) -> str:
@@ -2241,19 +2412,11 @@ def _merged_month_span(intervals: list[tuple[int, int]]) -> int:
 
 
 def _format_duration(months: int) -> str:
-    years, remaining_months = divmod(months, 12)
-    parts = []
-    if years:
-        parts.append(f"{years} year{'s' if years != 1 else ''}")
-    if remaining_months:
-        parts.append(f"{remaining_months} month{'s' if remaining_months != 1 else ''}")
-    return " and ".join(parts) if parts else "0 months"
+    return format_duration(months, _current_translator())
 
 
 def _format_number(value: float) -> str:
-    if float(value).is_integer():
-        return f"{int(value):,}"
-    return f"{value:,.1f}".rstrip("0").rstrip(".")
+    return format_number(value, _current_translator())
 
 
 def generate_cv(
@@ -2261,6 +2424,7 @@ def generate_cv(
     output_dir: Path | str = "build/cv",
     output_format: str = "pdf",
     page_limit: int | None = None,
+    language: str = DEFAULT_LANGUAGE,
     data_dir: Path | str = "data",
     model_dir: Path | str = "cv_models",
     template_dir: Path | str = "templates/cv",
@@ -2269,10 +2433,14 @@ def generate_cv(
     output_format = output_format.lower()
     if output_format not in {"html", "pdf"}:
         raise ValueError(f"Unsupported CV format: {output_format}")
+    if language not in SUPPORTED_LANGUAGES:
+        raise ValueError(f"Unsupported language: {language}")
 
     cv_model = load_cv_model(model_path_for(model, model_dir))
+    cv_model = replace(cv_model, language=language)
     cv_model = _with_page_limit_override(cv_model, page_limit)
     resolver = PortfolioResolver(load_data(data_dir))
+    translator = load_translator(language)
 
     output_base_dir = Path(output_dir)
     output_stem = _output_stem(cv_model, page_limit)
@@ -2288,12 +2456,13 @@ def generate_cv(
         cv_model, content, page_count, fit_status = _render_pdf_with_page_limit(
             base_model=cv_model,
             resolver=resolver,
+            translator=translator,
             template_dir=template_dir,
             html_path=html_path,
             output_path=output_path,
         )
     else:
-        content = _render_cv_html(cv_model, resolver, template_dir)
+        content = _render_cv_html(cv_model, resolver, translator, template_dir)
         html_path.write_text(content, encoding="utf-8")
 
     return CVOutput(
@@ -2319,15 +2488,17 @@ def _with_page_limit_override(model: CVModel, page_limit: int | None) -> CVModel
 
 
 def _output_stem(model: CVModel, page_limit_override: int | None) -> str:
+    language_suffix = f"_{model.language}"
     if page_limit_override is None:
-        return model.name
-    return f"{model.name}_{model.page_limit}p"
+        return f"{model.name}{language_suffix}"
+    return f"{model.name}_{model.page_limit}p{language_suffix}"
 
 
 def _render_pdf_with_page_limit(
     *,
     base_model: CVModel,
     resolver: PortfolioResolver,
+    translator: Translator,
     template_dir: Path | str,
     html_path: Path,
     output_path: Path,
@@ -2335,7 +2506,7 @@ def _render_pdf_with_page_limit(
     attempted_results: list[tuple[CVModel, str, int]] = []
 
     for attempt_model in _compression_attempts(base_model):
-        content = _render_cv_html(attempt_model, resolver, template_dir)
+        content = _render_cv_html(attempt_model, resolver, translator, template_dir)
         html_path.write_text(content, encoding="utf-8")
         page_count = _export_pdf_from_html(html_path, output_path)
         attempted_results.append((attempt_model, content, page_count))
@@ -2345,16 +2516,19 @@ def _render_pdf_with_page_limit(
             return attempt_model, content, page_count, fit_status
 
     final_model, final_content, final_page_count = attempted_results[-1]
-    raise RuntimeError(_page_limit_failure_message(final_model, final_page_count, resolver))
+    raise RuntimeError(
+        _page_limit_failure_message(final_model, final_page_count, resolver, translator)
+    )
 
 
 def _render_cv_html(
     model: CVModel,
     resolver: PortfolioResolver,
+    translator: Translator,
     template_dir: Path | str,
 ) -> str:
-    view = build_cv_view(model, resolver)
-    return render_template(template_dir, model.template_name, view)
+    view = build_cv_view(model, resolver, translator)
+    return render_template(template_dir, model.template_name, view, translator=translator)
 
 
 def _compression_attempts(model: CVModel) -> list[CVModel]:
@@ -2468,14 +2642,35 @@ def _page_limit_failure_message(
     model: CVModel,
     page_count: int,
     resolver: PortfolioResolver,
+    translator: Translator,
 ) -> str:
     contributors = _page_limit_contributors(model, resolver)
+    contributor_labels = {
+        "publications": translator.t("cv.sections.publications"),
+        "experience": translator.t("cv.sections.experience"),
+        "research_projects": translator.t("cv.sections.research_projects"),
+        "degrees": translator.t("cv.sections.education"),
+        "honors": translator.t("cv.sections.honors"),
+        "grants": translator.t("cv.sections.grants"),
+        "research_stays": translator.t("cv.sections.research_stays"),
+    }
     lines = [
-        f"{model.name} cannot fit all required core records in {model.page_limit} pages.",
-        f"Minimum compact render requires {page_count} pages.",
-        "Largest contributors:",
+        translator.t(
+            "cv.document.page_limit_failure",
+            model=model.name,
+            pages=model.page_limit,
+        ),
+        translator.t("cv.document.minimum_compact_render", pages=page_count),
+        translator.t("cv.document.largest_contributors"),
     ]
-    lines.extend(f"- {label}: {count} items" for label, count in contributors)
+    lines.extend(
+        translator.t(
+            "cv.document.contributor_item_count",
+            label=contributor_labels.get(label, label),
+            count=translator.unit("record", count),
+        )
+        for label, count in contributors
+    )
     return "\n".join(lines)
 
 

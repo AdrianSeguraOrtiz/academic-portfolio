@@ -1,21 +1,21 @@
 {% import "components/rich/macros.html.j2" as cv %}
 
 <section class="cv-section cv-section-career">
-  <h2>Academic Trajectory</h2>
+  <h2>{{ t("cv.sections.academic_trajectory") }}</h2>
   {% if site.career_timeline is defined %}
   <article class="cv-chart-card cv-career-snapshot">
-    <h3>Timeline Snapshot</h3>
+    <h3>{{ t("cv.sections.timeline_snapshot") }}</h3>
     <div class="cv-career-lanes">
       {% for filter in site.career_timeline.filters %}
       {% set count = site.career_timeline["items"] | selectattr("type", "equalto", filter.id) | list | length %}
       {% set marker_count = site.career_timeline.markers | selectattr("type", "equalto", filter.id) | list | length %}
-      <p><strong>{{ filter.label }}</strong><span>{{ count + marker_count }} records</span></p>
+      <p><strong>{{ filter.label }}</strong><span>{{ (count + marker_count) | unit("record") }}</span></p>
       {% endfor %}
     </div>
   </article>
   {% endif %}
 
-  <h3>Career Details</h3>
+  <h3>{{ t("cv.sections.career_details") }}</h3>
   {% if site.career_details is defined %}
   <div class="cv-career-detail-list">
     {% for item in site.career_details["items"] %}
@@ -59,9 +59,9 @@
         {% if item.category == "education" %}
         <p>{{ record.start_date | date_range(record.end_date) }} · {{ record.get("resolved", {}).get("organization_ids", []) | linked_names }}</p>
         {% if record.grade %}<p>{{ record.grade }}</p>{% endif %}
-        {% if record.get("resolved", {}).get("grant_ids", []) %}<p class="cv-reference">Grants: {{ record.resolved.grant_ids | anchor_links }}</p>{% endif %}
+        {% if record.get("resolved", {}).get("grant_ids", []) %}<p class="cv-reference">{{ t("cv.references.grants") }}: {{ record.resolved.grant_ids | anchor_links }}</p>{% endif %}
         {% elif item.category == "certification" %}
-        <p>{{ record.get("resolved", {}).get("organization_ids", []) | linked_names }}{% if record.duration_hours %} · {{ record.duration_hours }} hours{% endif %}</p>
+        <p>{{ record.get("resolved", {}).get("organization_ids", []) | linked_names }}{% if record.duration_hours %} · {{ record.duration_hours | unit("hour") }}{% endif %}</p>
         {% elif item.category == "honor" %}
         <p>{{ record.issue_date }} · {{ record.awarding_entities | join(", ") }}</p>
         {% if record.context %}<p>{{ record.context }}</p>{% endif %}
@@ -76,11 +76,11 @@
   </div>
   {% else %}
   {% if "degrees" in sections %}
-  <h3>Education</h3>
+  <h3>{{ t("cv.sections.education") }}</h3>
   {% for degree in core.education["items"] %}{{ cv.entry_card(degree, "h4") }}{% endfor %}
   {% endif %}
   {% if "experience" in sections %}
-  <h3>Experience</h3>
+  <h3>{{ t("cv.sections.experience") }}</h3>
   {% for position in core.experience["items"] %}{{ cv.entry_card(position, "h4") }}{% endfor %}
   {% endif %}
   {% endif %}

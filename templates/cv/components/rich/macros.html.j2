@@ -15,7 +15,7 @@
 {% macro entry_references(entry) -%}
 {% for reference in entry.references %}
 <p class="cv-reference"><strong>{{ reference.label }}:</strong>
-  {% if reference.label == "Organizations" %}{{ reference.records | linked_names }}{% else %}{{ reference.records | anchor_links }}{% endif %}
+  {% if reference.id == "organizations" %}{{ reference.records | linked_names }}{% else %}{{ reference.records | anchor_links }}{% endif %}
 </p>
 {% endfor %}
 {%- endmacro %}

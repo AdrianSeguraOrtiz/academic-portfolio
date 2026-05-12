@@ -3,7 +3,7 @@
 
 <header class="cv-cover{% if render_options.get('include_profile_photo', false) %} cv-cover-with-photo{% endif %}">
   <div class="cv-identity">
-    <p class="cv-eyebrow">{{ "Academic Portfolio" if model.style == "rich" else "Academic Curriculum Vitae" }}</p>
+    <p class="cv-eyebrow">{{ t("cv.document.academic_portfolio") if model.style == "rich" else t("cv.document.academic_cv") }}</p>
     <h1>{{ profile.person.full_name }}</h1>
     {% if render_options.get("include_header_summary", false) and summary.active.paragraphs %}
     <p class="cv-summary">{{ summary.active.paragraphs[0] }}</p>
@@ -29,10 +29,10 @@
   </address>
 
   {% if model.style == "rich" and (core.current_activity.positions or core.current_activity.stays) %}
-  <div class="cv-current-strip" aria-label="Current activity">
+  <div class="cv-current-strip" aria-label="{{ t("cv.labels.current_activity") }}">
     {% for position in core.current_activity.positions %}
     <article>
-      <span>Current position</span>
+      <span>{{ t("cv.labels.current_position") }}</span>
       <strong>{{ position.title }}</strong>
       {{ cv.entry_meta(position) }}
       {% if position.date %}<p>{{ position.date }}</p>{% endif %}
@@ -40,7 +40,7 @@
     {% endfor %}
     {% for stay in core.current_activity.stays %}
     <article>
-      <span>Current stay</span>
+      <span>{{ t("cv.labels.current_stay") }}</span>
       <strong>{{ stay.title }}</strong>
       {{ cv.entry_meta(stay) }}
       {% if stay.date %}<p>{{ stay.date }}</p>{% endif %}
@@ -51,7 +51,7 @@
 
   {% if render_options.get("include_research_focus", true) and not render_options.get("include_profile_section", false) and profile.research_profile.areas %}
   <div class="cv-focus">
-    <p>Research Focus</p>
+    <p>{{ t("cv.labels.research_focus") }}</p>
     <div class="cv-chip-list">
       {% for area in profile.research_profile.areas %}
       <span>{{ area }}</span>

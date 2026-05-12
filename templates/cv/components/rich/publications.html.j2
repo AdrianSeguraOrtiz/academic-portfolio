@@ -6,7 +6,7 @@
   <header class="cv-entry-header">
     <p class="cv-label">
       <span class="cv-kind-dot {{ publication.publication_kind }}"></span>
-      {{ "Journal paper" if publication.publication_kind == "journal" else "Conference paper" }}
+      {{ t("cv.kinds.journal_paper") if publication.publication_kind == "journal" else t("cv.kinds.conference_paper") }}
     </p>
     {% if publication.publication_date %}<p class="cv-date">{{ publication.publication_date }}</p>{% endif %}
   </header>
@@ -14,13 +14,13 @@
   {% if publication.authors %}<p>{{ publication.authors | join(", ") }}</p>{% endif %}
   <p><strong>{{ publication.venue }}</strong>{% if publication.publisher %} · {{ publication.publisher }}{% endif %}</p>
   <div class="cv-publication-details">
-    {% if publication.doi %}<p><strong>DOI:</strong> {{ publication.doi | html_link(publication.url) }}</p>{% endif %}
-    {% if publication.get("resolved", {}).get("organization_ids", []) %}<p><strong>Organizations:</strong> {{ publication.resolved.organization_ids | linked_names }}</p>{% endif %}
-    {% if publication.get("resolved", {}).get("position_ids", []) %}<p><strong>Positions:</strong> {{ publication.resolved.position_ids | anchor_links }}</p>{% endif %}
-    {% if publication.get("resolved", {}).get("stay_ids", []) %}<p><strong>Research stays:</strong> {{ publication.resolved.stay_ids | anchor_links }}</p>{% endif %}
-    {% if publication.get("resolved", {}).get("grant_ids", []) %}<p><strong>Grants:</strong> {{ publication.resolved.grant_ids | anchor_links }}</p>{% endif %}
+    {% if publication.doi %}<p><strong>{{ t("cv.fields.doi") }}:</strong> {{ publication.doi | html_link(publication.url) }}</p>{% endif %}
+    {% if publication.get("resolved", {}).get("organization_ids", []) %}<p><strong>{{ t("labels.organizations") }}:</strong> {{ publication.resolved.organization_ids | linked_names }}</p>{% endif %}
+    {% if publication.get("resolved", {}).get("position_ids", []) %}<p><strong>{{ t("labels.positions") }}:</strong> {{ publication.resolved.position_ids | anchor_links }}</p>{% endif %}
+    {% if publication.get("resolved", {}).get("stay_ids", []) %}<p><strong>{{ t("labels.research_stays") }}:</strong> {{ publication.resolved.stay_ids | anchor_links }}</p>{% endif %}
+    {% if publication.get("resolved", {}).get("grant_ids", []) %}<p><strong>{{ t("labels.grants") }}:</strong> {{ publication.resolved.grant_ids | anchor_links }}</p>{% endif %}
     {% if publication.get("resolved", {}).get("software_project_ids", []) %}
-    <p><strong>Software:</strong>
+    <p><strong>{{ t("labels.software") }}:</strong>
       {% for software in publication.resolved.software_project_ids %}
       {{ software.name | html_link(software.get("urls", {}).get("github")) }}{% if not loop.last %}, {% endif %}
       {% endfor %}
@@ -32,10 +32,10 @@
 
 {% if "publications" in sections %}
 <section class="cv-section cv-section-publications">
-  <h2>Publications</h2>
+  <h2>{{ t("cv.sections.publications") }}</h2>
   {% if site.publication_chart is defined and site.publication_chart %}
   <article class="cv-chart-card cv-full-chart">
-    <h3>Publications by Year</h3>
+    <h3>{{ t("cv.sections.publications_by_year") }}</h3>
     <div class="cv-year-chart">
       {% for item in site.publication_chart %}
       <div class="cv-year-column">
@@ -48,7 +48,7 @@
       </div>
       {% endfor %}
     </div>
-    <p class="cv-chart-legend"><span class="journal"></span> Journal papers <span class="conference"></span> Conference papers</p>
+    <p class="cv-chart-legend"><span class="journal"></span> {{ t("cv.kinds.journal_paper") }} <span class="conference"></span> {{ t("cv.kinds.conference_paper") }}</p>
   </article>
   {% endif %}
 
@@ -57,7 +57,7 @@
     <section class="cv-year-section">
       <header class="cv-year-heading">
         <h3>{{ group.year }}</h3>
-        <span>{{ group.count }} {{ "paper" if group.count == 1 else "papers" }}</span>
+        <span>{{ plural("units.paper", group.count) }}</span>
       </header>
       <div class="cv-card-grid">
         {% for publication in group.publications %}

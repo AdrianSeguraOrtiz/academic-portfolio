@@ -1,20 +1,20 @@
 {% if site.overview is defined %}
 <section class="cv-section cv-section-overview" data-summary-level="{{ summary.active_level }}">
-  <h2>Portfolio Summary</h2>
+  <h2>{{ t("cv.sections.portfolio_summary") }}</h2>
   <div class="cv-overview-grid">
     <div class="cv-overview-copy">
       {% for paragraph in summary.active.paragraphs %}
       <p>{{ paragraph }}</p>
       {% endfor %}
     </div>
-    <aside class="cv-dashboard cv-overview-metrics" aria-label="Portfolio metrics">
-      <div><strong>{{ site.metrics.publications }}</strong><span>Total publications</span></div>
-      <div><strong>{{ site.metrics.software_projects }}</strong><span>Software projects</span></div>
-      <div><strong>{{ site.metrics.research_projects }}</strong><span>Research projects</span></div>
-      <div><strong>{{ site.overview.teaching.total_hours_label }}</strong><span>Teaching hours</span></div>
-      <div><strong>{{ site.metrics.work_institutions }}</strong><span>Work institutions</span></div>
-      <div><strong>{{ site.overview.software.package_downloads_label }}</strong><span>Package downloads</span></div>
-      <div><strong>{{ site.overview.dissemination.known_social_views_label }}</strong><span>Known social views</span></div>
+    <aside class="cv-dashboard cv-overview-metrics" aria-label="{{ t("cv.labels.portfolio_metrics") }}">
+      <div><strong>{{ site.metrics.publications }}</strong><span>{{ t("cv.metrics.total_publications") }}</span></div>
+      <div><strong>{{ site.metrics.software_projects }}</strong><span>{{ t("cv.metrics.software_projects") }}</span></div>
+      <div><strong>{{ site.metrics.research_projects }}</strong><span>{{ t("cv.metrics.research_projects") }}</span></div>
+      <div><strong>{{ site.overview.teaching.total_hours_label }}</strong><span>{{ t("cv.metrics.teaching_hours") }}</span></div>
+      <div><strong>{{ site.metrics.work_institutions }}</strong><span>{{ t("cv.metrics.work_institutions") }}</span></div>
+      <div><strong>{{ site.overview.software.package_downloads_label }}</strong><span>{{ t("cv.metrics.package_downloads") }}</span></div>
+      <div><strong>{{ site.overview.dissemination.known_social_views_label }}</strong><span>{{ t("cv.metrics.known_social_views") }}</span></div>
     </aside>
   </div>
 </section>

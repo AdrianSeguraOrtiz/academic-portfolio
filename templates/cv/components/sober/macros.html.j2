@@ -34,7 +34,7 @@
 
 {% macro reference_fields(entry) -%}
 {% for reference in entry.references %}
-  {% if reference.label == "Organizations" %}
+  {% if reference.id == "organizations" %}
     {{ linked_field(reference.label, reference.records) }}
   {% else %}
     {{ anchor_field(reference.label, reference.records) }}
@@ -43,16 +43,16 @@
 {%- endmacro %}
 
 {% macro entry_fields(entry, include_tasks=true) -%}
-{{ field("Date", entry.date) }}
-{{ linked_field("Institution", entry.organizations) }}
-{{ field(entry.meta_label or "Additional information", entry.meta) }}
+{{ field(t("labels.date"), entry.date) }}
+{{ linked_field(t("labels.institution"), entry.organizations) }}
+{{ field(entry.meta_label or t("cv.meta.additional_information"), entry.meta) }}
 {% for detail in entry.details %}
 {{ detail_field(detail) }}
 {% endfor %}
 {{ reference_fields(entry) }}
 {% if include_tasks and entry.tasks %}
 <div class="sober-task-block">
-  <p class="sober-field"><strong class="sober-field-label">Tasks:</strong><span class="sober-field-value"></span></p>
+  <p class="sober-field"><strong class="sober-field-label">{{ t("labels.tasks") }}:</strong><span class="sober-field-value"></span></p>
   <ul>
     {% for task in entry.tasks %}
     <li>{{ task }}</li>
@@ -62,11 +62,11 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro entry_block(entry, title_label="Title", include_tasks=true) -%}
+{% macro entry_block(entry, title_label="", include_tasks=true) -%}
 {{ anchor(entry) }}
 <article class="sober-entry">
   <p class="sober-kind">{{ entry.kind }}</p>
-  {{ field(title_label, entry.title | html_link(entry.url)) }}
+  {{ field(title_label or t("labels.title"), entry.title | html_link(entry.url)) }}
   {{ entry_fields(entry, include_tasks) }}
 </article>
 {%- endmacro %}
@@ -84,7 +84,7 @@
 </article>
 {%- endmacro %}
 
-{% macro item_list(items, detail="full", empty_text="No records available.") -%}
+{% macro item_list(items, detail="full", empty_text="") -%}
 {% if items %}
   {% for item in items %}
   {% if detail == "micro" %}
@@ -94,7 +94,7 @@
   {% endif %}
   {% endfor %}
 {% else %}
-<p class="sober-empty">{{ empty_text }}</p>
+<p class="sober-empty">{{ empty_text or t("cv.document.no_records") }}</p>
 {% endif %}
 {%- endmacro %}
 
@@ -129,7 +129,7 @@
       {{ reference_fields(role.entry) }}
       {% if role.entry.tasks %}
       <div class="sober-task-block">
-        <p class="sober-field"><strong>Tasks:</strong></p>
+        <p class="sober-field"><strong>{{ t("labels.tasks") }}:</strong></p>
         <ul>
           {% for task in role.entry.tasks %}
           <li>{{ task }}</li>

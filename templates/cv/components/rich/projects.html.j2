@@ -2,11 +2,11 @@
 
 {% if "research_projects" in sections or "teaching" in sections %}
 <section class="cv-section cv-section-projects">
-  <h2>Research and Teaching Innovation Projects</h2>
+  <h2>{{ t("cv.sections.projects") }}</h2>
   <div class="cv-project-role-legend">
-    <span><i class="role-working"></i> Working team member</span>
-    <span><i class="role-research"></i> Research team member</span>
-    <span><i class="role-lead"></i> PI / Co-PI</span>
+    <span><i class="role-working"></i> {{ t("cv.labels.working_team_member") }}</span>
+    <span><i class="role-research"></i> {{ t("cv.labels.research_team_member") }}</span>
+    <span><i class="role-lead"></i> {{ t("cv.labels.pi_copi") }}</span>
   </div>
   <div class="cv-card-grid">
     {% if site.projects is defined %}
@@ -20,11 +20,11 @@
         <h3>{{ project.display_title }}</h3>
         <p>{{ project.get("resolved", {}).get("organization_ids", []) | linked_names }}</p>
         <ul class="cv-list">
-          {% if project.get("code") %}<li>Code: {{ project.code }}</li>{% endif %}
-          {% if project.project_funders %}<li>Funders: {{ project.project_funders | join(", ") }}</li>{% endif %}
-          {% if project.get("participation") %}<li>Participation: {{ project.participation }}</li>{% endif %}
-          {% if project.get("principal_investigators") %}<li>Principal investigators: {{ project.principal_investigators | join(", ") }}</li>{% endif %}
-          {% if project.get("total_amount_eur") %}<li>Total amount: {{ project.total_amount_eur }} EUR</li>{% endif %}
+          {% if project.get("code") %}<li>{{ t("cv.labels.code") }}: {{ project.code }}</li>{% endif %}
+          {% if project.project_funders %}<li>{{ t("cv.labels.funders") }}: {{ project.project_funders | join(", ") }}</li>{% endif %}
+          {% if project.get("participation_label") %}<li>{{ t("cv.labels.participation") }}: {{ project.participation_label }}</li>{% endif %}
+          {% if project.get("principal_investigators") %}<li>{{ t("cv.labels.principal_investigators") }}: {{ project.principal_investigators | join(", ") }}</li>{% endif %}
+          {% if project.get("total_amount_eur") %}<li>{{ t("cv.labels.total_amount") }}: {{ project.total_amount_eur }} EUR</li>{% endif %}
         </ul>
       </article>
       {% endfor %}

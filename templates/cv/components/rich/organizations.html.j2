@@ -26,11 +26,11 @@
 
 {% if site.organization_network is defined %}
 <section class="cv-section cv-section-organizations">
-  <h2>Organizations</h2>
+  <h2>{{ t("cv.sections.organizations") }}</h2>
   <div class="cv-metric-strip">
-    <span><strong>{{ site.organization_network.metrics.organizations }}</strong>Linked organizations</span>
-    <span><strong>{{ site.organization_network.metrics.countries }}</strong>Countries</span>
-    <span><strong>{{ site.organization_network.metrics.cities }}</strong>Cities</span>
+    <span><strong>{{ site.organization_network.metrics.organizations }}</strong>{{ t("cv.metrics.linked_organizations") }}</span>
+    <span><strong>{{ site.organization_network.metrics.countries }}</strong>{{ t("cv.metrics.countries") }}</span>
+    <span><strong>{{ site.organization_network.metrics.cities }}</strong>{{ t("cv.metrics.cities") }}</span>
   </div>
 
   {% for country in site.organization_network.cards %}

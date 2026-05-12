@@ -1,31 +1,31 @@
 {% if site.collaborations is defined %}
 <section class="cv-section cv-section-collaborations">
-  <h2>Research Stays and Publication Cities</h2>
+  <h2>{{ t("cv.sections.collaborations") }}</h2>
   <div class="cv-chart-grid">
     <article class="cv-chart-card">
-      <h3>Publication Collaboration</h3>
+      <h3>{{ t("cv.sections.publication_collaboration") }}</h3>
       <div class="cv-metric-strip">
-        <span><strong>{{ site.collaborations.metrics.total_papers }}</strong>Total papers</span>
-        <span><strong>{{ site.collaborations.metrics.international_papers }}</strong>International papers</span>
-        <span><strong>{{ site.collaborations.metrics.publication_countries }}</strong>Countries</span>
+        <span><strong>{{ site.collaborations.metrics.total_papers }}</strong>{{ t("cv.metrics.total_papers") }}</span>
+        <span><strong>{{ site.collaborations.metrics.international_papers }}</strong>{{ t("cv.metrics.international_papers") }}</span>
+        <span><strong>{{ site.collaborations.metrics.publication_countries }}</strong>{{ t("cv.metrics.countries") }}</span>
       </div>
       <div class="cv-city-list">
         {% for city in site.collaborations.cities if city.publication_count %}
-        <p><strong>{{ city.city }}, {{ city.country }}</strong><span>{{ city.publication_count }} {{ "paper" if city.publication_count == 1 else "papers" }}</span></p>
+        <p><strong>{{ city.city }}, {{ city.country }}</strong><span>{{ plural("units.paper", city.publication_count) }}</span></p>
         {% endfor %}
       </div>
     </article>
     <article class="cv-chart-card">
-      <h3>Research Stays</h3>
+      <h3>{{ t("cv.sections.research_stays") }}</h3>
       <div class="cv-metric-strip">
-        <span><strong>{{ site.collaborations.metrics.stay_cities }}</strong>Cities</span>
-        <span><strong>{{ site.collaborations.metrics.stay_countries }}</strong>Countries</span>
-        <span><strong>{{ site.collaborations.metrics.research_stays }}</strong>Stays</span>
-        <span><strong>{{ site.collaborations.metrics.stay_months }}</strong>Months abroad</span>
+        <span><strong>{{ site.collaborations.metrics.stay_cities }}</strong>{{ t("cv.metrics.cities") }}</span>
+        <span><strong>{{ site.collaborations.metrics.stay_countries }}</strong>{{ t("cv.metrics.countries") }}</span>
+        <span><strong>{{ site.collaborations.metrics.research_stays }}</strong>{{ t("cv.metrics.stays") }}</span>
+        <span><strong>{{ site.collaborations.metrics.stay_months }}</strong>{{ t("cv.metrics.months_abroad") }}</span>
       </div>
       <div class="cv-city-list">
         {% for city in site.collaborations.cities if city.stay_count %}
-        <p><strong>{{ city.city }}, {{ city.country }}</strong><span>{{ city.stay_months }} months</span></p>
+        <p><strong>{{ city.city }}, {{ city.country }}</strong><span>{{ plural("units.month", city.stay_months) }}</span></p>
         {% endfor %}
       </div>
     </article>

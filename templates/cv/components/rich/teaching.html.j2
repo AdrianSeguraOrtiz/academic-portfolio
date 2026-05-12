@@ -2,12 +2,12 @@
 
 {% if "teaching" in sections %}
 <section class="cv-section cv-section-teaching">
-  <h2>Classes and Supervision</h2>
+  <h2>{{ t("cv.sections.classes_supervision") }}</h2>
   {{ cv.metric_strip(aggregates.teaching.summary.metrics) }}
   {% if site.teaching_hours_chart is defined %}
   <div class="cv-chart-grid">
     <article class="cv-chart-card">
-      <h3>Classroom Hours by Academic Year</h3>
+      <h3>{{ t("cv.sections.classroom_hours_by_year") }}</h3>
       <div class="cv-bar-list">
         {% for row in site.teaching_hours_chart.by_academic_year %}
         <div class="cv-bar-row">
@@ -18,7 +18,7 @@
       </div>
     </article>
     <article class="cv-chart-card">
-      <h3>Classroom Hours by Degree Programme</h3>
+      <h3>{{ t("cv.sections.classroom_hours_by_degree") }}</h3>
       <div class="cv-bar-list">
         {% for row in site.teaching_hours_chart.by_degree %}
         <div class="cv-bar-row">
@@ -32,7 +32,7 @@
   {% endif %}
 
   {% if site.teaching_timeline is defined %}
-  <h3>Teaching Timeline Snapshot</h3>
+  <h3>{{ t("cv.sections.teaching_timeline_snapshot") }}</h3>
   <div class="cv-compact-grid">
     {% for event in site.teaching_timeline.events %}
     {% if event.id %}<span id="{{ event.id }}" class="cv-anchor"></span>{% endif %}
@@ -44,18 +44,18 @@
       <h4>{{ event.title | html_link(event.url) }}</h4>
       <p>{{ event.subtitle }}</p>
       {% for detail in event.detail_lines %}<p class="cv-reference">{{ detail }}</p>{% endfor %}
-      {% if event.repository_url %}<p>{{ "Repository" | html_link(event.repository_url) }}</p>{% endif %}
+      {% if event.repository_url %}<p>{{ t("cv.labels.repository") | html_link(event.repository_url) }}</p>{% endif %}
     </article>
     {% endfor %}
   </div>
   {% elif section_details.teaching != "aggregate" %}
-  <h3>University Classes</h3>
+  <h3>{{ t("cv.sections.university_classes") }}</h3>
   <div class="cv-compact-grid">
     {% for course in aggregates.teaching.classes["items"] %}
     {{ cv.entry_card(course, "h4") }}
     {% endfor %}
   </div>
-  <h3>Academic Supervision</h3>
+  <h3>{{ t("cv.sections.academic_supervision") }}</h3>
   {% for supervision_group in aggregates.teaching.supervision["items"] | groupby("kind") %}
   <h4>{{ supervision_group.grouper }}</h4>
   {% for supervision in supervision_group.list %}
