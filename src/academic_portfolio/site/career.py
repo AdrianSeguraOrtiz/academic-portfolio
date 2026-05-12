@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import date
 from typing import Any
 
+from academic_portfolio.i18n import Translator, load_translator
 from academic_portfolio.render import date_range, record_name
 from academic_portfolio.view_records import records_by_reference
 
@@ -15,32 +16,64 @@ def _career_details_view(
     certifications: list[dict[str, Any]],
     honors: list[dict[str, Any]],
     grants: list[dict[str, Any]],
+    translator: Translator | None = None,
 ) -> dict[str, Any]:
+    active_translator = translator or load_translator()
     filters = [
-        {"id": "education", "label": "Education", "count": len(degrees)},
-        {"id": "experience", "label": "Experience", "count": len(experience)},
-        {"id": "stay", "label": "Stays", "count": len(research_stays)},
-        {"id": "certification", "label": "Certifications", "count": len(certifications)},
-        {"id": "honor", "label": "Honors", "count": len(honors)},
-        {"id": "grant", "label": "Grants", "count": len(grants)},
+        {"id": "education", "label": active_translator.t("cv.sections.education"), "count": len(degrees)},
+        {"id": "experience", "label": active_translator.t("cv.sections.experience"), "count": len(experience)},
+        {"id": "stay", "label": active_translator.t("cv.sections.research_stays"), "count": len(research_stays)},
+        {"id": "certification", "label": active_translator.t("cv.sections.certifications"), "count": len(certifications)},
+        {"id": "honor", "label": active_translator.t("cv.sections.honors"), "count": len(honors)},
+        {"id": "grant", "label": active_translator.t("cv.sections.grants"), "count": len(grants)},
     ]
     items = [
         *(
-            _career_detail_record_item("education", "Education", degree)
+            _career_detail_record_item(
+                "education",
+                active_translator.t("cv.sections.education"),
+                degree,
+                active_translator,
+            )
             for degree in degrees
         ),
-        *_career_detail_organization_groups("experience", "Experience", experience),
-        *_career_detail_organization_groups("stay", "Research stay", research_stays),
+        *_career_detail_organization_groups(
+            "experience",
+            active_translator.t("cv.sections.experience"),
+            experience,
+            active_translator,
+        ),
+        *_career_detail_organization_groups(
+            "stay",
+            active_translator.t("cv.kinds.research_stay"),
+            research_stays,
+            active_translator,
+        ),
         *(
-            _career_detail_record_item("certification", "Certification", certification)
+            _career_detail_record_item(
+                "certification",
+                active_translator.t("cv.kinds.certification"),
+                certification,
+                active_translator,
+            )
             for certification in certifications
         ),
         *(
-            _career_detail_record_item("honor", "Honor", honor)
+            _career_detail_record_item(
+                "honor",
+                active_translator.t("cv.kinds.honor"),
+                honor,
+                active_translator,
+            )
             for honor in honors
         ),
         *(
-            _career_detail_record_item("grant", "Grant", grant)
+            _career_detail_record_item(
+                "grant",
+                active_translator.t("cv.kinds.grant"),
+                grant,
+                active_translator,
+            )
             for grant in grants
         ),
     ]
@@ -58,12 +91,13 @@ def _career_detail_record_item(
     category: str,
     category_label: str,
     record: dict[str, Any],
+    translator: Translator,
 ) -> dict[str, Any]:
     return {
         "kind": "record",
         "category": category,
         "category_label": category_label,
-        "title": record_name(record),
+        "title": record_name(record, translator),
         "sort_date": _career_detail_sort_date(record),
         "record": record,
     }
@@ -73,6 +107,7 @@ def _career_detail_organization_groups(
     category: str,
     category_label: str,
     records: list[dict[str, Any]],
+    translator: Translator,
 ) -> list[dict[str, Any]]:
     grouped_records: defaultdict[str, list[dict[str, Any]]] = defaultdict(list)
     organizations_by_key: dict[str, dict[str, Any]] = {}
@@ -100,9 +135,11 @@ def _career_detail_organization_groups(
                 "sort_date": _career_detail_sort_date(sorted_records[0]),
                 "organization": organization,
                 "records": sorted_records,
-                "period": _career_detail_group_period(sorted_records),
+                "period": _career_detail_group_period(sorted_records, translator),
                 "location": _career_detail_group_location(sorted_records, organization),
-                "progression": " <- ".join(record_name(record) for record in sorted_records),
+                "progression": " <- ".join(
+                    record_name(record, translator) for record in sorted_records
+                ),
             }
         )
     return groups
@@ -124,12 +161,15 @@ def _career_detail_organization_label(organization: dict[str, Any]) -> str:
     )
 
 
-def _career_detail_group_period(records: list[dict[str, Any]]) -> str:
+def _career_detail_group_period(
+    records: list[dict[str, Any]],
+    translator: Translator,
+) -> str:
     start_dates = [record.get("start_date") for record in records if record.get("start_date")]
     end_dates = [record.get("end_date") for record in records if record.get("end_date")]
     start_date = min(start_dates) if start_dates else None
     end_date = None if any(not record.get("end_date") for record in records) else max(end_dates, default=None)
-    return date_range(start_date, end_date)
+    return date_range(start_date, end_date, translator)
 
 
 def _career_detail_group_location(
@@ -172,7 +212,9 @@ def _career_timeline_view(
     certifications: list[dict[str, Any]],
     honors: list[dict[str, Any]],
     grants: list[dict[str, Any]],
+    translator: Translator | None = None,
 ) -> dict[str, Any]:
+    active_translator = translator or load_translator()
     current_month = date.today().strftime("%Y-%m")
     position_grants = records_by_reference(grants, "position_ids")
     stay_grants = records_by_reference(grants, "stay_ids")
@@ -198,6 +240,7 @@ def _career_timeline_view(
                 current_month=current_month,
                 grants=degree_grants,
                 honors=degree_honors.get(str(degree.get("id")), []),
+                translator=active_translator,
             )
         )
 
@@ -213,6 +256,7 @@ def _career_timeline_view(
                 current_month=current_month,
                 grants=position_grants.get(str(position.get("id")), []),
                 honors=[],
+                translator=active_translator,
             )
         )
 
@@ -237,6 +281,7 @@ def _career_timeline_view(
                 current_month=current_month,
                 grants=stay_grants.get(str(stay.get("id")), []),
                 honors=[],
+                translator=active_translator,
             )
         )
 
@@ -275,12 +320,20 @@ def _career_timeline_view(
             "end": max(all_dates) if all_dates else _timeline_date(current_month),
         },
         "filters": [
-            {"id": "education", "label": "Education"},
-            {"id": "experience", "label": "Experience"},
-            {"id": "stay", "label": "Stays"},
-            {"id": "certification", "label": "Certifications"},
-            {"id": "honor", "label": "Honors"},
+            {"id": "education", "label": active_translator.t("cv.sections.education")},
+            {"id": "experience", "label": active_translator.t("cv.sections.experience")},
+            {"id": "stay", "label": active_translator.t("cv.sections.research_stays")},
+            {"id": "certification", "label": active_translator.t("cv.sections.certifications")},
+            {"id": "honor", "label": active_translator.t("cv.sections.honors")},
         ],
+        "labels": {
+            "certification": active_translator.t("cv.sections.certifications"),
+            "education": active_translator.t("cv.sections.education"),
+            "experience": active_translator.t("cv.sections.experience"),
+            "grant": active_translator.t("cv.sections.grants"),
+            "honor": active_translator.t("cv.sections.honors"),
+            "stay": active_translator.t("cv.sections.research_stays"),
+        },
     }
 
 
@@ -296,6 +349,7 @@ def _timeline_duration_item(
     current_month: str,
     grants: list[dict[str, Any]],
     honors: list[dict[str, Any]],
+    translator: Translator,
 ) -> dict[str, Any]:
     visible_end_date = end_date or current_month
     return {
@@ -306,10 +360,10 @@ def _timeline_duration_item(
         "start": _timeline_date(start_date),
         "end": _timeline_date(visible_end_date),
         "start_label": str(start_date or ""),
-        "end_label": str(end_date or "Present"),
-        "date_label": date_range(start_date, end_date),
+        "end_label": str(end_date or translator.t("labels.present")),
+        "date_label": date_range(start_date, end_date, translator),
         "is_current": end_date in (None, ""),
-        "grants": [_timeline_grant(grant) for grant in grants],
+        "grants": [_timeline_grant(grant, translator) for grant in grants],
         "honors": [_timeline_honor(honor) for honor in honors],
     }
 
@@ -334,12 +388,12 @@ def _timeline_marker_item(
 
 
 
-def _timeline_grant(grant: dict[str, Any]) -> dict[str, str]:
+def _timeline_grant(grant: dict[str, Any], translator: Translator) -> dict[str, str]:
     return {
         "id": str(grant.get("id") or ""),
         "title": str(grant.get("name") or record_name(grant)),
         "subtitle": str(grant.get("awarding_entity") or ""),
-        "date_label": date_range(grant.get("start_date"), grant.get("end_date")),
+        "date_label": date_range(grant.get("start_date"), grant.get("end_date"), translator),
     }
 
 

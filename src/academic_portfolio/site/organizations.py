@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
+from academic_portfolio.i18n import Translator, format_unit, load_translator
 from academic_portfolio.site.common import (
     _float_percentage,
     _month_span,
@@ -11,11 +12,11 @@ from academic_portfolio.site.common import (
 )
 
 ORGANIZATION_RELATIONSHIP_TYPES = [
-    {"id": "education", "label": "Education", "short": "edu", "unit": "months"},
-    {"id": "experience", "label": "Experience", "short": "exp", "unit": "months"},
-    {"id": "stays", "label": "Research stays", "short": "stay", "unit": "months"},
-    {"id": "publications", "label": "Publications", "short": "pub", "unit": "papers"},
-    {"id": "teaching", "label": "Teaching", "short": "teach", "unit": "activities"},
+    {"id": "education", "label_key": "cv.sections.education", "short": "edu", "unit": "months"},
+    {"id": "experience", "label_key": "cv.sections.experience", "short": "exp", "unit": "months"},
+    {"id": "stays", "label_key": "cv.sections.research_stays", "short": "stay", "unit": "months"},
+    {"id": "publications", "label_key": "cv.sections.publications", "short": "pub", "unit": "papers"},
+    {"id": "teaching", "label_key": "cv.sections.teaching", "short": "teach", "unit": "activities"},
 ]
 
 
@@ -29,7 +30,9 @@ def _organization_network_view(
     publications: list[dict[str, Any]],
     university_classes: list[dict[str, Any]],
     academic_supervision: list[dict[str, Any]],
+    translator: Translator | None = None,
 ) -> dict[str, Any]:
+    active_translator = translator or load_translator()
     organizations_by_id = {
         str(organization.get("id")): organization
         for organization in organizations
@@ -42,7 +45,8 @@ def _organization_network_view(
         parent_key = str(parent_id) if parent_id else None
         children_by_parent.setdefault(parent_key, []).append(organization_id)
 
-    relationship_ids = [item["id"] for item in ORGANIZATION_RELATIONSHIP_TYPES]
+    relationship_types = _organization_relationship_types(active_translator)
+    relationship_ids = [item["id"] for item in relationship_types]
     direct_values = {
         relationship_id: Counter(
             {organization_id: 0.0 for organization_id in organizations_by_id}
@@ -131,15 +135,16 @@ def _organization_network_view(
             organizations_by_id,
             children_by_parent,
             aggregate_values[relationship["id"]],
+            active_translator,
         )
-        for relationship in ORGANIZATION_RELATIONSHIP_TYPES
+        for relationship in relationship_types
     ]
     rows = [row for row in rows if row["total"] > 0]
     if not rows:
         return {
             "rows": [],
             "cards": [],
-            "relationship_types": ORGANIZATION_RELATIONSHIP_TYPES,
+            "relationship_types": relationship_types,
             "metrics": {"organizations": 0, "countries": 0, "cities": 0},
         }
 
@@ -149,6 +154,7 @@ def _organization_network_view(
         aggregate_values,
         relationship_ids,
         root_ids,
+        active_translator,
     )
     visible_nodes = list(
         _flatten_organization_nodes(
@@ -163,7 +169,7 @@ def _organization_network_view(
     return {
         "rows": rows,
         "cards": cards,
-        "relationship_types": ORGANIZATION_RELATIONSHIP_TYPES,
+        "relationship_types": relationship_types,
         "metrics": {
             "organizations": len({node["id"] for node in visible_nodes}),
             "countries": len({country["country"] for row in rows for country in row["countries"]}),
@@ -176,6 +182,16 @@ def _organization_network_view(
             ),
         },
     }
+
+
+def _organization_relationship_types(translator: Translator) -> list[dict[str, str]]:
+    return [
+        {
+            **relationship,
+            "label": translator.t(str(relationship["label_key"])),
+        }
+        for relationship in ORGANIZATION_RELATIONSHIP_TYPES
+    ]
 
 
 
@@ -228,6 +244,7 @@ def _organization_relationship_row(
     organizations_by_id: dict[str, dict[str, Any]],
     children_by_parent: dict[str | None, list[str]],
     values_by_organization: dict[str, float],
+    translator: Translator,
 ) -> dict[str, Any]:
     relationship_id = relationship["id"]
     root_nodes = [
@@ -237,6 +254,7 @@ def _organization_relationship_row(
             organizations_by_id,
             children_by_parent,
             values_by_organization,
+            translator,
             parent_value=0.0,
         )
         for root_id in root_ids
@@ -261,7 +279,11 @@ def _organization_relationship_row(
             {
                 "country": country,
                 "value": country_total,
-                "value_label": _organization_metric_value_label(relationship_id, country_total),
+                "value_label": _organization_metric_value_label(
+                    relationship_id,
+                    country_total,
+                    translator,
+                ),
                 "share": country_share,
                 "global_share": country_share,
                 "style": f"--country-share: {country_share}%;",
@@ -280,7 +302,7 @@ def _organization_relationship_row(
     return {
         **relationship,
         "total": total,
-        "total_label": _organization_metric_value_label(relationship_id, total),
+        "total_label": _organization_metric_value_label(relationship_id, total, translator),
         "track_style": _relationship_lane_stack_style(max_country_label_lane),
         "countries": countries,
     }
@@ -293,6 +315,7 @@ def _organization_relationship_node(
     organizations_by_id: dict[str, dict[str, Any]],
     children_by_parent: dict[str | None, list[str]],
     values_by_organization: dict[str, float],
+    translator: Translator,
     *,
     parent_value: float,
     depth: int = 0,
@@ -313,6 +336,7 @@ def _organization_relationship_node(
             organizations_by_id,
             children_by_parent,
             values_by_organization,
+            translator,
             parent_value=value,
             depth=depth + 1,
             path=node_path,
@@ -333,12 +357,12 @@ def _organization_relationship_node(
         "path": node_path,
         "path_label": " > ".join(node_path),
         "value": value,
-        "value_label": _organization_metric_value_label(relationship["id"], value),
+        "value_label": _organization_metric_value_label(relationship["id"], value, translator),
         "share": _float_percentage(value, parent_value) if parent_value else 0.0,
         "style": "",
         "tooltip": (
             f"{label}\n{relationship['label']}: "
-            f"{_organization_metric_value_label(relationship['id'], value)}"
+            f"{_organization_metric_value_label(relationship['id'], value, translator)}"
         ),
         "children": sorted(
             child_nodes,
@@ -461,9 +485,12 @@ def _relationship_lane_stack_style(max_lane: int) -> str:
 
 
 
-def _organization_metric_badges(metrics: dict[str, float]) -> list[dict[str, str]]:
+def _organization_metric_badges(
+    metrics: dict[str, float],
+    translator: Translator,
+) -> list[dict[str, str]]:
     badges = []
-    for relationship in ORGANIZATION_RELATIONSHIP_TYPES:
+    for relationship in _organization_relationship_types(translator):
         relationship_id = relationship["id"]
         value = float(metrics.get(relationship_id, 0.0))
         if value <= 0:
@@ -474,21 +501,28 @@ def _organization_metric_badges(metrics: dict[str, float]) -> list[dict[str, str
                 "label": relationship["label"],
                 "short": relationship["short"],
                 "value": _organization_metric_compact_value(value),
-                "value_label": _organization_metric_value_label(relationship_id, value),
+                "value_label": _organization_metric_value_label(
+                    relationship_id,
+                    value,
+                    translator,
+                ),
             }
         )
     return badges
 
 
 
-def _organization_metric_value_label(relationship_id: str, value: float) -> str:
+def _organization_metric_value_label(
+    relationship_id: str,
+    value: float,
+    translator: Translator | None = None,
+) -> str:
+    active_translator = translator or load_translator()
     value_label = _organization_metric_compact_value(value)
     if relationship_id in {"education", "experience", "stays", "teaching"}:
-        unit = "month" if value == 1 else "months"
-        return f"{value_label} {unit}"
+        return format_unit("month", value, active_translator, display_count=value_label)
     if relationship_id == "publications":
-        unit = "paper" if value == 1 else "papers"
-        return f"{value_label} {unit}"
+        return format_unit("paper", value, active_translator, display_count=value_label)
     return value_label
 
 
@@ -515,6 +549,7 @@ def _organization_card_groups(
     aggregate_values: dict[str, dict[str, float]],
     relationship_ids: list[str],
     root_ids: list[str],
+    translator: Translator,
 ) -> list[dict[str, Any]]:
     card_nodes = [
         _organization_card_node(
@@ -523,6 +558,7 @@ def _organization_card_groups(
             children_by_parent,
             aggregate_values,
             relationship_ids,
+            translator,
         )
         for root_id in root_ids
     ]
@@ -559,6 +595,7 @@ def _organization_card_node(
     children_by_parent: dict[str | None, list[str]],
     aggregate_values: dict[str, dict[str, float]],
     relationship_ids: list[str],
+    translator: Translator,
     *,
     depth: int = 0,
     path: list[str] | None = None,
@@ -574,6 +611,7 @@ def _organization_card_node(
             children_by_parent,
             aggregate_values,
             relationship_ids,
+            translator,
             depth=depth + 1,
             path=[*(path or []), _organization_short_label(organizations_by_id[organization_id])],
         )
@@ -598,6 +636,6 @@ def _organization_card_node(
         "city": str(location.get("city") or ""),
         "depth": depth,
         "path_label": " > ".join(node_path),
-        "metrics": _organization_metric_badges(metrics),
+        "metrics": _organization_metric_badges(metrics, translator),
         "children": sorted(child_nodes, key=lambda child: str(child["label"])),
     }

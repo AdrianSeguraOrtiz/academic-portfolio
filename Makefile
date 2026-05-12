@@ -1,13 +1,16 @@
-.PHONY: install install-playwright validate-data data-summary data-resolve cv cv-pdf cv-html cv-all cv-check clean-cv site clean-site test lint
+.PHONY: install install-playwright validate-data data-summary data-resolve cv cv-pdf cv-html cv-all cv-all-lang cv-check clean-cv site site-all clean-site test lint
 
 PYTHON ?= python3
 VENV ?= .venv
 MODEL ?= academic_rich
 FORMAT ?= pdf
 PAGES ?=
+PORTFOLIO_LANG ?= $(if $(filter en es,$(LANG)),$(LANG),en)
 SITE_ARGS ?=
 PLAYWRIGHT_INSTALL_ARGS ?= chromium
 CV_PAGE_ARGS = $(if $(PAGES),--pages $(PAGES),)
+CV_LANG_ARGS = --lang $(PORTFOLIO_LANG)
+SITE_LANG_ARGS = --lang $(PORTFOLIO_LANG)
 
 install:
 	@if command -v uv >/dev/null 2>&1; then \
@@ -44,22 +47,26 @@ data-resolve:
 
 cv:
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run portfolio cv generate --model $(MODEL) --format $(FORMAT) $(CV_PAGE_ARGS); \
+		uv run portfolio cv generate --model $(MODEL) --format $(FORMAT) $(CV_LANG_ARGS) $(CV_PAGE_ARGS); \
 	else \
-		$(VENV)/bin/portfolio cv generate --model $(MODEL) --format $(FORMAT) $(CV_PAGE_ARGS); \
+		$(VENV)/bin/portfolio cv generate --model $(MODEL) --format $(FORMAT) $(CV_LANG_ARGS) $(CV_PAGE_ARGS); \
 	fi
 
 cv-pdf:
-	$(MAKE) cv MODEL=$(MODEL) FORMAT=pdf PAGES=$(PAGES)
+	$(MAKE) cv MODEL=$(MODEL) FORMAT=pdf PORTFOLIO_LANG=$(PORTFOLIO_LANG) PAGES=$(PAGES)
 
 cv-html:
-	$(MAKE) cv MODEL=$(MODEL) FORMAT=html PAGES=$(PAGES)
+	$(MAKE) cv MODEL=$(MODEL) FORMAT=html PORTFOLIO_LANG=$(PORTFOLIO_LANG) PAGES=$(PAGES)
 
 cv-all:
 	$(MAKE) cv MODEL=academic_rich FORMAT=pdf PAGES=
 	$(MAKE) cv MODEL=academic_sober FORMAT=pdf PAGES=
 	$(MAKE) cv MODEL=academic_sober FORMAT=pdf PAGES=4
 	$(MAKE) cv MODEL=academic_sober FORMAT=pdf PAGES=3
+
+cv-all-lang:
+	$(MAKE) cv-all PORTFOLIO_LANG=en
+	$(MAKE) cv-all PORTFOLIO_LANG=es
 
 cv-check:
 	$(MAKE) lint
@@ -72,9 +79,16 @@ clean-cv:
 
 site:
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run portfolio site generate $(SITE_ARGS); \
+		uv run portfolio site generate $(SITE_LANG_ARGS) $(SITE_ARGS); \
 	else \
-		$(VENV)/bin/portfolio site generate $(SITE_ARGS); \
+		$(VENV)/bin/portfolio site generate $(SITE_LANG_ARGS) $(SITE_ARGS); \
+	fi
+
+site-all:
+	@if command -v uv >/dev/null 2>&1; then \
+		uv run portfolio site generate-all $(SITE_ARGS); \
+	else \
+		$(VENV)/bin/portfolio site generate-all $(SITE_ARGS); \
 	fi
 
 clean-site:

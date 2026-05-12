@@ -56,7 +56,7 @@ jobs:
 
       - name: Build site
         run: |
-          make site
+          make site-all
           touch build/site/.nojekyll
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

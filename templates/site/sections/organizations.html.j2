@@ -15,7 +15,7 @@
   </div>
   {% if organization.children %}
   <div class="organization-children">
-    <p class="organization-children-label">Contained organizations</p>
+    <p class="organization-children-label">{{ t("site.labels.contained_organizations") }}</p>
     {% for child in organization.children %}
     {{ organization_card(child) }}
     {% endfor %}
@@ -25,24 +25,24 @@
 {% endmacro %}
 
 <section class="content-section" id="organizations">
-  {{ common.section_heading("Entities", "Organizations") }}
+  {{ common.section_heading(t("site.labels.entities"), t("cv.sections.organizations")) }}
   <div class="organization-summary">
     <article>
       <strong>{{ organization_network.metrics.organizations }}</strong>
-      <span>linked organizations</span>
+      <span>{{ t("cv.metrics.linked_organizations") }}</span>
     </article>
     <article>
       <strong>{{ organization_network.metrics.countries }}</strong>
-      <span>countries</span>
+      <span>{{ t("cv.metrics.countries") }}</span>
     </article>
     <article>
       <strong>{{ organization_network.metrics.cities }}</strong>
-      <span>cities</span>
+      <span>{{ t("cv.metrics.cities") }}</span>
     </article>
   </div>
 
   <div class="organization-directory" data-organization-tabs>
-    <div class="organization-country-tabs" role="tablist" aria-label="Organization countries">
+    <div class="organization-country-tabs" role="tablist" aria-label="{{ t("site.aria.organization_countries") }}">
       {% for country in organization_network.cards %}
       <button
         type="button"
@@ -54,7 +54,7 @@
         data-organization-tab="{{ loop.index0 }}"
       >
         <span>{{ country.country }}</span>
-        <small>{{ country.cities | length }} {{ "city" if country.cities | length == 1 else "cities" }}</small>
+        <small>{{ unit("city", country.cities | length) }}</small>
       </button>
       {% endfor %}
     </div>

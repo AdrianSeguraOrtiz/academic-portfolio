@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
+from academic_portfolio.i18n import Translator, load_translator
 from academic_portfolio.render import date_range, record_name
 from academic_portfolio.site.common import _percentage
 
@@ -21,19 +22,26 @@ def _dissemination_view(
     press_items: list[dict[str, Any]],
     social_media_items: list[dict[str, Any]],
     tv_media_items: list[dict[str, Any]],
+    translator: Translator | None = None,
 ) -> dict[str, Any]:
+    active_translator = translator or load_translator()
     items = [
         *[
             _dissemination_item(
                 record=article,
                 category="articles",
-                type_label="Scientific article",
+                type_label=active_translator.t("cv.kinds.article"),
                 title=article.get("title"),
                 url=article.get("url"),
                 date=article.get("date"),
                 date_label=str(article.get("date") or ""),
                 source=article.get("outlet"),
-                detail_lines=[f"Issue {article['issue']}"] if article.get("issue") else [],
+                detail_lines=[
+                    active_translator.t("cv.fields.issue_with_value", value=article["issue"])
+                ]
+                if article.get("issue")
+                else [],
+                translator=active_translator,
             )
             for article in scientific_articles
         ],
@@ -45,7 +53,11 @@ def _dissemination_view(
                 title=presentation.get("title"),
                 url=presentation.get("url"),
                 date=presentation.get("start_date"),
-                date_label=date_range(presentation.get("start_date"), presentation.get("end_date")),
+                date_label=date_range(
+                    presentation.get("start_date"),
+                    presentation.get("end_date"),
+                    active_translator,
+                ),
                 source=presentation.get("event"),
                 detail_lines=[
                     line
@@ -55,6 +67,7 @@ def _dissemination_view(
                     )
                     if line
                 ],
+                translator=active_translator,
             )
             for presentation in presentations
         ],
@@ -62,13 +75,14 @@ def _dissemination_view(
             _dissemination_item(
                 record=item,
                 category="press",
-                type_label="Press",
+                type_label=active_translator.t("cv.kinds.press"),
                 title=item.get("title"),
                 url=item.get("url"),
                 date=item.get("date"),
                 date_label=str(item.get("date") or ""),
                 source=item.get("outlet"),
                 detail_lines=[line for line in (item.get("language"), item.get("country")) if line],
+                translator=active_translator,
             )
             for item in press_items
         ],
@@ -76,14 +90,17 @@ def _dissemination_view(
             _dissemination_item(
                 record=item,
                 category="social",
-                type_label=str(item.get("platform") or "Social media"),
-                title=_social_media_title(item),
+                type_label=str(item.get("platform") or active_translator.t("cv.kinds.social_media")),
+                title=_social_media_title(item, active_translator),
                 url=item.get("url"),
                 date=item.get("date"),
                 date_label=str(item.get("date") or ""),
                 source=", ".join(_social_account_labels(item.get("accounts", []))),
-                detail_lines=[f"{item['views']} views"] if item.get("views") else [],
+                detail_lines=[active_translator.unit("view", int(item["views"]))]
+                if item.get("views")
+                else [],
                 description=item.get("description"),
+                translator=active_translator,
             )
             for item in social_media_items
         ],
@@ -91,7 +108,7 @@ def _dissemination_view(
             _dissemination_item(
                 record=item,
                 category="tv",
-                type_label="TV media",
+                type_label=active_translator.t("cv.kinds.tv_media"),
                 title=item.get("program"),
                 url=item.get("url"),
                 date=item.get("date"),
@@ -99,6 +116,7 @@ def _dissemination_view(
                 source=item.get("channel"),
                 detail_lines=[],
                 description=item.get("description"),
+                translator=active_translator,
             )
             for item in tv_media_items
         ],
@@ -109,6 +127,7 @@ def _dissemination_view(
     categories = [
         {
             **category,
+            "label": _dissemination_category_label(category["id"], active_translator),
             "count": counts[category["id"]],
             "share": _percentage(counts[category["id"]], max_count),
         }
@@ -118,7 +137,7 @@ def _dissemination_view(
         "items": items,
         "categories": categories,
         "total": len(items),
-        "publication_groups": _dissemination_publication_groups(items),
+        "publication_groups": _dissemination_publication_groups(items, active_translator),
     }
 
 
@@ -135,10 +154,12 @@ def _dissemination_item(
     source: Any,
     detail_lines: list[str],
     description: Any = None,
+    translator: Translator | None = None,
 ) -> dict[str, Any]:
+    active_translator = translator or load_translator()
     item = dict(record)
     item["category"] = category
-    item["category_label"] = _dissemination_category_label(category)
+    item["category_label"] = _dissemination_category_label(category, active_translator)
     item["type_label"] = type_label
     item["display_title"] = str(title or record_name(record))
     item["url"] = str(url or "")
@@ -153,20 +174,24 @@ def _dissemination_item(
 
 
 
-def _dissemination_category_label(category_id: str) -> str:
-    for category in DISSEMINATION_CATEGORIES:
-        if category["id"] == category_id:
-            return category["label"]
-    return category_id
+def _dissemination_category_label(category_id: str, translator: Translator) -> str:
+    labels = {
+        "articles": "cv.metrics.scientific_articles",
+        "presentations": "cv.metrics.presentations",
+        "press": "cv.metrics.press_items",
+        "social": "cv.metrics.social_media_items",
+        "tv": "cv.metrics.tv_media_items",
+    }
+    return translator.t(labels.get(category_id, category_id))
 
 
 
-def _social_media_title(item: dict[str, Any]) -> str:
-    platform = str(item.get("platform") or "Social media")
+def _social_media_title(item: dict[str, Any], translator: Translator) -> str:
+    platform = str(item.get("platform") or translator.t("cv.kinds.social_media"))
     description = str(item.get("description") or "").strip()
     if description:
         return description
-    return f"{platform} item"
+    return translator.t("cv.summary_labels.platform_item", platform=platform)
 
 
 
@@ -185,7 +210,10 @@ def _social_account_labels(accounts: list[Any]) -> list[str]:
 
 
 
-def _dissemination_publication_groups(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _dissemination_publication_groups(
+    items: list[dict[str, Any]],
+    translator: Translator,
+) -> list[dict[str, Any]]:
     groups: dict[str, dict[str, Any]] = {}
     for item in items:
         for publication in item.get("resolved", {}).get("publication_ids", []):
@@ -206,7 +234,7 @@ def _dissemination_publication_groups(items: list[dict[str, Any]]) -> list[dict[
         badges = [
             {
                 "category": category["id"],
-                "label": category["label"],
+                "label": _dissemination_category_label(category["id"], translator),
                 "count": group["counts"][category["id"]],
             }
             for category in DISSEMINATION_CATEGORIES

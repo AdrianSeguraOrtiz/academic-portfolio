@@ -1,38 +1,38 @@
 {% import "macros/common.html.j2" as common %}
 <section class="content-section" id="career">
-  {{ common.section_heading("Career", "Academic Trajectory") }}
+  {{ common.section_heading(t("nav.career"), t("cv.sections.academic_trajectory")) }}
   <div class="career-timeline-card">
-    <div class="career-timeline-toolbar" aria-label="Career timeline filters">
+    <div class="career-timeline-toolbar" aria-label="{{ t("site.aria.career_timeline_filters") }}">
       {% for filter in career_timeline.filters %}
       <button type="button" class="career-filter active" data-career-filter="{{ filter.id }}" aria-pressed="true">{{ filter.label }}</button>
       {% endfor %}
-      <div class="timeline-zoom-controls" aria-label="Career timeline zoom controls">
-        <button type="button" data-career-zoom-out aria-label="Zoom out career timeline" title="Zoom out">-</button>
-        <button type="button" data-career-zoom-in aria-label="Zoom in career timeline" title="Zoom in">+</button>
+      <div class="timeline-zoom-controls" aria-label="{{ t("site.aria.career_timeline_zoom_controls") }}">
+        <button type="button" data-career-zoom-out aria-label="{{ t("site.actions.zoom_out_career_timeline") }}" title="{{ t("site.actions.zoom_out") }}">-</button>
+        <button type="button" data-career-zoom-in aria-label="{{ t("site.actions.zoom_in_career_timeline") }}" title="{{ t("site.actions.zoom_in") }}">+</button>
       </div>
-      <button type="button" class="career-reset" data-career-reset>Reset zoom</button>
+      <button type="button" class="career-reset" data-career-reset>{{ t("site.actions.reset_zoom") }}</button>
     </div>
     <div class="career-timeline-scroll">
-      <div class="career-timeline" data-career-timeline role="img" aria-label="Career timeline visualization">
-        <span class="map-loading">Loading career timeline</span>
+      <div class="career-timeline" data-career-timeline data-unavailable-message="{{ t("site.labels.career_timeline_data_unavailable") }}" data-dependency-message="{{ t("site.labels.career_timeline_dependency_unavailable") }}" role="img" aria-label="{{ t("site.aria.career_timeline_visualization") }}">
+        <span class="map-loading">{{ t("site.labels.career_timeline_loading") }}</span>
       </div>
     </div>
-    <div class="career-timeline-legend" aria-label="Career timeline legend">
-      <span><i class="legend-education"></i> Education</span>
-      <span><i class="legend-experience"></i> Experience</span>
-      <span><i class="legend-stay-block"></i> Research stay</span>
-      <span><i class="legend-certification"></i> Certification</span>
-      <span><i class="legend-honor"></i> Honor</span>
-      <span><i class="legend-grant"></i> Grant-linked block</span>
+    <div class="career-timeline-legend" aria-label="{{ t("site.aria.career_timeline_legend") }}">
+      <span><i class="legend-education"></i> {{ t("cv.sections.education") }}</span>
+      <span><i class="legend-experience"></i> {{ t("cv.sections.experience") }}</span>
+      <span><i class="legend-stay-block"></i> {{ t("cv.kinds.research_stay") }}</span>
+      <span><i class="legend-certification"></i> {{ t("cv.kinds.certification") }}</span>
+      <span><i class="legend-honor"></i> {{ t("cv.kinds.honor") }}</span>
+      <span><i class="legend-grant"></i> {{ t("site.labels.grant_linked_block") }}</span>
     </div>
     <script type="application/json" id="career-timeline-data">{{ career_timeline | tojson }}</script>
   </div>
   <div class="career-detail-heading">
-    <p class="eyebrow">Records</p>
-    <h3>Career Details</h3>
+    <p class="eyebrow">{{ t("cv.labels.records") }}</p>
+    <h3>{{ t("cv.sections.career_details") }}</h3>
   </div>
-  <div class="career-detail-filters" data-career-detail-filters aria-label="Career detail filters">
-    <button type="button" class="active" data-career-detail-filter="all" aria-pressed="true">All</button>
+  <div class="career-detail-filters" data-career-detail-filters aria-label="{{ t("site.aria.career_detail_filters") }}">
+    <button type="button" class="active" data-career-detail-filter="all" aria-pressed="true">{{ t("site.actions.all") }}</button>
     {% for filter in career_details.filters %}
     <button type="button" class="active career-category-{{ filter.id }}" data-career-detail-filter="{{ filter.id }}" aria-pressed="true"><span>{{ filter.count }}</span>{{ filter.label }}</button>
     {% endfor %}
@@ -55,21 +55,21 @@
           <span class="career-progress-dot" aria-hidden="true"></span>
           <div class="career-progress-content">
             <div class="record-topline">
-              <span>{% if record.end_date %}{{ item.category_label }}{% else %}Current {{ item.category_label | lower }}{% endif %}</span>
+              <span>{% if record.end_date %}{{ item.category_label }}{% else %}{{ t("site.labels.current_category", category=item.category_label | lower) }}{% endif %}</span>
               <time>{{ common.date_span(record) }}</time>
             </div>
             <h4>{{ record.title }}</h4>
             <p>{{ common.date_span(record) }}</p>
             {% if item.category == "experience" %}
             <ul class="meta-list">
-              {% if record.location %}<li>Location: {{ record.location }}</li>{% endif %}
-              {% if record.employment_type or record.dedication or record.work_mode %}<li>Type: {{ [record.employment_type, record.dedication, record.work_mode] | select | unique | join(", ") }}</li>{% endif %}
-              {% if record.department %}<li>Department: {{ record.department }}</li>{% endif %}
-              {% if record.group %}<li>Group: {{ record.group }}</li>{% endif %}
+              {% if record.location %}<li>{{ t("site.labels.location") }}: {{ record.location }}</li>{% endif %}
+              {% if record.employment_type or record.dedication or record.work_mode %}<li>{{ t("site.labels.type") }}: {{ [record.employment_type, record.dedication, record.work_mode] | select | unique | join(", ") }}</li>{% endif %}
+              {% if record.department %}<li>{{ t("cv.fields.department") }}: {{ record.department }}</li>{% endif %}
+              {% if record.group %}<li>{{ t("cv.fields.group") }}: {{ record.group }}</li>{% endif %}
             </ul>
             {% if record.tasks %}
             <details class="task-details">
-              <summary>Tasks ({{ record.tasks | length }})</summary>
+              <summary>{{ t("labels.tasks") }} ({{ record.tasks | length }})</summary>
               <ul class="meta-list">
                 {% for task in record.tasks %}
                 <li>{{ task }}</li>
@@ -80,10 +80,10 @@
             {% else %}
             {% if record.description %}<p>{{ record.description }}</p>{% endif %}
             <ul class="meta-list">
-              {% if record.location.city %}<li>Location: {{ record.location.city }}, {{ record.location.country }}</li>{% endif %}
-              {% if record.host_group %}<li>Host group: {{ record.host_group }}</li>{% endif %}
-              {% if record.purpose or record.type %}<li>Purpose: {{ [record.purpose, record.type] | select | join(", ") }}</li>{% endif %}
-              {% if record.get("resolved", {}).get("grant_ids", []) %}<li>Grants: {{ common.linked_records(record.resolved.grant_ids) }}</li>{% endif %}
+              {% if record.location.city %}<li>{{ t("site.labels.location") }}: {{ record.location.city }}, {{ record.location.country }}</li>{% endif %}
+              {% if record.host_group %}<li>{{ t("site.labels.host_group") }}: {{ record.host_group }}</li>{% endif %}
+              {% if record.purpose or record.type %}<li>{{ t("site.labels.purpose") }}: {{ [record.purpose, record.type] | select | join(", ") }}</li>{% endif %}
+              {% if record.get("resolved", {}).get("grant_ids", []) %}<li>{{ t("labels.grants") }}: {{ common.linked_records(record.resolved.grant_ids) }}</li>{% endif %}
               {% for task in record.tasks %}<li>{{ task }}</li>{% endfor %}
             </ul>
             {% endif %}
@@ -100,20 +100,20 @@
       <h3>{{ record.title }}</h3>
       <p>{{ common.org_links(record) }} · {{ record.start_date | date_range(record.end_date) }}</p>
       {% if record.grade %}<p>{{ record.grade }}</p>{% endif %}
-      {% if record.get("resolved", {}).get("grant_ids", []) %}<p>Grants: {{ common.linked_records(record.resolved.grant_ids) }}</p>{% endif %}
+      {% if record.get("resolved", {}).get("grant_ids", []) %}<p>{{ t("labels.grants") }}: {{ common.linked_records(record.resolved.grant_ids) }}</p>{% endif %}
       {% if record.get("thesis", {}).get("title") %}<p>{{ record.thesis.type }}: {{ record.thesis.title }}</p>{% endif %}
       {% if record.get("thesis", {}).get("area") %}<p class="tags">{{ record.thesis.area }}</p>{% endif %}
       {% elif item.category == "certification" %}
-      <div class="record-topline"><span>Certification</span>{% if record.issue_date %}<time>{{ record.issue_date }}</time>{% endif %}</div>
+      <div class="record-topline"><span>{{ t("cv.kinds.certification") }}</span>{% if record.issue_date %}<time>{{ record.issue_date }}</time>{% endif %}</div>
       <h3>{{ record.title }}</h3>
       <p>{{ common.org_links(record) }}{% if record.issue_date %} · {{ record.issue_date }}{% endif %}</p>
       <ul class="meta-list">
-        {% if record.duration_hours %}<li>{{ record.duration_hours }} hours</li>{% endif %}
-        {% if record.credential_id %}<li>Credential ID: {{ record.credential_id }}</li>{% endif %}
+        {% if record.duration_hours %}<li>{{ unit("hour", record.duration_hours) }}</li>{% endif %}
+        {% if record.credential_id %}<li>{{ t("site.labels.credential_id") }}: {{ record.credential_id }}</li>{% endif %}
         {% if record.notes %}<li>{{ record.notes }}</li>{% endif %}
       </ul>
       {% elif item.category == "honor" %}
-      <div class="record-topline"><span>Honor</span><time>{{ record.issue_date }}</time></div>
+      <div class="record-topline"><span>{{ t("cv.kinds.honor") }}</span><time>{{ record.issue_date }}</time></div>
       <h3>{{ record.title }}</h3>
       <p>{{ record.issue_date }} · {{ record.awarding_entities | join(", ") }}</p>
       <p>{{ record.context }}</p>

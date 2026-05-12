@@ -1,25 +1,34 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ language }}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ profile.person.full_name }} | Academic Portfolio</title>
+    <title>{{ profile.person.full_name }} | {{ t("site.document.title_suffix") }}</title>
     <meta name="description" content="{{ profile.research_profile.summary }}">
     <link rel="stylesheet" href="assets/site.css">
   </head>
   <body>
     <header class="site-header">
-      <nav class="nav" aria-label="Primary navigation">
-        <a href="#profile">Profile</a>
-        <a href="#overview">Overview</a>
-        <a href="#collaborations">Collaborations</a>
-        <a href="#publications">Publications</a>
-        <a href="#software">Software</a>
-        <a href="#career">Career</a>
-        <a href="#research-projects">Projects</a>
-        <a href="#teaching">Teaching</a>
-        <a href="#dissemination">Dissemination</a>
-        <a href="#organizations">Organizations</a>
+      <nav class="nav" aria-label="{{ t("site.aria.primary_navigation") }}">
+        <a href="#profile">{{ t("nav.profile") }}</a>
+        <a href="#overview">{{ t("nav.overview") }}</a>
+        <a href="#collaborations">{{ t("nav.collaborations") }}</a>
+        <a href="#publications">{{ t("nav.publications") }}</a>
+        <a href="#software">{{ t("nav.software") }}</a>
+        <a href="#career">{{ t("nav.career") }}</a>
+        <a href="#research-projects">{{ t("nav.projects") }}</a>
+        <a href="#teaching">{{ t("nav.teaching") }}</a>
+        <a href="#dissemination">{{ t("nav.dissemination") }}</a>
+        <a href="#organizations">{{ t("nav.organizations") }}</a>
+        <div class="language-switcher" aria-label="{{ t("site.aria.language_switcher") }}">
+          {% for option in language_switcher %}
+          {% if option.is_current %}
+          <span aria-label="{{ t("site.aria.current_language") }}">{{ option.label }}</span>
+          {% else %}
+          <a href="{{ option.url }}" hreflang="{{ option.code }}">{{ option.label }}</a>
+          {% endif %}
+          {% endfor %}
+        </div>
       </nav>
     </header>
 

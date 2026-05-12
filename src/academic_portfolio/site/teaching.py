@@ -4,6 +4,7 @@ from collections import defaultdict
 from math import ceil
 from typing import Any
 
+from academic_portfolio.i18n import Translator, load_translator
 from academic_portfolio.render import date_range, record_name
 from academic_portfolio.site.common import _month_number, _year_from_month
 
@@ -155,17 +156,20 @@ def _teaching_hours_segments(
 def _teaching_timeline_view(
     university_classes: list[dict[str, Any]],
     academic_supervision: list[dict[str, Any]],
+    translator: Translator | None = None,
 ) -> dict[str, Any]:
+    active_translator = translator or load_translator()
     records = [
         _teaching_event(
             record=course,
             event_type="class",
-            type_label="University class",
+            type_label=active_translator.t("cv.kinds.university_class"),
             title=course.get("name"),
             subtitle=course.get("degree"),
             secondary=course.get("academic_year"),
             start_date=course.get("start_date"),
             end_date=course.get("end_date"),
+            translator=active_translator,
         )
         for course in university_classes
     ]
@@ -173,12 +177,14 @@ def _teaching_timeline_view(
         _teaching_event(
             record=supervision,
             event_type="supervision",
-            type_label=supervision.get("type") or "Academic supervision",
+            type_label=supervision.get("type")
+            or active_translator.t("cv.kinds.academic_supervision"),
             title=supervision.get("title"),
             subtitle=supervision.get("degree"),
             secondary=None,
             start_date=supervision.get("date"),
             end_date=supervision.get("date"),
+            translator=active_translator,
         )
         for supervision in academic_supervision
     )
@@ -290,6 +296,7 @@ def _teaching_event(
     secondary: Any,
     start_date: Any,
     end_date: Any,
+    translator: Translator,
 ) -> dict[str, Any]:
     start_month = _month_number(start_date)
     end_month = _month_number(end_date) if end_date else start_month
@@ -300,6 +307,7 @@ def _teaching_event(
         record=record,
         event_type=event_type,
         secondary=secondary,
+        translator=translator,
     )
     return {
         "id": str(record.get("id") or ""),
@@ -309,7 +317,7 @@ def _teaching_event(
         "subtitle": str(subtitle or ""),
         "secondary": str(secondary or ""),
         "detail_lines": detail_lines,
-        "date_label": date_range(start_date, end_date)
+        "date_label": date_range(start_date, end_date, translator)
         if start_date != end_date
         else str(start_date or ""),
         "start_month": start_month,
@@ -379,18 +387,19 @@ def _teaching_detail_lines(
     record: dict[str, Any],
     event_type: str,
     secondary: Any,
+    translator: Translator,
 ) -> list[str]:
     lines = [str(secondary)] if secondary else []
     if event_type == "class":
         if record.get("department"):
             lines.append(str(record["department"]))
         if record.get("workload_hours"):
-            lines.append(f"{record['workload_hours']} hours")
+            lines.append(translator.unit("hour", float(record["workload_hours"])))
     else:
         if record.get("role"):
             lines.append(str(record["role"]))
         if record.get("workload_hours"):
-            lines.append(f"{record['workload_hours']} hours")
+            lines.append(translator.unit("hour", float(record["workload_hours"])))
     return lines
 
 

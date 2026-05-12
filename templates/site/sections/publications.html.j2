@@ -1,15 +1,15 @@
 {% import "macros/common.html.j2" as common %}
 <section class="content-section" id="publications">
-  {{ common.section_heading("Research Output", "Publications") }}
+  {{ common.section_heading(t("site.labels.research_output"), t("cv.sections.publications")) }}
   <div class="chart-card publication-chart-card">
-    {{ common.section_heading("Output", "Publications by Year", compact=true) }}
+    {{ common.section_heading(t("site.labels.output"), t("cv.sections.publications_by_year"), compact=true) }}
     <div class="chart-legend">
-      <span><i class="kind-dot journal"></i> Journal paper</span>
-      <span><i class="kind-dot conference"></i> Conference paper</span>
+      <span><i class="kind-dot journal"></i> {{ t("cv.kinds.journal_paper") }}</span>
+      <span><i class="kind-dot conference"></i> {{ t("cv.kinds.conference_paper") }}</span>
     </div>
-    <div class="bar-chart publication-year-chart" aria-label="Publications by year" data-publication-year-chart>
+    <div class="bar-chart publication-year-chart" aria-label="{{ t("site.aria.publications_by_year") }}" data-publication-year-chart>
       {% for item in publication_chart %}
-      <button class="bar-item publication-year-button{% if loop.first %} is-active{% endif %}" type="button" data-publication-year="{{ item.year }}" aria-label="Show publications from {{ item.year }}">
+      <button class="bar-item publication-year-button{% if loop.first %} is-active{% endif %}" type="button" data-publication-year="{{ item.year }}" aria-label="{{ t("site.actions.show_publications_from", year=item.year) }}">
         <div class="bar-track">
           <div class="bar-stack" style="height: {{ item.height }}%">
             <span class="bar-segment journal" style="height: {{ item.journal_share }}%"></span>
@@ -23,14 +23,14 @@
     </div>
   </div>
   <div class="publication-carousel-shell" data-publication-carousel-shell>
-    {{ common.carousel_control("publication-carousel-control", "previous", "data-publication-carousel-prev", "Previous publication") }}
-    <div class="publication-carousel" data-publication-carousel aria-label="Publications grouped by year" tabindex="0">
+    {{ common.carousel_control("publication-carousel-control", "previous", "data-publication-carousel-prev", t("site.actions.previous_publication")) }}
+    <div class="publication-carousel" data-publication-carousel aria-label="{{ t("site.aria.publications_grouped_by_year") }}" tabindex="0">
       <div class="publication-year-track">
         {% for group in publication_groups %}
         <section class="publication-year-group" data-publication-year-group="{{ group.year }}" aria-labelledby="publication-year-{{ group.year }}">
           <header class="publication-year-heading" id="publication-year-{{ group.year }}" style="--publication-year-span: {{ group.count }}">
             <span>{{ group.year }}</span>
-            <small>{{ group.count }} {{ "paper" if group.count == 1 else "papers" }}</small>
+            <small>{{ unit("paper", group.count) }}</small>
           </header>
           <div class="publication-year-cards">
             {% for publication in group.publications %}
@@ -43,6 +43,6 @@
         {% endfor %}
       </div>
     </div>
-    {{ common.carousel_control("publication-carousel-control", "next", "data-publication-carousel-next", "Next publication") }}
+    {{ common.carousel_control("publication-carousel-control", "next", "data-publication-carousel-next", t("site.actions.next_publication")) }}
   </div>
 </section>

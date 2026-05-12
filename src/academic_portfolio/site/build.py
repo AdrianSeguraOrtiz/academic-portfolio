@@ -8,6 +8,14 @@ from typing import Any
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
 from academic_portfolio.github import collect_github_project_stats
+from academic_portfolio.i18n import (
+    DEFAULT_LANGUAGE,
+    SUPPORTED_LANGUAGES,
+    Translator,
+    configure_jinja_i18n,
+    load_translator,
+    resolve_localized_values,
+)
 from academic_portfolio.loader import load_data
 from academic_portfolio.packages import collect_package_stats
 from academic_portfolio.render import date_range, record_name
@@ -16,7 +24,7 @@ from academic_portfolio.site.career import _career_details_view, _career_timelin
 from academic_portfolio.site.collaborations import _collaboration_view
 from academic_portfolio.site.dissemination import _dissemination_view
 from academic_portfolio.site.organizations import _organization_network_view
-from academic_portfolio.site.overview import _format_number, _overview_summary
+from academic_portfolio.site.overview import _overview_summary
 from academic_portfolio.site.projects import _project_records
 from academic_portfolio.site.publications import (
     _publication_year_chart,
@@ -43,6 +51,22 @@ class SiteOutput:
     output_path: Path
     asset_paths: list[Path]
     content: str
+    language: str = DEFAULT_LANGUAGE
+
+
+@dataclass(frozen=True)
+class SiteBuildSet:
+    outputs: list[SiteOutput]
+    redirect_path: Path
+    default_language: str = DEFAULT_LANGUAGE
+
+
+@dataclass(frozen=True)
+class SiteDynamicData:
+    github_stats_by_url: dict[str, dict[str, Any]]
+    github_errors: dict[str, str]
+    package_stats_by_id: dict[str, dict[str, Any]]
+    package_errors: dict[str, str]
 
 
 def build_site_view(
@@ -51,8 +75,10 @@ def build_site_view(
     github_errors: dict[str, str] | None = None,
     package_stats_by_id: dict[str, dict[str, Any]] | None = None,
     package_errors: dict[str, str] | None = None,
+    translator: Translator | None = None,
 ) -> dict[str, Any]:
-    profile = profile_with_current_activity(resolver)
+    active_translator = translator or load_translator()
+    profile = resolve_localized_values(profile_with_current_activity(resolver), active_translator)
 
     journal_papers = _tagged_publication_records(
         resolver,
@@ -152,8 +178,71 @@ def build_site_view(
         "teaching_innovation_projects",
         reverse=True,
     )
-    projects = _project_records(research_projects, teaching_innovation_projects)
-    teaching_timeline = _teaching_timeline_view(university_classes, academic_supervision)
+    reviewing = resolved_records(
+        resolver,
+        "research/reviewing.yaml",
+        "reviewing",
+        reverse=True,
+    )
+
+    (
+        journal_papers,
+        conference_papers,
+        publications,
+        software_projects,
+        software_packages,
+        press_items,
+        social_media_items,
+        degrees,
+        experience,
+        research_stays,
+        certifications,
+        honors,
+        grants,
+        research_projects,
+        scientific_articles,
+        presentations,
+        tv_media_items,
+        university_classes,
+        academic_supervision,
+        teaching_innovation_projects,
+        reviewing,
+    ) = resolve_localized_values(
+        (
+            journal_papers,
+            conference_papers,
+            publications,
+            software_projects,
+            software_packages,
+            press_items,
+            social_media_items,
+            degrees,
+            experience,
+            research_stays,
+            certifications,
+            honors,
+            grants,
+            research_projects,
+            scientific_articles,
+            presentations,
+            tv_media_items,
+            university_classes,
+            academic_supervision,
+            teaching_innovation_projects,
+            reviewing,
+        ),
+        active_translator,
+    )
+    projects = _project_records(
+        research_projects,
+        teaching_innovation_projects,
+        translator=active_translator,
+    )
+    teaching_timeline = _teaching_timeline_view(
+        university_classes,
+        academic_supervision,
+        translator=active_translator,
+    )
     teaching_hours_chart = _teaching_hours_chart(
         university_classes,
         teaching_timeline["legend"],
@@ -164,6 +253,7 @@ def build_site_view(
         press_items,
         social_media_items,
         tv_media_items,
+        translator=active_translator,
     )
     organizations = resolved_records(
         resolver,
@@ -171,6 +261,7 @@ def build_site_view(
         "organizations",
         reverse=False,
     )
+    organizations = resolve_localized_values(organizations, active_translator)
     organization_network = _organization_network_view(
         organizations=organizations,
         degrees=degrees,
@@ -179,6 +270,7 @@ def build_site_view(
         publications=publications,
         university_classes=university_classes,
         academic_supervision=academic_supervision,
+        translator=active_translator,
     )
 
     metrics = {
@@ -210,12 +302,7 @@ def build_site_view(
         software_projects=software_projects,
         software_packages=software_packages,
         research_projects=research_projects,
-        reviewing=resolved_records(
-            resolver,
-            "research/reviewing.yaml",
-            "reviewing",
-            reverse=True,
-        ),
+        reviewing=reviewing,
         scientific_articles=scientific_articles,
         presentations=presentations,
         press_items=press_items,
@@ -228,6 +315,7 @@ def build_site_view(
         grants=grants,
         organizations=organizations,
         metrics=metrics,
+        translator=active_translator,
     )
     metrics.update(
         {
@@ -239,7 +327,7 @@ def build_site_view(
         }
     )
 
-    return {
+    return resolve_localized_values({
         "profile": profile,
         "metrics": metrics,
         "overview": overview,
@@ -261,6 +349,7 @@ def build_site_view(
             certifications,
             honors,
             grants,
+            translator=active_translator,
         ),
         "projects": projects,
         "research_projects": research_projects,
@@ -289,20 +378,28 @@ def build_site_view(
             certifications,
             honors,
             grants,
+            translator=active_translator,
         ),
-        "collaborations": _collaboration_view(publications, research_stays),
+        "collaborations": _collaboration_view(
+            publications,
+            research_stays,
+            translator=active_translator,
+        ),
         "publication_chart": _publication_year_chart(journal_papers, conference_papers),
         "publication_groups": _publication_year_groups(publications),
         "software_github": _software_github_summary(software_projects),
         "software_timeline": _software_timeline(software_projects),
         "software_language_chart": _software_language_chart(software_projects),
         "github_errors": github_errors or {},
+        "language": active_translator.language,
+        "language_switcher": _site_language_switcher(active_translator.language),
         "package_errors": package_errors or {},
-    }
+    }, active_translator)
 
 
 def generate_site(
     output_dir: Path | str = "build/site",
+    language: str = DEFAULT_LANGUAGE,
     data_dir: Path | str = "data",
     template_dir: Path | str = "templates/site",
     static_dir: Path | str = "assets/site",
@@ -311,7 +408,111 @@ def generate_site(
     refresh_packages: bool = False,
     package_cache_path: Path | str = "build/cache/software_packages.json",
 ) -> SiteOutput:
+    if language not in SUPPORTED_LANGUAGES:
+        raise ValueError(f"Unsupported language: {language}")
+
     resolver = PortfolioResolver(load_data(data_dir))
+    dynamic_data = _collect_site_dynamic_data(
+        resolver,
+        refresh_github=refresh_github,
+        github_cache_path=github_cache_path,
+        refresh_packages=refresh_packages,
+        package_cache_path=package_cache_path,
+    )
+    return _render_site_output(
+        resolver=resolver,
+        dynamic_data=dynamic_data,
+        output_dir=output_dir,
+        language=language,
+        template_dir=template_dir,
+        static_dir=static_dir,
+    )
+
+
+def generate_all_sites(
+    output_dir: Path | str = "build/site",
+    languages: tuple[str, ...] = SUPPORTED_LANGUAGES,
+    default_language: str = DEFAULT_LANGUAGE,
+    data_dir: Path | str = "data",
+    template_dir: Path | str = "templates/site",
+    static_dir: Path | str = "assets/site",
+    refresh_github: bool = False,
+    github_cache_path: Path | str = "build/cache/github_repositories.json",
+    refresh_packages: bool = False,
+    package_cache_path: Path | str = "build/cache/software_packages.json",
+) -> SiteBuildSet:
+    unsupported_languages = sorted(set(languages) - set(SUPPORTED_LANGUAGES))
+    if unsupported_languages:
+        raise ValueError(f"Unsupported languages: {', '.join(unsupported_languages)}")
+    if default_language not in languages:
+        raise ValueError(f"Default language must be one of: {', '.join(languages)}")
+
+    resolver = PortfolioResolver(load_data(data_dir))
+    dynamic_data = _collect_site_dynamic_data(
+        resolver,
+        refresh_github=refresh_github,
+        github_cache_path=github_cache_path,
+        refresh_packages=refresh_packages,
+        package_cache_path=package_cache_path,
+    )
+    outputs = [
+        _render_site_output(
+            resolver=resolver,
+            dynamic_data=dynamic_data,
+            output_dir=output_dir,
+            language=language,
+            template_dir=template_dir,
+            static_dir=static_dir,
+        )
+        for language in languages
+    ]
+    redirect_path = write_site_root_redirect(output_dir, default_language=default_language)
+    return SiteBuildSet(
+        outputs=outputs,
+        redirect_path=redirect_path,
+        default_language=default_language,
+    )
+
+
+def write_site_root_redirect(
+    output_dir: Path | str = "build/site",
+    default_language: str = DEFAULT_LANGUAGE,
+) -> Path:
+    if default_language not in SUPPORTED_LANGUAGES:
+        raise ValueError(f"Unsupported language: {default_language}")
+
+    target = f"{default_language}/"
+    content = f"""<!doctype html>
+<html lang="{DEFAULT_LANGUAGE}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="0; url={target}">
+    <link rel="canonical" href="{target}">
+    <title>Academic Portfolio</title>
+    <script>
+      window.location.replace("{target}" + window.location.search + window.location.hash);
+    </script>
+  </head>
+  <body>
+    <p><a href="{target}">Continue to the portfolio.</a></p>
+  </body>
+</html>
+"""
+    output_path = Path(output_dir) / "index.html"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(content, encoding="utf-8")
+    return output_path
+
+
+def _collect_site_dynamic_data(
+    resolver: PortfolioResolver,
+    *,
+    refresh_github: bool,
+    github_cache_path: Path | str,
+    refresh_packages: bool,
+    package_cache_path: Path | str,
+) -> SiteDynamicData:
     github_stats_by_url: dict[str, dict[str, Any]] = {}
     github_errors: dict[str, str] = {}
     package_stats_by_id: dict[str, dict[str, Any]] = {}
@@ -333,36 +534,62 @@ def generate_site(
         package_stats_by_id = package_result.stats_by_id
         package_errors = package_result.errors
 
-    view = build_site_view(
-        resolver,
+    return SiteDynamicData(
         github_stats_by_url=github_stats_by_url,
         github_errors=github_errors,
         package_stats_by_id=package_stats_by_id,
         package_errors=package_errors,
     )
 
-    environment = _create_environment(template_dir)
+
+def _render_site_output(
+    *,
+    resolver: PortfolioResolver,
+    dynamic_data: SiteDynamicData,
+    output_dir: Path | str,
+    language: str,
+    template_dir: Path | str,
+    static_dir: Path | str,
+) -> SiteOutput:
+    translator = load_translator(language)
+    view = build_site_view(
+        resolver,
+        github_stats_by_url=dynamic_data.github_stats_by_url,
+        github_errors=dynamic_data.github_errors,
+        package_stats_by_id=dynamic_data.package_stats_by_id,
+        package_errors=dynamic_data.package_errors,
+        translator=translator,
+    )
+
+    environment = _create_environment(template_dir, translator)
     content = environment.get_template("index.html.j2").render(**view)
 
-    output_path = Path(output_dir) / "index.html"
+    output_path = Path(output_dir) / language / "index.html"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(content, encoding="utf-8")
 
     asset_paths = _copy_static_assets(static_dir, output_path.parent / "assets")
-    return SiteOutput(output_path=output_path, asset_paths=asset_paths, content=content)
+    return SiteOutput(
+        output_path=output_path,
+        asset_paths=asset_paths,
+        content=content,
+        language=language,
+    )
 
 
-def _create_environment(template_dir: Path | str) -> Environment:
+def _create_environment(template_dir: Path | str, translator: Translator | None = None) -> Environment:
+    active_translator = translator or load_translator()
     environment = Environment(
         loader=FileSystemLoader(str(template_dir)),
         autoescape=select_autoescape(("html", "xml")),
         trim_blocks=True,
         lstrip_blocks=True,
         undefined=StrictUndefined,
+        finalize=active_translator.localized,
     )
-    environment.filters["date_range"] = date_range
-    environment.filters["record_name"] = record_name
-    environment.filters["number"] = _format_number
+    environment.filters["date_range"] = lambda start, end: date_range(start, end, active_translator)
+    environment.filters["record_name"] = lambda record: record_name(record, active_translator)
+    configure_jinja_i18n(environment, active_translator)
     return environment
 
 
@@ -386,3 +613,13 @@ def _copy_static_assets(static_dir: Path | str, output_dir: Path) -> list[Path]:
     return copied_paths
 
 
+def _site_language_switcher(current_language: str) -> list[dict[str, Any]]:
+    return [
+        {
+            "code": language,
+            "label": load_translator(language).t("language.name"),
+            "url": f"../{language}/",
+            "is_current": language == current_language,
+        }
+        for language in SUPPORTED_LANGUAGES
+    ]

@@ -1,11 +1,11 @@
 {% import "macros/common.html.j2" as common %}
 <section class="content-section" id="software">
-  {{ common.section_heading("Open Research Software", "Software") }}
-  <h3 class="subsection-title">Software Projects</h3>
+  {{ common.section_heading(t("site.labels.open_research_software"), t("cv.sections.software")) }}
+  <h3 class="subsection-title">{{ t("cv.sections.software_projects") }}</h3>
   {% if software_timeline.rows %}
   <div class="software-visual-grid">
     <article class="chart-card software-timeline-card">
-      {{ common.section_heading("Repositories", "Commit Activity", compact=true) }}
+      {{ common.section_heading(t("site.labels.repositories"), t("cv.sections.commit_activity"), compact=true) }}
       <div class="software-timeline-scroll">
         <div class="timeline-years" style="grid-template-columns: repeat({{ software_timeline.years | length }}, minmax(0, 1fr))">
           {% for year in software_timeline.years %}
@@ -19,10 +19,10 @@
             <a class="timeline-label timeline-label-start" href="{{ item.project.urls.github }}">{{ item.project.name }}</a>
             <div class="timeline-track">
               {% for month in item.months %}
-              <span class="activity-pulse" style="--left: {{ month.left }}%; --width: {{ month.width }}%; --height: {{ month.height }}px;" title="{{ month.count }} {{ "commit" if month.count == 1 else "commits" }} in {{ month.month }}"></span>
+              <span class="activity-pulse" style="--left: {{ month.left }}%; --width: {{ month.width }}%; --height: {{ month.height }}px;" title="{{ unit("commit", month.count) }} · {{ month.month }}"></span>
               {% endfor %}
-              {% if item.created_left is not none %}<span class="timeline-marker created" style="--left: {{ item.created_left }}%;" title="Repository created: {{ github.created_at[:10] }}"></span>{% endif %}
-              {% if item.pushed_left is not none %}<span class="timeline-marker pushed" style="--left: {{ item.pushed_left }}%;" title="Last push: {{ github.pushed_at[:10] }}"></span>{% endif %}
+              {% if item.created_left is not none %}<span class="timeline-marker created" style="--left: {{ item.created_left }}%;" title="{{ t("site.labels.repository_created", date=github.created_at[:10]) }}"></span>{% endif %}
+              {% if item.pushed_left is not none %}<span class="timeline-marker pushed" style="--left: {{ item.pushed_left }}%;" title="{{ t("cv.metrics.latest_push") }}: {{ github.pushed_at[:10] }}"></span>{% endif %}
             </div>
             <a class="timeline-label timeline-label-end" href="{{ item.project.urls.github }}" aria-hidden="true" tabindex="-1">{{ item.project.name }}</a>
           </div>
@@ -33,8 +33,8 @@
 
     {% if software_language_chart %}
     <article class="chart-card language-card">
-      {{ common.section_heading("Codebase", "Languages", compact=true) }}
-      <div class="language-stack" aria-label="Aggregated repository languages">
+      {{ common.section_heading(t("site.labels.codebase"), t("cv.sections.languages"), compact=true) }}
+      <div class="language-stack" aria-label="{{ t("site.aria.aggregated_repository_languages") }}">
         {% for language in software_language_chart %}
         <span style="width: {{ language.share }}%; background: {{ language.color }};" title="{{ language.name }}: {{ language.share }}%"></span>
         {% endfor %}
@@ -52,28 +52,28 @@
   </div>
   {% endif %}
   <div class="software-layout">
-    <aside class="software-snapshot" aria-label="Software portfolio metrics">
+    <aside class="software-snapshot" aria-label="{{ t("site.aria.software_portfolio_metrics") }}">
       <div class="section-heading compact">
-        <p class="eyebrow">Snapshot</p>
-        <h3>Software Index</h3>
+        <p class="eyebrow">{{ t("site.labels.snapshot") }}</p>
+        <h3>{{ t("site.labels.software_index") }}</h3>
       </div>
       <div class="snapshot-grid">
-        <div><strong>{{ metrics.software_projects }}</strong><span>Repos</span></div>
-        <div><strong>{{ metrics.software_packages }}</strong><span>Packages</span></div>
+        <div><strong>{{ metrics.software_projects }}</strong><span>{{ t("site.labels.repos") }}</span></div>
+        <div><strong>{{ metrics.software_packages }}</strong><span>{{ t("site.labels.packages") }}</span></div>
         {% if software_github.repositories_with_stats %}
-        <div><strong>{{ software_github.total_stars }}</strong><span>Stars</span></div>
-        <div><strong>{{ software_github.total_forks }}</strong><span>Forks</span></div>
+        <div><strong>{{ software_github.total_stars }}</strong><span>{{ t("cv.metrics.stars") }}</span></div>
+        <div><strong>{{ software_github.total_forks }}</strong><span>{{ t("cv.metrics.forks") }}</span></div>
         {% endif %}
       </div>
       {% if software_github.repositories_with_stats %}
       <div class="snapshot-detail">
-        <span>Latest push</span>
+        <span>{{ t("cv.metrics.latest_push") }}</span>
         <strong>{{ software_github.last_push_date }}</strong>
       </div>
       {% endif %}
       {% if software_language_chart %}
       <div class="snapshot-detail">
-        <span>Dominant language</span>
+        <span>{{ t("site.labels.dominant_language") }}</span>
         <strong>{{ software_language_chart[0].name }}</strong>
       </div>
       <div class="snapshot-language-key">
@@ -84,7 +84,7 @@
       {% endif %}
     </aside>
     <div class="software-carousel repo-carousel-shell" data-software-carousel data-repo-carousel>
-      {{ common.carousel_control("software-carousel-control", "previous", "data-software-carousel-prev", "Previous repository") }}
+      {{ common.carousel_control("software-carousel-control", "previous", "data-software-carousel-prev", t("site.actions.previous_repository")) }}
       <div class="repo-list" data-software-carousel-track>
         {% for project in software_projects %}
         {% set github = project.get("github") %}
@@ -109,18 +109,18 @@
             <div class="repo-statline">
               {% if github.language %}<span>{{ github.language }}</span>{% endif %}
               {% if github.license %}<span>{{ github.license }}</span>{% endif %}
-              <span>{{ github.stargazers_count }} stars</span>
-              <span>{{ github.forks_count }} forks</span>
-              <span>{{ github.open_issues_count }} open</span>
-              {% if github.commits_count is not none %}<span>{{ github.commits_count }} commits</span>{% endif %}
+              <span>{{ unit("star", github.stargazers_count) }}</span>
+              <span>{{ unit("fork", github.forks_count) }}</span>
+              <span>{{ unit("open_issue", github.open_issues_count) }}</span>
+              {% if github.commits_count is not none %}<span>{{ unit("commit", github.commits_count) }}</span>{% endif %}
             </div>
             {% if github.first_commit_at or github.last_commit_at or github.pushed_at %}
             <div class="repo-dates">
               {% if github.first_commit_at and github.last_commit_at %}
-              <span>Commits {{ github.first_commit_at[:10] }} - {{ github.last_commit_at[:10] }}</span>
+              <span>{{ t("site.labels.commits_date_range", start=github.first_commit_at[:10], end=github.last_commit_at[:10]) }}</span>
               {% endif %}
               {% if github.pushed_at %}
-              <span>Push {{ github.pushed_at[:10] }}</span>
+              <span>{{ t("cv.labels.push") }} {{ github.pushed_at[:10] }}</span>
               {% endif %}
             </div>
             {% endif %}
@@ -129,12 +129,12 @@
         </article>
         {% endfor %}
       </div>
-      {{ common.carousel_control("software-carousel-control", "next", "data-software-carousel-next", "Next repository") }}
+      {{ common.carousel_control("software-carousel-control", "next", "data-software-carousel-next", t("site.actions.next_repository")) }}
     </div>
   </div>
-  <h3 class="subsection-title">Software Packages</h3>
+  <h3 class="subsection-title">{{ t("cv.sections.software_packages") }}</h3>
   <div class="software-carousel package-carousel-shell" data-software-carousel data-package-carousel>
-    {{ common.carousel_control("software-carousel-control", "previous", "data-software-carousel-prev", "Previous software package") }}
+    {{ common.carousel_control("software-carousel-control", "previous", "data-software-carousel-prev", t("site.actions.previous_software_package")) }}
     <div class="package-grid" data-software-carousel-track>
     {% for package in software_packages %}
     {% set stats = package.get("package_stats", {}) %}
@@ -145,15 +145,15 @@
 
       {% if package.ecosystem == "PyPI" and stats %}
       <div class="package-stat-grid">
-        <div><strong>{{ stats.total_downloads | number }}</strong><span>Total downloads</span></div>
-        <div><strong>{{ stats.latest_version }}</strong><span>Latest version</span></div>
-        <div><strong>{{ stats.release_count }}</strong><span>Releases</span></div>
-        <div><strong>{{ stats.requires_python or "n/a" }}</strong><span>Python</span></div>
+        <div><strong>{{ stats.total_downloads | number }}</strong><span>{{ t("cv.fields.total_downloads") }}</span></div>
+        <div><strong>{{ stats.latest_version }}</strong><span>{{ t("cv.fields.latest_version") }}</span></div>
+        <div><strong>{{ stats.release_count }}</strong><span>{{ t("cv.fields.releases") }}</span></div>
+        <div><strong>{{ stats.requires_python or "n/a" }}</strong><span>{{ t("site.labels.python") }}</span></div>
       </div>
       {% if stats.download_chart %}
       {% set chart_points = stats.download_chart[-18:] %}
       {% set max_downloads = chart_points | map(attribute="downloads") | max %}
-      <div class="package-download-chart" aria-label="{{ package.name }} monthly downloads by version">
+      <div class="package-download-chart" aria-label="{{ t("site.labels.version_downloads_chart", package=package.name) }}">
         <div class="chart-y-axis">
           <span>{{ max_downloads | number }}</span>
           <span>{{ (max_downloads / 2) | round | int | number }}</span>
@@ -164,9 +164,9 @@
           <div class="chart-grid-line middle"></div>
           <div class="package-bars">
             {% for point in chart_points %}
-            <div class="package-bar" style="height: {{ ((point.downloads / max_downloads) * 100) | round }}%" title="{{ point.label }} · {{ point.downloads | number }} downloads">
+            <div class="package-bar" style="height: {{ ((point.downloads / max_downloads) * 100) | round }}%" title="{{ point.label }} · {{ unit("download", point.downloads, display_count=(point.downloads | number)) }}">
               {% for segment in point.segments %}
-              <span style="height: {{ segment.share }}%; background: {{ segment.color }};" title="{{ point.label }} · {{ segment.version }} · {{ segment.downloads | number }} downloads"></span>
+              <span style="height: {{ segment.share }}%; background: {{ segment.color }};" title="{{ point.label }} · {{ segment.version }} · {{ unit("download", segment.downloads, display_count=(segment.downloads | number)) }}"></span>
               {% endfor %}
             </div>
             {% endfor %}
@@ -181,7 +181,7 @@
       {% endif %}
       <div class="package-splits">
         <div>
-          <h4>Versions</h4>
+          <h4>{{ t("site.labels.versions") }}</h4>
           <div class="package-scroll-list">
             {% for item in stats.downloads_by_version %}
             <p><span><i style="background: {{ item.color }};"></i>{{ item.version }}</span><strong>{{ item.downloads | number }}</strong></p>
@@ -189,7 +189,7 @@
           </div>
         </div>
         <div>
-          <h4>Countries</h4>
+          <h4>{{ t("site.labels.countries") }}</h4>
           <div class="package-scroll-list">
             {% for item in stats.downloads_by_country %}
             <p><span>{{ item.country_code }}</span><strong>{{ item.downloads | number }}</strong></p>
@@ -197,18 +197,18 @@
           </div>
         </div>
       </div>
-      <p class="tags"><a href="{{ stats.clickpy_url }}">ClickPy dashboard</a></p>
+      <p class="tags"><a href="{{ stats.clickpy_url }}">{{ t("site.labels.clickpy_dashboard") }}</a></p>
       {% elif package.ecosystem == "Maven" and stats %}
       <div class="package-stat-grid">
-        <div><strong>{{ stats.latest_version }}</strong><span>Latest version</span></div>
-        <div><strong>{{ stats.release_count }}</strong><span>Releases</span></div>
-        <div><strong>{{ stats.dependency_count }}</strong><span>Dependencies</span></div>
-        <div><strong>{{ stats.java_release or "n/a" }}</strong><span>Java release</span></div>
+        <div><strong>{{ stats.latest_version }}</strong><span>{{ t("cv.fields.latest_version") }}</span></div>
+        <div><strong>{{ stats.release_count }}</strong><span>{{ t("cv.fields.releases") }}</span></div>
+        <div><strong>{{ stats.dependency_count }}</strong><span>{{ t("cv.fields.dependencies") }}</span></div>
+        <div><strong>{{ stats.java_release or "n/a" }}</strong><span>{{ t("cv.fields.java_release") }}</span></div>
       </div>
       <ul class="meta-list">
-        {% if stats.license %}<li>License: {{ stats.license }}</li>{% endif %}
-        {% if stats.last_updated %}<li>Last updated: {{ stats.last_updated }}</li>{% endif %}
-        {% if stats.project_url %}<li>Project: <a href="{{ stats.project_url }}">{{ stats.project_url }}</a></li>{% endif %}
+        {% if stats.license %}<li>{{ t("cv.fields.license") }}: {{ stats.license }}</li>{% endif %}
+        {% if stats.last_updated %}<li>{{ t("cv.fields.last_updated") }}: {{ stats.last_updated }}</li>{% endif %}
+        {% if stats.project_url %}<li>{{ t("site.labels.project") }}: <a href="{{ stats.project_url }}">{{ stats.project_url }}</a></li>{% endif %}
       </ul>
       {% if stats.artifact_files %}
       <div class="artifact-list">
@@ -220,13 +220,13 @@
       <p class="tags"><a href="{{ stats.mvnrepository_url }}">MvnRepository</a></p>
       {% else %}
       <p class="tags">
-        {% if package.get("package_name") %}Package: {{ package.package_name }}{% endif %}
-        {% if package.get("group_id") %}Coordinate: {{ package.group_id }}:{{ package.artifact_id }}{% endif %}
+        {% if package.get("package_name") %}{{ t("site.labels.package") }}: {{ package.package_name }}{% endif %}
+        {% if package.get("group_id") %}{{ t("cv.labels.coordinate") }}: {{ package.group_id }}:{{ package.artifact_id }}{% endif %}
       </p>
       {% endif %}
     </article>
     {% endfor %}
     </div>
-    {{ common.carousel_control("software-carousel-control", "next", "data-software-carousel-next", "Next software package") }}
+    {{ common.carousel_control("software-carousel-control", "next", "data-software-carousel-next", t("site.actions.next_software_package")) }}
   </div>
 </section>

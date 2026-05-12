@@ -3,12 +3,15 @@ from __future__ import annotations
 from math import sqrt
 from typing import Any
 
+from academic_portfolio.i18n import Translator, load_translator
 from academic_portfolio.site.common import _month_span
 
 def _collaboration_view(
     publications: list[dict[str, Any]],
     research_stays: list[dict[str, Any]],
+    translator: Translator | None = None,
 ) -> dict[str, Any]:
+    active_translator = translator or load_translator()
     publication_locations: dict[tuple[str, str], dict[str, Any]] = {}
     stay_locations: dict[tuple[str, str], dict[str, Any]] = {}
     publication_country_sets: list[set[str]] = []
@@ -71,11 +74,11 @@ def _collaboration_view(
         default=1,
     )
     publication_nodes = [
-        _publication_map_node(location, max_publications)
+        _publication_map_node(location, max_publications, active_translator)
         for location in publication_locations.values()
     ]
     stay_nodes = [
-        _stay_map_node(location)
+        _stay_map_node(location, active_translator)
         for location in stay_locations.values()
     ]
 
@@ -171,7 +174,11 @@ def _map_location(city: str, country: str, latitude: float, longitude: float) ->
 
 
 
-def _publication_map_node(location: dict[str, Any], max_publications: int) -> dict[str, Any]:
+def _publication_map_node(
+    location: dict[str, Any],
+    max_publications: int,
+    translator: Translator,
+) -> dict[str, Any]:
     publication_count = len(location["publication_ids"])
     radius = round(6 + (sqrt(publication_count / max_publications) * 12), 2)
     return {
@@ -180,13 +187,14 @@ def _publication_map_node(location: dict[str, Any], max_publications: int) -> di
         "latitude": location["latitude"],
         "longitude": location["longitude"],
         "publication_count": publication_count,
+        "publication_label": translator.unit("publication", publication_count),
         "organization_count": len(location["organization_names"]),
         "radius": radius,
     }
 
 
 
-def _stay_map_node(location: dict[str, Any]) -> dict[str, Any]:
+def _stay_map_node(location: dict[str, Any], translator: Translator) -> dict[str, Any]:
     months = int(location["months"])
     stays = sorted(
         location["stays"],
@@ -202,7 +210,10 @@ def _stay_map_node(location: dict[str, Any]) -> dict[str, Any]:
         "stays": [
             {
                 **stay,
-                "label": f"{stay['months']} mo · {stay['year']}",
+                "label": (
+                    f"{translator.t('site.labels.month_short', count=stay['months'])}"
+                    f" · {stay['year']}"
+                ),
             }
             for stay in stays
         ],

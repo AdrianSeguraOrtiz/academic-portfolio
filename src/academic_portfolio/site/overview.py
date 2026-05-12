@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import date
 from typing import Any
 
+from academic_portfolio.i18n import Translator, format_duration, format_number, load_translator
 from academic_portfolio.render import record_name
 from academic_portfolio.site.common import (
     _month_number,
@@ -12,8 +15,76 @@ from academic_portfolio.site.common import (
     _organization_short_label,
 )
 
+_ACTIVE_TRANSLATOR: ContextVar[Translator | None] = ContextVar(
+    "academic_portfolio_overview_translator",
+    default=None,
+)
+
+
+@contextmanager
+def _using_translator(translator: Translator) -> Any:
+    token = _ACTIVE_TRANSLATOR.set(translator)
+    try:
+        yield
+    finally:
+        _ACTIVE_TRANSLATOR.reset(token)
+
+
+def _current_translator() -> Translator:
+    return _ACTIVE_TRANSLATOR.get() or load_translator()
+
 
 def _overview_summary(
+    *,
+    degrees: list[dict[str, Any]],
+    experience: list[dict[str, Any]],
+    research_stays: list[dict[str, Any]],
+    publications: list[dict[str, Any]],
+    software_projects: list[dict[str, Any]],
+    software_packages: list[dict[str, Any]],
+    research_projects: list[dict[str, Any]],
+    reviewing: list[dict[str, Any]],
+    scientific_articles: list[dict[str, Any]],
+    presentations: list[dict[str, Any]],
+    press_items: list[dict[str, Any]],
+    social_media_items: list[dict[str, Any]],
+    tv_media_items: list[dict[str, Any]],
+    university_classes: list[dict[str, Any]],
+    academic_supervision: list[dict[str, Any]],
+    teaching_innovation_projects: list[dict[str, Any]],
+    honors: list[dict[str, Any]],
+    grants: list[dict[str, Any]],
+    organizations: list[dict[str, Any]],
+    metrics: dict[str, int],
+    translator: Translator | None = None,
+) -> dict[str, Any]:
+    active_translator = translator or load_translator()
+    with _using_translator(active_translator):
+        return _build_overview_summary(
+            degrees=degrees,
+            experience=experience,
+            research_stays=research_stays,
+            publications=publications,
+            software_projects=software_projects,
+            software_packages=software_packages,
+            research_projects=research_projects,
+            reviewing=reviewing,
+            scientific_articles=scientific_articles,
+            presentations=presentations,
+            press_items=press_items,
+            social_media_items=social_media_items,
+            tv_media_items=tv_media_items,
+            university_classes=university_classes,
+            academic_supervision=academic_supervision,
+            teaching_innovation_projects=teaching_innovation_projects,
+            honors=honors,
+            grants=grants,
+            organizations=organizations,
+            metrics=metrics,
+        )
+
+
+def _build_overview_summary(
     *,
     degrees: list[dict[str, Any]],
     experience: list[dict[str, Any]],
@@ -297,8 +368,11 @@ def _duration_by_root_organization(
             "label": labels_by_organization[organization_id],
             "months": _merged_month_span(intervals),
             "duration": _format_duration(_merged_month_span(intervals)),
-            "summary": f"{_format_duration(_merged_month_span(intervals))} at "
-            f"{labels_by_organization[organization_id]}",
+            "summary": _current_translator().t(
+                "cv.summary_fragments.at",
+                value=_format_duration(_merged_month_span(intervals)),
+                organization=labels_by_organization[organization_id],
+            ),
             "latest_month": max(end for _, end in intervals),
         }
         for organization_id, intervals in sorted(
@@ -409,8 +483,11 @@ def _teaching_years_by_organization(records: list[dict[str, Any]]) -> list[dict[
         {
             "label": labels_by_organization[organization_id],
             "years": len(years),
-            "summary": f"{_count_phrase('academic year', len(years))} at "
-            f"{labels_by_organization[organization_id]}",
+            "summary": _current_translator().t(
+                "cv.summary_fragments.at",
+                value=_count_phrase("academic year", len(years)),
+                organization=labels_by_organization[organization_id],
+            ),
         }
         for organization_id, years in sorted(
             years_by_organization.items(),
@@ -436,17 +513,25 @@ def _stay_summaries(
             organizations_by_id,
         )
         label = (
-            f"{organization_text}, located in {place}"
+            _current_translator().t(
+                "cv.summary_fragments.located_in",
+                organization=organization_text,
+                place=place,
+            )
             if organization_text and place
             else organization_text or place
         )
         if not label:
-            label = record_name(stay)
+            label = record_name(stay, _current_translator())
         stays.append(
             {
                 "label": label,
                 "months": months,
-                "summary": f"{_format_duration(months)} at {label}",
+                "summary": _current_translator().t(
+                    "cv.summary_fragments.at",
+                    value=_format_duration(months),
+                    organization=label,
+                ),
             }
         )
     return stays
@@ -517,7 +602,11 @@ def _organization_chain_text(chain: list[dict[str, Any]]) -> str:
         return ""
     text = labels[0]
     for label in labels[1:]:
-        text = f"{text}, belonging to {label}"
+        text = _current_translator().t(
+            "cv.summary_fragments.belonging_to",
+            value=text,
+            organization=label,
+        )
     return text
 
 
@@ -527,9 +616,36 @@ def _project_roles(research_projects: list[dict[str, Any]]) -> list[str]:
         for project in research_projects
     )
     return [
-        f"{role[:1].lower()}{role[1:]} in {_count_phrase('research project', count)}"
+        _current_translator().t(
+            "cv.summary_fragments.role_in_projects",
+            role=_lower_initial(_localized_participation_label(role)),
+            projects=_count_phrase("research project", count),
+        )
         for role, count in sorted(role_counts.items(), key=lambda item: (-item[1], item[0]))
     ]
+
+
+def _localized_participation_label(role: str) -> str:
+    normalized = f" {role.lower().replace('/', ' ').replace('-', ' ').replace('.', ' ')} "
+    translator = _current_translator()
+    if (
+        "principal investigator" in normalized
+        or "investigador principal" in normalized
+        or " co pi " in normalized
+        or " co ip " in normalized
+        or " pi " in normalized
+        or " ip " in normalized
+    ):
+        return translator.t("cv.labels.pi_copi")
+    if "research team" in normalized or "equipo de investigación" in normalized:
+        return translator.t("cv.labels.research_team_member")
+    if "working team" in normalized or "equipo de trabajo" in normalized:
+        return translator.t("cv.labels.working_team_member")
+    return f"{role[:1].lower()}{role[1:]}"
+
+
+def _lower_initial(value: str) -> str:
+    return f"{value[:1].lower()}{value[1:]}" if value else ""
 
 
 def _degree_summary(degree: dict[str, Any]) -> str:
@@ -538,8 +654,12 @@ def _degree_summary(degree: dict[str, Any]) -> str:
         for organization in degree.get("resolved", {}).get("organization_ids", [])
     )
     if not organization_text:
-        return record_name(degree)
-    return f"{record_name(degree)} from {organization_text}"
+        return record_name(degree, _current_translator())
+    return _current_translator().t(
+        "cv.summary_fragments.degree_from",
+        degree=record_name(degree, _current_translator()),
+        organization=organization_text,
+    )
 
 
 def _grant_summary(
@@ -555,8 +675,12 @@ def _grant_summary(
         _covered_record_summary(record, organizations_by_id) for record in covered_records
     )
     if not covered_text:
-        return record_name(grant)
-    return f"{record_name(grant)}, covering {covered_text}"
+        return record_name(grant, _current_translator())
+    return _current_translator().t(
+        "cv.summary_fragments.covering",
+        grant=record_name(grant, _current_translator()),
+        records=covered_text,
+    )
 
 
 def _covered_record_summary(
@@ -565,8 +689,12 @@ def _covered_record_summary(
 ) -> str:
     organization_text = _root_organization_text_for_record(record, organizations_by_id)
     if not organization_text:
-        return record_name(record)
-    return f"{record_name(record)} at {organization_text}"
+        return record_name(record, _current_translator())
+    return _current_translator().t(
+        "cv.summary_fragments.at",
+        value=record_name(record, _current_translator()),
+        organization=organization_text,
+    )
 
 
 def _root_organization_text_for_record(
@@ -584,25 +712,25 @@ def _root_organization_text_for_record(
 
 
 def _count_phrase(label: str, count: int) -> str:
+    label_key = label.replace(" ", "_").replace("/", "_").lower()
+    phrase_key = f"cv.counts.{label_key}"
+    text = _current_translator().plural(
+        phrase_key,
+        count,
+        display_count=_format_number(count),
+    )
+    if text != phrase_key:
+        return text
     suffix = "" if count == 1 else "s"
     return f"{_format_number(count)} {label}{suffix}"
 
 
 def _supervision_phrase(label: str, count: int) -> str:
-    if label == "doctoral thesis":
-        plural_label = "doctoral thesis" if count == 1 else "doctoral theses"
-        return f"{_format_number(count)} {plural_label}"
     return _count_phrase(label, count)
 
 
 def _format_duration(months: int) -> str:
-    years, remaining_months = divmod(months, 12)
-    parts = []
-    if years:
-        parts.append(_count_phrase("year", years))
-    if remaining_months:
-        parts.append(_count_phrase("month", remaining_months))
-    return _join_phrases(parts) if parts else "0 months"
+    return format_duration(months, _current_translator())
 
 
 def _join_phrases(
@@ -616,11 +744,15 @@ def _join_phrases(
         return ""
     if len(items) == 1:
         return items[0]
+    conjunction = _current_translator().t("lists.conjunction")
     if len(items) == 2:
         if use_delimiter_for_two:
-            return f"{items[0]}{delimiter}and {items[1]}"
-        return f"{items[0]} and {items[1]}"
-    return f"{delimiter.join(items[:-1])}{delimiter}and {items[-1]}"
+            return f"{items[0]}{delimiter}{conjunction} {items[1]}"
+        return f"{items[0]} {conjunction} {items[1]}"
+    final_delimiter = delimiter
+    if _current_translator().language == "es" and delimiter == ", ":
+        final_delimiter = " "
+    return f"{delimiter.join(items[:-1])}{final_delimiter}{conjunction} {items[-1]}"
 
 
 def _join_semicolon_phrases(values: Any) -> str:
@@ -628,10 +760,4 @@ def _join_semicolon_phrases(values: Any) -> str:
 
 
 def _format_number(value: Any) -> str:
-    try:
-        numeric_value = float(value)
-    except (TypeError, ValueError):
-        return str(value)
-    if numeric_value.is_integer():
-        return f"{int(numeric_value):,}"
-    return f"{numeric_value:,.1f}"
+    return format_number(value, _current_translator())

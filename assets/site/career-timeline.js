@@ -62,11 +62,11 @@ const APPROX_CHAR_WIDTH = 6.3;
 const ELLIPSIS_LENGTH = 3;
 const DATE_ISO_LENGTH = 10;
 const LANE_LABELS = [
-  { text: "Certifications", y: 42 },
-  { text: "Experience", baselineOffset: -92 },
-  { text: "Education", baselineOffset: 88 },
-  { text: "Research Stays", baselineOffset: 210 },
-  { text: "Honors", baselineOffset: 344 },
+  { key: "certification", text: "Certifications", y: 42 },
+  { key: "experience", text: "Experience", baselineOffset: -92 },
+  { key: "education", text: "Education", baselineOffset: 88 },
+  { key: "stay", text: "Research Stays", baselineOffset: 210 },
+  { key: "honor", text: "Honors", baselineOffset: 344 },
 ];
 const LABEL_LINE_HEIGHT = 12;
 const LABEL_BLOCK_GAP = 14;
@@ -215,6 +215,7 @@ class CareerTimeline {
   drawLaneLabels(x) {
     const labels = LANE_LABELS.map((label) => ({
       ...label,
+      text: this.data.labels?.[label.key] || label.text,
       y: label.y ?? this.baseline + label.baselineOffset,
     }));
     const futureLabelX = x(
@@ -307,7 +308,7 @@ class CareerTimeline {
       });
     });
 
-    blocks.append("title").text((item) => blockTitle(item));
+    blocks.append("title").text((item) => blockTitle(item, this.data.labels || {}));
   }
 
   drawMarkers(x, markers) {
@@ -667,16 +668,16 @@ function appendWrappedText(group, lines, x, y) {
   return text;
 }
 
-function blockTitle(item) {
+function blockTitle(item, labels = {}) {
   const lines = [`${item.title}`, `${item.date_label}`];
   if (item.subtitle) {
     lines.push(item.subtitle);
   }
   if (item.grants.length) {
-    lines.push(`Grants: ${item.grants.map((grant) => grant.title).join(", ")}`);
+    lines.push(`${labels.grant || "Grants"}: ${item.grants.map((grant) => grant.title).join(", ")}`);
   }
   if (item.honors.length) {
-    lines.push(`Honors: ${item.honors.map((honor) => honor.title).join(", ")}`);
+    lines.push(`${labels.honor || "Honors"}: ${item.honors.map((honor) => honor.title).join(", ")}`);
   }
   return lines.join("\n");
 }
@@ -716,13 +717,19 @@ function initCareerTimeline() {
     return;
   }
   if (!window.d3) {
-    setTimelineStatus(container, CAREER_MESSAGES.dependencyUnavailable);
+    setTimelineStatus(
+      container,
+      container.dataset.dependencyMessage || CAREER_MESSAGES.dependencyUnavailable,
+    );
     return;
   }
 
   const data = readTimelineData(dataElement);
   if (!data) {
-    setTimelineStatus(container, CAREER_MESSAGES.dataUnavailable);
+    setTimelineStatus(
+      container,
+      container.dataset.unavailableMessage || CAREER_MESSAGES.dataUnavailable,
+    );
     return;
   }
 

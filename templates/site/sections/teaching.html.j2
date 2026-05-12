@@ -1,14 +1,14 @@
 {% import "macros/common.html.j2" as common %}
 <section class="content-section" id="teaching">
-  {{ common.section_heading("Teaching", "Classes and Supervision") }}
+  {{ common.section_heading(t("nav.teaching"), t("cv.sections.classes_supervision")) }}
   <div class="teaching-layout">
-    <div class="teaching-chart-grid" aria-label="Teaching workload charts">
+    <div class="teaching-chart-grid" aria-label="{{ t("site.aria.teaching_workload_charts") }}">
       <article class="teaching-hours-card teaching-year-chart">
         <div class="chart-heading">
-          <span>Classroom Hours</span>
-          <h3>By Academic Year</h3>
+          <span>{{ t("cv.metrics.classroom_hours") }}</span>
+          <h3>{{ t("cv.sections.classroom_hours_by_year") }}</h3>
         </div>
-        <div class="teaching-chart-legend" aria-label="Academic year chart organization legend">
+        <div class="teaching-chart-legend" aria-label="{{ t("site.aria.academic_year_chart_legend") }}">
           {% for organization in teaching_hours_chart.legend %}
           <span><i style="--org-color: {{ organization.color }}"></i>{{ organization.label }}</span>
           {% endfor %}
@@ -32,10 +32,10 @@
       </article>
       <article class="teaching-hours-card teaching-degree-chart">
         <div class="chart-heading">
-          <span>Classroom Hours</span>
-          <h3>By Degree Programme</h3>
+          <span>{{ t("cv.metrics.classroom_hours") }}</span>
+          <h3>{{ t("cv.sections.classroom_hours_by_degree") }}</h3>
         </div>
-        <div class="teaching-chart-legend" aria-label="Degree chart organization legend">
+        <div class="teaching-chart-legend" aria-label="{{ t("site.aria.degree_chart_legend") }}">
           {% for organization in teaching_hours_chart.legend %}
           <span><i style="--org-color: {{ organization.color }}"></i>{{ organization.label }}</span>
           {% endfor %}
@@ -62,19 +62,19 @@
     </div>
     <article class="teaching-timeline-card">
       <div class="teaching-timeline-legends">
-        <div class="teaching-organization-legend" aria-label="Teaching organization color legend">
+        <div class="teaching-organization-legend" aria-label="{{ t("site.aria.teaching_organization_legend") }}">
           {% for organization in teaching_timeline.legend %}
           <span><i style="--org-color: {{ organization.color }}"></i>{{ organization.label }}</span>
           {% endfor %}
         </div>
-        <div class="teaching-type-legend" aria-label="Teaching item type legend">
-          <span><i class="type-class"></i> Class</span>
-          <span><i class="type-supervision"></i> Supervision</span>
+        <div class="teaching-type-legend" aria-label="{{ t("site.aria.teaching_type_legend") }}">
+          <span><i class="type-class"></i> {{ t("site.labels.class") }}</span>
+          <span><i class="type-supervision"></i> {{ t("site.labels.supervision") }}</span>
         </div>
-        <div class="timeline-zoom-controls" aria-label="Teaching timeline zoom controls">
-          <button type="button" data-teaching-zoom-out aria-label="Zoom out teaching timeline" title="Zoom out">-</button>
-          <button type="button" data-teaching-zoom-reset aria-label="Reset teaching timeline zoom" title="Reset zoom">Reset</button>
-          <button type="button" data-teaching-zoom-in aria-label="Zoom in teaching timeline" title="Zoom in">+</button>
+        <div class="timeline-zoom-controls" aria-label="{{ t("site.aria.teaching_timeline_zoom_controls") }}">
+          <button type="button" data-teaching-zoom-out aria-label="{{ t("site.actions.zoom_out_teaching_timeline") }}" title="{{ t("site.actions.zoom_out") }}">-</button>
+          <button type="button" data-teaching-zoom-reset aria-label="{{ t("site.actions.reset_teaching_timeline_zoom") }}" title="{{ t("site.actions.reset_zoom") }}">{{ t("site.actions.reset") }}</button>
+          <button type="button" data-teaching-zoom-in aria-label="{{ t("site.actions.zoom_in_teaching_timeline") }}" title="{{ t("site.actions.zoom_in") }}">+</button>
         </div>
       </div>
       <div class="teaching-timeline-scroll">
@@ -91,7 +91,7 @@
               <h3>{% if event.url %}<a href="{{ event.url }}">{{ event.title }}</a>{% else %}{{ event.title }}{% endif %}</h3>
               <p>{{ event.subtitle }}</p>
               {% for detail in event.detail_lines %}<p>{{ detail }}</p>{% endfor %}
-              {% if event.repository_url %}<p><a href="{{ event.repository_url }}">Repository</a></p>{% endif %}
+              {% if event.repository_url %}<p><a href="{{ event.repository_url }}">{{ t("site.labels.repository") }}</a></p>{% endif %}
               <time>{{ event.date_label }}</time>
             </article>
             {% endfor %}

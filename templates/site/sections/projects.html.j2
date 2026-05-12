@@ -1,13 +1,13 @@
 {% import "macros/common.html.j2" as common %}
 <section class="content-section" id="research-projects">
-  {{ common.section_heading("Projects", "Research and Teaching Innovation Projects") }}
-  <div class="project-role-legend" aria-label="Project role legend">
-    <span><i class="role-working"></i> Working team member</span>
-    <span><i class="role-research"></i> Research team member</span>
-    <span><i class="role-lead"></i> PI / Co-PI</span>
+  {{ common.section_heading(t("nav.projects"), t("cv.sections.projects")) }}
+  <div class="project-role-legend" aria-label="{{ t("site.aria.project_role_legend") }}">
+    <span><i class="role-working"></i> {{ t("cv.labels.working_team_member") }}</span>
+    <span><i class="role-research"></i> {{ t("cv.labels.research_team_member") }}</span>
+    <span><i class="role-lead"></i> {{ t("cv.labels.pi_copi") }}</span>
   </div>
   <div class="project-carousel-shell" data-project-carousel>
-    {{ common.carousel_control("project-carousel-control", "previous", "data-project-carousel-prev", "Previous project") }}
+    {{ common.carousel_control("project-carousel-control", "previous", "data-project-carousel-prev", t("site.actions.previous_project")) }}
     <div class="project-grid" data-project-carousel-track>
     {% for project in projects %}
     <article class="project-card type-{{ project.project_type }} role-{{ project.participation_class }}" data-project-carousel-item>
@@ -18,18 +18,18 @@
       </div>
       <h3>{{ project.display_title }}</h3>
       <p>{{ common.org_links(project) }}</p>
-      {% if project.get("principal_investigators") %}<p>Principal investigators: {{ project.principal_investigators | join(", ") }}</p>{% endif %}
+      {% if project.get("principal_investigators") %}<p>{{ t("cv.fields.principal_investigators") }}: {{ project.principal_investigators | join(", ") }}</p>{% endif %}
       <details class="project-meta-details" data-project-meta-details open>
-        <summary>Project details</summary>
+        <summary>{{ t("site.labels.project_details") }}</summary>
         <ul class="meta-list">
-          {% if project.project_funders %}<li>Funders: {{ project.project_funders | join(", ") }}</li>{% endif %}
-          {% if project.get("participation") %}<li>Participation: {{ project.participation }}</li>{% endif %}
-          {% if project.get("total_amount_eur") %}<li>Total amount: {{ project.total_amount_eur }} EUR</li>{% endif %}
+          {% if project.project_funders %}<li>{{ t("cv.fields.funders") }}: {{ project.project_funders | join(", ") }}</li>{% endif %}
+          {% if project.get("participation") %}<li>{{ t("cv.labels.participation") }}: {{ project.participation }}</li>{% endif %}
+          {% if project.get("total_amount_eur") %}<li>{{ t("cv.labels.total_amount") }}: {{ project.total_amount_eur }} EUR</li>{% endif %}
         </ul>
       </details>
     </article>
     {% endfor %}
     </div>
-    {{ common.carousel_control("project-carousel-control", "next", "data-project-carousel-next", "Next project") }}
+    {{ common.carousel_control("project-carousel-control", "next", "data-project-carousel-next", t("site.actions.next_project")) }}
   </div>
 </section>

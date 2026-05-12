@@ -32,22 +32,22 @@
 <article class="record-card">
   <div class="record-topline">
     <span class="kind-dot {{ publication.publication_kind }}"></span>
-    <span>{{ "Journal paper" if publication.publication_kind == "journal" else "Conference paper" }}</span>
+    <span>{{ t("cv.kinds.journal_paper") if publication.publication_kind == "journal" else t("cv.kinds.conference_paper") }}</span>
     {% if publication.publication_date %}<time>{{ publication.publication_date }}</time>{% endif %}
   </div>
   <h3><a href="{{ publication.url }}">{{ publication.title }}</a></h3>
   <p>{{ publication.authors | join(", ") }}</p>
   <p><strong>{{ publication.venue }}</strong>{% if publication.publisher %} · {{ publication.publisher }}{% endif %}</p>
   <details class="publication-meta-details" data-publication-meta-details open>
-    <summary>Publication details</summary>
+    <summary>{{ t("site.labels.publications_and_details") }}</summary>
     <ul class="meta-list">
       {% if publication.doi %}<li>DOI: <a href="{{ publication.url }}">{{ publication.doi }}</a></li>{% endif %}
-      {% if publication.get("resolved", {}).get("organization_ids", []) %}<li>Organizations: {{ org_links(publication) }}</li>{% endif %}
-      {% if publication.get("resolved", {}).get("position_ids", []) %}<li>Positions: {{ linked_records(publication.resolved.position_ids) }}</li>{% endif %}
-      {% if publication.get("resolved", {}).get("stay_ids", []) %}<li>Research stays: {{ linked_records(publication.resolved.stay_ids) }}</li>{% endif %}
-      {% if publication.get("resolved", {}).get("grant_ids", []) %}<li>Grants: {{ linked_records(publication.resolved.grant_ids) }}</li>{% endif %}
+      {% if publication.get("resolved", {}).get("organization_ids", []) %}<li>{{ t("labels.organizations") }}: {{ org_links(publication) }}</li>{% endif %}
+      {% if publication.get("resolved", {}).get("position_ids", []) %}<li>{{ t("labels.positions") }}: {{ linked_records(publication.resolved.position_ids) }}</li>{% endif %}
+      {% if publication.get("resolved", {}).get("stay_ids", []) %}<li>{{ t("labels.research_stays") }}: {{ linked_records(publication.resolved.stay_ids) }}</li>{% endif %}
+      {% if publication.get("resolved", {}).get("grant_ids", []) %}<li>{{ t("labels.grants") }}: {{ linked_records(publication.resolved.grant_ids) }}</li>{% endif %}
       {% if publication.get("resolved", {}).get("software_project_ids", []) %}
-      <li>Software:
+      <li>{{ t("labels.software") }}:
         {% for software in publication.resolved.software_project_ids %}
         <a href="{{ software.urls.github }}">{{ software.name }}</a>{% if not loop.last %}, {% endif %}
         {% endfor %}

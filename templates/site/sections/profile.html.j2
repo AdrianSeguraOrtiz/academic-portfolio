@@ -2,32 +2,32 @@
 <section class="hero" id="profile">
   <div class="hero-copy">
     <div class="hero-identity">
-      <img class="profile-photo" src="assets/profile.jpg" alt="Portrait of {{ profile.person.full_name }}">
+      <img class="profile-photo" src="assets/profile.jpg" alt="{{ profile.person.full_name }}">
       <div>
-        <p class="eyebrow">Academic Portfolio</p>
+        <p class="eyebrow">{{ t("site.labels.academic_portfolio") }}</p>
         <h1>{{ profile.person.full_name }}</h1>
       </div>
     </div>
     <p class="lead">{{ profile.research_profile.summary }}</p>
 
-    <div class="current-activity" aria-label="Current activity">
+    <div class="current-activity" aria-label="{{ t("site.aria.current_activity") }}">
       {% for position in profile.current_positions %}
       <article class="current-card">
-        <span>Current position</span>
+        <span>{{ t("cv.labels.current_position") }}</span>
         <strong>{{ position.title }}</strong>
         <p>{{ common.org_links(position) }}{% if common.date_span(position) %} · {{ common.date_span(position) }}{% endif %}</p>
       </article>
       {% endfor %}
       {% for stay in profile.current_stays %}
       <article class="current-card">
-        <span>Current stay</span>
+        <span>{{ t("cv.labels.current_stay") }}</span>
         <strong>{{ stay.title }}</strong>
         <p>{{ common.org_links(stay) }}{% if common.date_span(stay) %} · {{ common.date_span(stay) }}{% endif %}</p>
       </article>
       {% endfor %}
     </div>
 
-    <div class="profile-links" aria-label="Profile links">
+    <div class="profile-links" aria-label="{{ t("site.aria.profile_links") }}">
       {% if profile.person.identifiers.orcid %}
       <a href="https://orcid.org/{{ profile.person.identifiers.orcid }}">ORCID</a>
       {% endif %}
@@ -44,8 +44,8 @@
     </div>
   </div>
 
-  <aside class="hero-panel" aria-label="Research focus">
-    <h2>Research Focus</h2>
+  <aside class="hero-panel" aria-label="{{ t("site.aria.research_focus") }}">
+    <h2>{{ t("cv.labels.research_focus") }}</h2>
     <div class="focus-list">
       {% for area in research_focus %}
       <span>{{ area }}</span>

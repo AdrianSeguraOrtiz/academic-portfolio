@@ -1,90 +1,106 @@
 {% import "macros/common.html.j2" as common %}
 <section class="section overview" id="overview">
   <div class="overview-copy">
-    {{ common.section_heading("Overview", "Portfolio Summary") }}
+    {{ common.section_heading(t("nav.overview"), t("cv.sections.portfolio_summary")) }}
 
     <div class="narrative">
       <p>
-        I am a computer scientist and researcher in artificial intelligence applied
-        to bioinformatics, working at the intersection of computational methods,
-        biomedical data analysis, evolutionary computation, and reproducible
-        scientific software.
+        {{ t("site.overview.intro") }}
       </p>
       <p>
-        My academic background comprises <strong>{{ overview.education.degrees_text }}</strong>.
-        My professional experience spans <strong>{{ overview.experience.by_institution_text }}</strong>,
-        complemented by research stays of <strong>{{ overview.internationalization.stays_text }}</strong>,
-        for a total of <strong>{{ overview.internationalization.total_stay_months }} months abroad</strong>.
-        Across professional appointments and research stays, this portfolio includes
-        direct work at <strong>{{ metrics.work_institutions }} institutions</strong>.
+        {{ t("site.overview.academic_background", degrees="<strong>" ~ overview.education.degrees_text ~ "</strong>") | safe }}
+        {{ t("site.overview.professional_and_stays",
+          experience="<strong>" ~ overview.experience.by_institution_text ~ "</strong>",
+          stays="<strong>" ~ overview.internationalization.stays_text ~ "</strong>",
+          months="<strong>" ~ unit("month", overview.internationalization.total_stay_months) ~ "</strong>"
+        ) | safe }}
+        {{ t("site.overview.direct_work",
+          institutions="<strong>" ~ unit("institution", metrics.work_institutions) ~ "</strong>"
+        ) | safe }}
       </p>
       <p>
-        My research output includes <strong>{{ overview.research.journal_papers_phrase }}</strong>
-        and <strong>{{ overview.research.conference_papers_phrase }}</strong>, including
-        <strong>{{ overview.internationalization.international_publications_phrase }}</strong> and
-        <strong>{{ overview.internationalization.national_multicity_publications_phrase }}</strong>.
-        Within funded research projects, my roles include
-        <strong>{{ overview.research.project_roles_text }}</strong>,
-        and I have completed reviews for <strong>{{ metrics.reviewed_manuscripts }} manuscripts</strong>
-        submitted to scientific journals.
+        {{ t("site.overview.research_output",
+          journal="<strong>" ~ overview.research.journal_papers_phrase ~ "</strong>",
+          conference="<strong>" ~ overview.research.conference_papers_phrase ~ "</strong>",
+          international="<strong>" ~ overview.internationalization.international_publications_phrase ~ "</strong>",
+          national="<strong>" ~ overview.internationalization.national_multicity_publications_phrase ~ "</strong>"
+        ) | safe }}
+        {{ t("site.overview.research_roles_reviews",
+          roles="<strong>" ~ overview.research.project_roles_text ~ "</strong>",
+          manuscripts="<strong>" ~ unit("manuscript", metrics.reviewed_manuscripts) ~ "</strong>"
+        ) | safe }}
       </p>
       <p>
-        The software portfolio includes <strong>{{ metrics.software_projects }} software
-        projects</strong> and <strong>{{ metrics.software_packages }} published packages</strong>.
+        {{ t("site.overview.software_counts",
+          projects="<strong>" ~ plural("cv.counts.software_project", metrics.software_projects) ~ "</strong>",
+          packages="<strong>" ~ plural("cv.counts.published_package", metrics.software_packages) ~ "</strong>"
+        ) | safe }}
         {% if overview.software.repositories_with_stats %}
-        The public software portfolio spans <strong>{{ overview.software.repositories_with_stats }}
-        repositories</strong>, with <strong>{{ overview.software.total_stars }} stars</strong>
-        and <strong>{{ overview.software.total_forks }} forks</strong>.
+        {{ t("site.overview.software_public_activity",
+          repositories="<strong>" ~ unit("repository", overview.software.repositories_with_stats) ~ "</strong>",
+          stars="<strong>" ~ unit("star", overview.software.total_stars) ~ "</strong>",
+          forks="<strong>" ~ unit("fork", overview.software.total_forks) ~ "</strong>"
+        ) | safe }}
         {% endif %}
         {% if metrics.package_downloads %}
-        Package usage records <strong>{{ overview.software.package_downloads_label }}
-        recorded downloads</strong>.
+        {{ t("site.overview.package_usage",
+          downloads="<strong>" ~ unit("download", metrics.package_downloads, display_count=overview.software.package_downloads_label) ~ "</strong>"
+        ) | safe }}
         {% endif %}
       </p>
       <p>
-        My teaching activity includes <strong>{{ overview.teaching.institution_years_text }}</strong>,
-        amounting to <strong>{{ overview.teaching.total_hours_label }} classroom
-        hours</strong> across <strong>{{ overview.teaching.academic_years }} academic years</strong>,
-        <strong>{{ overview.teaching.courses }} courses</strong>, and
-        <strong>{{ overview.teaching.degree_programs }} degree programmes</strong>.
+        {{ t("site.overview.teaching_activity",
+          institutions="<strong>" ~ overview.teaching.institution_years_text ~ "</strong>",
+          hours="<strong>" ~ unit("hour", overview.teaching.total_hours, display_count=overview.teaching.total_hours_label) ~ "</strong>",
+          years="<strong>" ~ plural("cv.counts.academic_year", overview.teaching.academic_years) ~ "</strong>",
+          courses="<strong>" ~ unit("course", overview.teaching.courses) ~ "</strong>",
+          degree_programmes="<strong>" ~ unit("degree_program", overview.teaching.degree_programs) ~ "</strong>"
+        ) | safe }}
         {% if overview.teaching.teaching_innovation_projects %}
-        This teaching activity also includes
-        <strong>{{ overview.teaching.teaching_innovation_projects_phrase }}</strong>.
+        {{ t("site.overview.teaching_innovation",
+          projects="<strong>" ~ overview.teaching.teaching_innovation_projects_phrase ~ "</strong>"
+        ) | safe }}
         {% endif %}
         {% if overview.teaching.supervision_text %}
-        Academic supervision includes <strong>{{ overview.teaching.supervision_text }}</strong>.
+        {{ t("site.overview.academic_supervision",
+          supervision="<strong>" ~ overview.teaching.supervision_text ~ "</strong>"
+        ) | safe }}
         {% endif %}
       </p>
       <p>
-        Scientific dissemination activity covers <strong>{{ overview.dissemination.activity_text }}</strong>
-        across media, institutional channels, and public-facing formats.
+        {{ t("site.overview.dissemination_activity",
+          items="<strong>" ~ overview.dissemination.activity_text ~ "</strong>"
+        ) | safe }}
         {% if overview.dissemination.press_outlets %}
-        Press coverage spans <strong>{{ overview.dissemination.press_outlets }} outlets</strong>.
+        {{ t("site.overview.press_coverage",
+          outlets="<strong>" ~ unit("outlet", overview.dissemination.press_outlets) ~ "</strong>"
+        ) | safe }}
         {% endif %}
         {% if metrics.known_social_views %}
-        Social media items with available metrics account for
-        <strong>{{ overview.dissemination.known_social_views_label }} known views</strong>; the
-        highest recorded item reaches
-        <strong>{{ overview.dissemination.highest_social_views_label }} views</strong>.
+        {{ t("site.overview.social_views",
+          views="<strong>" ~ unit("view", metrics.known_social_views, display_count=overview.dissemination.known_social_views_label) ~ "</strong>",
+          highest="<strong>" ~ unit("view", overview.dissemination.highest_social_views, display_count=overview.dissemination.highest_social_views_label) ~ "</strong>"
+        ) | safe }}
         {% endif %}
       </p>
       <p>
-        This academic trajectory has also been recognized with
-        <strong>{{ overview.recognition.honors_phrase }}</strong>:
-        <strong>{{ overview.recognition.honors_text }}</strong>, and supported by
-        <strong>{{ overview.recognition.grants_phrase }}</strong>:
-        <strong>{{ overview.recognition.grants_text }}</strong>.
+        {{ t("site.overview.recognition",
+          honors="<strong>" ~ overview.recognition.honors_phrase ~ "</strong>",
+          honors_list="<strong>" ~ overview.recognition.honors_text ~ "</strong>",
+          grants="<strong>" ~ overview.recognition.grants_phrase ~ "</strong>",
+          grants_list="<strong>" ~ overview.recognition.grants_text ~ "</strong>"
+        ) | safe }}
       </p>
     </div>
   </div>
 
-  <aside class="metric-grid" aria-label="Portfolio metrics">
-    <article class="metric-card"><strong>{{ metrics.publications }}</strong><span>Total publications</span></article>
-    <article class="metric-card"><strong>{{ metrics.software_projects }}</strong><span>Software projects</span></article>
-    <article class="metric-card"><strong>{{ metrics.research_projects }}</strong><span>Research projects</span></article>
-    <article class="metric-card"><strong>{{ overview.teaching.total_hours_label }}</strong><span>Teaching hours</span></article>
-    <article class="metric-card"><strong>{{ metrics.work_institutions }}</strong><span>Work institutions</span></article>
-    <article class="metric-card"><strong>{{ overview.software.package_downloads_label }}</strong><span>Package downloads</span></article>
-    <article class="metric-card"><strong>{{ overview.dissemination.known_social_views_label }}</strong><span>Known social views</span></article>
+  <aside class="metric-grid" aria-label="{{ t("site.aria.portfolio_metrics") }}">
+    <article class="metric-card"><strong>{{ metrics.publications }}</strong><span>{{ t("cv.metrics.total_publications") }}</span></article>
+    <article class="metric-card"><strong>{{ metrics.software_projects }}</strong><span>{{ t("cv.metrics.software_projects") }}</span></article>
+    <article class="metric-card"><strong>{{ metrics.research_projects }}</strong><span>{{ t("cv.metrics.research_projects") }}</span></article>
+    <article class="metric-card"><strong>{{ overview.teaching.total_hours_label }}</strong><span>{{ t("cv.metrics.teaching_hours") }}</span></article>
+    <article class="metric-card"><strong>{{ metrics.work_institutions }}</strong><span>{{ t("cv.metrics.work_institutions") }}</span></article>
+    <article class="metric-card"><strong>{{ overview.software.package_downloads_label }}</strong><span>{{ t("cv.metrics.package_downloads") }}</span></article>
+    <article class="metric-card"><strong>{{ overview.dissemination.known_social_views_label }}</strong><span>{{ t("cv.metrics.known_social_views") }}</span></article>
   </aside>
 </section>

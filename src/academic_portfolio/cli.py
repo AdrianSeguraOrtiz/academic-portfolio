@@ -9,7 +9,7 @@ from rich.table import Table
 from academic_portfolio.cv import CVOutput, generate_cv
 from academic_portfolio.loader import load_data
 from academic_portfolio.resolver import PortfolioResolver
-from academic_portfolio.site import generate_site
+from academic_portfolio.site import generate_all_sites, generate_site
 
 
 app = typer.Typer(help="Generate portfolio outputs from structured YAML data.")
@@ -83,6 +83,7 @@ def data_resolve(
 def cv_generate(
     model: str = typer.Option("academic_rich", help="CV model name or TOML path."),
     output_format: str = typer.Option("pdf", "--format", help="Output format: pdf or html."),
+    language: str = typer.Option("en", "--lang", help="Output language: en or es."),
     pages: int | None = typer.Option(
         None,
         "--pages",
@@ -102,6 +103,7 @@ def cv_generate(
         output_dir=output_dir,
         output_format=output_format,
         page_limit=pages,
+        language=language,
         data_dir=data_dir,
         model_dir=model_dir,
         template_dir=template_dir,
@@ -139,6 +141,7 @@ def _cv_fit_status(output: CVOutput) -> str:
 @site_app.command("generate")
 def site_generate(
     output_dir: Path = typer.Option(Path("build/site"), help="Output directory."),
+    language: str = typer.Option("en", "--lang", help="Output language: en or es."),
     data_dir: Path = typer.Option(Path("data"), help="Portfolio data directory."),
     template_dir: Path = typer.Option(Path("templates/site"), help="Site template directory."),
     static_dir: Path = typer.Option(Path("assets/site"), help="Site static assets directory."),
@@ -165,6 +168,7 @@ def site_generate(
 
     output = generate_site(
         output_dir=output_dir,
+        language=language,
         data_dir=data_dir,
         template_dir=template_dir,
         static_dir=static_dir,
@@ -174,6 +178,48 @@ def site_generate(
         package_cache_path=package_cache_path,
     )
     console.print(f"Generated [bold]site[/bold]: {output.output_path}")
+
+
+@site_app.command("generate-all")
+def site_generate_all(
+    output_dir: Path = typer.Option(Path("build/site"), help="Output directory."),
+    data_dir: Path = typer.Option(Path("data"), help="Portfolio data directory."),
+    template_dir: Path = typer.Option(Path("templates/site"), help="Site template directory."),
+    static_dir: Path = typer.Option(Path("assets/site"), help="Site static assets directory."),
+    refresh_github: bool = typer.Option(
+        True,
+        "--refresh-github/--no-refresh-github",
+        help="Fetch public GitHub repository statistics for software projects.",
+    ),
+    refresh_packages: bool = typer.Option(
+        True,
+        "--refresh-packages/--no-refresh-packages",
+        help="Fetch package registry and download statistics for software packages.",
+    ),
+    github_cache_path: Path = typer.Option(
+        Path("build/cache/github_repositories.json"),
+        help="Local cache for GitHub repository statistics.",
+    ),
+    package_cache_path: Path = typer.Option(
+        Path("build/cache/software_packages.json"),
+        help="Local cache for package registry and download statistics.",
+    ),
+) -> None:
+    """Generate all static website language routes and the root redirect."""
+
+    output = generate_all_sites(
+        output_dir=output_dir,
+        data_dir=data_dir,
+        template_dir=template_dir,
+        static_dir=static_dir,
+        refresh_github=refresh_github,
+        github_cache_path=github_cache_path,
+        refresh_packages=refresh_packages,
+        package_cache_path=package_cache_path,
+    )
+    for site_output in output.outputs:
+        console.print(f"Generated [bold]site {site_output.language}[/bold]: {site_output.output_path}")
+    console.print(f"Generated [bold]site redirect[/bold]: {output.redirect_path}")
 
 
 @app.callback()

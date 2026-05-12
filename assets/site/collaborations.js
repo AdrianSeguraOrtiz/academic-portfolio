@@ -216,9 +216,7 @@ function drawPublicationNodes(layer, nodes) {
     .append("title")
     .text(
       (node) =>
-        `${node.city}, ${node.country} · ${node.publication_count} ${
-          node.publication_count === 1 ? "publication" : "publications"
-        }`,
+        `${node.city}, ${node.country} · ${node.publication_label || node.publication_count}`,
     );
 }
 

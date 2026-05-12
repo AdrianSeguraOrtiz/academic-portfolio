@@ -1,12 +1,12 @@
 {% import "macros/common.html.j2" as common %}
 <section class="content-section" id="dissemination">
-  {{ common.section_heading("Knowledge Transfer", "Dissemination and Media") }}
+  {{ common.section_heading(t("site.labels.knowledge_transfer"), t("cv.sections.dissemination_media")) }}
   <div class="dissemination-summary">
     <article class="dissemination-total">
       <strong>{{ dissemination_hub.total }}</strong>
-      <span>Total dissemination items</span>
+      <span>{{ t("site.labels.total_dissemination_items") }}</span>
     </article>
-    <div class="channel-mix" aria-label="Dissemination channel mix">
+    <div class="channel-mix" aria-label="{{ t("site.aria.dissemination_channel_mix") }}">
       {% for category in dissemination_hub.categories %}
       <div class="channel-row category-{{ category.id }}">
         <span>{{ category.label }}</span>
@@ -17,8 +17,8 @@
     </div>
   </div>
 
-  <div class="dissemination-filters" data-dissemination-filters aria-label="Dissemination filters">
-    <button type="button" class="active" data-filter="all" aria-pressed="true">All</button>
+  <div class="dissemination-filters" data-dissemination-filters aria-label="{{ t("site.aria.dissemination_filters") }}">
+    <button type="button" class="active" data-filter="all" aria-pressed="true">{{ t("site.actions.all") }}</button>
     {% for category in dissemination_hub.categories %}
     <button type="button" class="category-{{ category.id }}" data-filter="{{ category.id }}" aria-pressed="false">{{ category.label }}</button>
     {% endfor %}
@@ -26,7 +26,7 @@
 
   <div class="dissemination-layout">
     <aside class="publication-impact">
-      <h3>By Research Output</h3>
+      <h3>{{ t("cv.sections.by_research_output") }}</h3>
       <div class="publication-impact-list">
         {% for group in dissemination_hub.publication_groups %}
         <article>
@@ -42,7 +42,7 @@
     </aside>
 
     <div class="media-carousel-shell" data-dissemination-carousel>
-      {{ common.carousel_control("media-carousel-control", "previous", "data-dissemination-prev", "Previous dissemination items") }}
+      {{ common.carousel_control("media-carousel-control", "previous", "data-dissemination-prev", t("site.actions.previous_dissemination_items")) }}
       <div class="media-grid" data-dissemination-items>
         {% for item in dissemination_hub["items"] %}
         <article class="media-card category-{{ item.category }}" data-category="{{ item.category }}">
@@ -54,19 +54,19 @@
           {% if item.source %}<p class="media-source">{{ item.source }}</p>{% endif %}
           {% if item.detail_lines or (item.description and item.description != item.display_title) or item.get("resolved", {}).get("publication_ids", []) or item.get("resolved", {}).get("software_package_ids", []) %}
           <details class="media-details" data-media-details>
-            <summary>Publications and details</summary>
+            <summary>{{ t("site.labels.publications_and_details") }}</summary>
             <div class="media-details-content">
               {% for line in item.detail_lines %}<p>{{ line }}</p>{% endfor %}
               {% if item.description and item.description != item.display_title %}<p>{{ item.description }}</p>{% endif %}
-              {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">Publications: {{ common.linked_records(item.resolved.publication_ids) }}</p>{% endif %}
-              {% if item.get("resolved", {}).get("software_package_ids", []) %}<p class="tags">Software packages: {{ common.linked_records(item.resolved.software_package_ids) }}</p>{% endif %}
+              {% if item.get("resolved", {}).get("publication_ids", []) %}<p class="tags">{{ t("cv.references.publications") }}: {{ common.linked_records(item.resolved.publication_ids) }}</p>{% endif %}
+              {% if item.get("resolved", {}).get("software_package_ids", []) %}<p class="tags">{{ t("cv.references.software_packages") }}: {{ common.linked_records(item.resolved.software_package_ids) }}</p>{% endif %}
             </div>
           </details>
           {% endif %}
         </article>
         {% endfor %}
       </div>
-      {{ common.carousel_control("media-carousel-control", "next", "data-dissemination-next", "Next dissemination items") }}
+      {{ common.carousel_control("media-carousel-control", "next", "data-dissemination-next", t("site.actions.next_dissemination_items")) }}
     </div>
   </div>
 </section>

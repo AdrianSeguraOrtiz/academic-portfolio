@@ -1,34 +1,34 @@
 {% import "macros/common.html.j2" as common %}
 <section class="content-section" id="collaborations">
-  {{ common.section_heading("Collaborations", "Research Stays and Publication Cities") }}
+  {{ common.section_heading(t("nav.collaborations"), t("cv.sections.collaborations")) }}
   <div class="collaboration-layout">
     <article class="collaboration-map-card">
-      <div class="collaboration-map" data-collaboration-map role="img" aria-label="World map of research stays and publication collaborations">
-        <span class="map-loading">Loading world map</span>
+      <div class="collaboration-map" data-collaboration-map role="img" aria-label="{{ t("site.aria.world_map") }}">
+        <span class="map-loading">{{ t("site.labels.map_loading") }}</span>
       </div>
-      <div class="map-legend" aria-label="Map legend">
-        <span><i class="legend-publication"></i> Publication city</span>
-        <span><i class="legend-stay"></i> Research stay</span>
+      <div class="map-legend" aria-label="{{ t("site.aria.map_legend") }}">
+        <span><i class="legend-publication"></i> {{ t("site.labels.publication_city") }}</span>
+        <span><i class="legend-stay"></i> {{ t("site.labels.research_stay") }}</span>
       </div>
       <script type="application/json" id="collaboration-map-data">{{ collaborations.map_data | tojson }}</script>
     </article>
 
     <aside class="collaboration-panel">
       <div class="collaboration-metric-block">
-        <h3>Publications</h3>
+        <h3>{{ t("cv.sections.publications") }}</h3>
         <div class="collaboration-metrics">
-          <div><strong>{{ collaborations.metrics.total_papers }}</strong><span>Total papers</span></div>
-          <div><strong>{{ collaborations.metrics.international_papers }}</strong><span>International papers</span></div>
-          <div><strong>{{ collaborations.metrics.publication_countries }}</strong><span>Countries in papers</span></div>
+          <div><strong>{{ collaborations.metrics.total_papers }}</strong><span>{{ t("cv.metrics.total_papers") }}</span></div>
+          <div><strong>{{ collaborations.metrics.international_papers }}</strong><span>{{ t("cv.metrics.international_papers") }}</span></div>
+          <div><strong>{{ collaborations.metrics.publication_countries }}</strong><span>{{ t("site.labels.countries_in_papers") }}</span></div>
         </div>
       </div>
       <div class="collaboration-metric-block">
-        <h3>Research Stays</h3>
+        <h3>{{ t("cv.sections.research_stays") }}</h3>
         <div class="collaboration-metrics">
-          <div><strong>{{ collaborations.metrics.stay_cities }}</strong><span>Cities</span></div>
-          <div><strong>{{ collaborations.metrics.stay_countries }}</strong><span>Countries</span></div>
-          <div><strong>{{ collaborations.metrics.research_stays }}</strong><span>Stays</span></div>
-          <div><strong>{{ collaborations.metrics.stay_months }}</strong><span>Months abroad</span></div>
+          <div><strong>{{ collaborations.metrics.stay_cities }}</strong><span>{{ t("cv.metrics.cities") }}</span></div>
+          <div><strong>{{ collaborations.metrics.stay_countries }}</strong><span>{{ t("cv.metrics.countries") }}</span></div>
+          <div><strong>{{ collaborations.metrics.research_stays }}</strong><span>{{ t("cv.metrics.stays") }}</span></div>
+          <div><strong>{{ collaborations.metrics.stay_months }}</strong><span>{{ t("cv.metrics.months_abroad") }}</span></div>
         </div>
       </div>
     </aside>
