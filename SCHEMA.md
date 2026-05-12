@@ -164,6 +164,78 @@ Lists with date-bearing records are ordered from oldest to newest. Output
 generators can reverse, group, or filter records for a specific CV or website
 view.
 
+## Localized Display Fields
+
+Most fields remain scalar strings. Selected portfolio-facing text fields may be
+localized incrementally with `en`/`es` maps when a translated display value is
+useful:
+
+```yaml
+description:
+  en: Short curated description.
+  es: Descripción breve curada.
+```
+
+Scalar values remain valid and are treated as canonical in every language:
+
+```yaml
+title: Official source-language title
+```
+
+Localized maps must use only supported language codes (`en`, `es`) and must
+define a non-empty English fallback.
+
+Use localized maps for authored display fields when the translation improves the
+reader-facing output without changing the underlying fact:
+
+- `description`
+- `summary`
+- `context`
+- `purpose`
+- `notes`
+- `tasks`
+- `domains`
+- `type`
+- `role`
+- `participation`
+- `employment_type`
+- `dedication`
+- `work_mode`
+- `issuer_type`
+- `awarding_entity_type`
+- `funding_entity_type`
+
+Preserve original scalar values when the field is an identifier, source
+metadata, official title, proper name, URL, date, or numeric value:
+
+- `id`, `*_id`, `*_ids`
+- `url`, `urls`, `website`, `repository_url`
+- `doi`
+- `code`, `credential_id`
+- package coordinates such as `package_name`, `group_id`, and `artifact_id`
+- dates and academic years
+- metrics such as views, hours, amounts, article numbers, and manuscript counts
+- author names, student names, principal investigators, legal organization
+  names, journal names, conference names, publishers, media outlets, social
+  platforms, and channels
+
+Official titles should stay scalar by default: publication titles, course names,
+degree names, project titles, grant names, honor names, press headlines,
+scientific dissemination article titles, and delivered presentation titles. Add
+a localized display value only when there is a clear portfolio-facing need and
+the official original remains available.
+
+Fallback behavior:
+
+- Rendering uses the requested language when it exists in a localized map.
+- If the requested language is missing or empty, rendering falls back to English.
+- If English is unavailable, rendering uses the first non-empty value.
+- Scalar values are displayed unchanged in every language.
+
+Locale files under `locales/` contain generated UI labels, section headings,
+units, summaries, filters, legends, and button text. Do not store generated UI
+phrases in data YAML.
+
 ## Software Projects
 
 Software project records keep only curated portfolio information. GitHub-derived
@@ -176,11 +248,17 @@ Use these fields consistently:
 id: software_01
 name: GENECI
 full_name: GEne NEtwork Consensus Inference
-type: Research software project
-description: Short curated description.
+type:
+  en: Research software project
+  es: Proyecto de software científico
+description:
+  en: Short curated description.
+  es: Descripción breve curada.
 domains:
-- Gene regulatory network inference
-- Bioinformatics
+- en: Gene regulatory network inference
+  es: Inferencia de redes de regulación génica
+- en: Bioinformatics
+  es: Bioinformática
 urls:
   github: https://github.com/owner/repository
 ```
@@ -244,4 +322,4 @@ This delegates to `ruby scripts/validate_data.rb`.
 
 The validator checks YAML syntax, duplicate IDs, ID format, allowed relationship
 fields, unresolved references, self-references, consistent fields within each
-top-level group, and chronological order for dated lists.
+top-level group, chronological order for dated lists, and localized field maps.

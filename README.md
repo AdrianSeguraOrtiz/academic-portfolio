@@ -87,6 +87,113 @@ Resolve a record and inspect its outgoing references:
 make data-resolve ID=publication_04
 ```
 
+## Language Support
+
+The project supports English (`en`) and Spanish (`es`) outputs from the same
+YAML data. English is the default language for commands and generated routes.
+
+Use `PORTFOLIO_LANG` from `make`:
+
+```bash
+make site PORTFOLIO_LANG=en
+make site PORTFOLIO_LANG=es
+make cv MODEL=academic_rich PORTFOLIO_LANG=es
+make cv MODEL=academic_sober PORTFOLIO_LANG=es PAGES=4
+```
+
+Equivalent CLI flags:
+
+```bash
+portfolio site generate --lang es
+portfolio site generate-all
+portfolio cv generate --model academic_sober --lang es --pages 4
+```
+
+Generate both website languages:
+
+```bash
+make site-all
+```
+
+Generate the active CV outputs in both languages:
+
+```bash
+make cv-all-lang
+```
+
+### Language Output Paths
+
+Website outputs are language-scoped:
+
+```text
+build/site/index.html
+build/site/en/index.html
+build/site/es/index.html
+build/site/en/assets/
+build/site/es/assets/
+```
+
+CV outputs include the language suffix:
+
+```text
+build/cv/academic_rich_en.pdf
+build/cv/academic_rich_es.pdf
+build/cv/academic_sober_en.pdf
+build/cv/academic_sober_es.pdf
+```
+
+Page-limited sober CVs include both the page limit and language:
+
+```text
+build/cv/academic_sober_4p_en.pdf
+build/cv/academic_sober_4p_es.pdf
+build/cv/academic_sober_3p_en.pdf
+build/cv/academic_sober_3p_es.pdf
+```
+
+### Data Authoring Rules
+
+Do not duplicate the dataset into separate English and Spanish folders. Keep one
+canonical `data/` tree and use localized maps only for authored display text
+that genuinely needs a language-specific rendering:
+
+```yaml
+description:
+  en: Short curated description.
+  es: Descripción breve curada.
+```
+
+Good candidates for localized maps are `description`, `summary`, `context`,
+`purpose`, `notes`, `tasks`, `domains`, `type`, `role`, `participation`,
+`employment_type`, `dedication`, and `work_mode`.
+
+Preserve canonical/source values as scalars when translating them would be
+misleading or would hide official wording:
+
+- publication titles, venues, publishers, DOIs, and author names;
+- journal names, conference names, media outlets, social platforms, and
+  channels;
+- legal organization names and official funder names;
+- official degree, course, award, grant, project, press, dissemination article,
+  and presentation titles unless a separate translated display value is useful;
+- IDs, relationship fields, URLs, package coordinates, dates, and metrics.
+
+Fallback behavior is intentional:
+
+- Generated UI text is read from `locales/<lang>.yaml`; missing target-language
+  keys fall back to English, and tests require key parity so missing keys are
+  easy to catch.
+- Localized YAML maps use the requested language when present, otherwise fall
+  back to English, then to the first non-empty value.
+- Scalar YAML values are displayed unchanged in every language.
+
+After changing localization data or locale files, run:
+
+```bash
+make validate-data
+make test
+```
+
 ## CV Generation
 
 The CV pipeline generates print-safe HTML and exports PDF with Playwright. The
@@ -102,10 +209,10 @@ Equivalent explicit PDF command:
 make cv-pdf
 ```
 
-The output is written to `build/cv/<model>.pdf`. The generator also keeps
-`build/cv/<model>.html` as an intermediate artifact for visual debugging, copies
-CV-specific static assets to `build/cv/assets/`, and prints the generated page
-count.
+The output is written to `build/cv/<model>_<lang>.pdf`. The generator also keeps
+`build/cv/<model>_<lang>.html` as an intermediate artifact for visual debugging,
+copies CV-specific static assets to `build/cv/assets/`, and prints the generated
+page count.
 
 CV styles are split by editorial responsibility: `common.css` contains shared
 print/page rules, `rich.css` contains the visual portfolio layout, and
@@ -125,6 +232,7 @@ make cv MODEL=academic_rich
 make cv MODEL=academic_sober
 make cv MODEL=academic_sober PAGES=4
 make cv MODEL=academic_sober PAGES=3
+make cv MODEL=academic_sober PORTFOLIO_LANG=es
 make cv-pdf MODEL=academic_sober
 make cv-html MODEL=academic_sober
 make cv-html MODEL=academic_sober PAGES=4
@@ -138,10 +246,16 @@ make cv-all
 
 This writes:
 
-- `build/cv/academic_rich.pdf`
-- `build/cv/academic_sober.pdf`
-- `build/cv/academic_sober_4p.pdf`
-- `build/cv/academic_sober_3p.pdf`
+- `build/cv/academic_rich_en.pdf`
+- `build/cv/academic_sober_en.pdf`
+- `build/cv/academic_sober_4p_en.pdf`
+- `build/cv/academic_sober_3p_en.pdf`
+
+Generate the same active set in both languages:
+
+```bash
+make cv-all-lang
+```
 
 Run the full CV check before committing CV-related changes:
 
@@ -192,7 +306,7 @@ Page limits are only supported for `academic_sober`. The rich model is a full
 visual portfolio PDF and is not compressed into a fixed page count.
 
 When `PAGES` or `--pages` is provided, the output filename includes the page
-limit suffix, for example `build/cv/academic_sober_4p.pdf`.
+limit and language suffixes, for example `build/cv/academic_sober_4p_en.pdf`.
 
 ```text
 Pages: 3/3
@@ -290,8 +404,17 @@ Generate the static site:
 make site
 ```
 
-The site is written to `build/site/index.html`, with copied assets under
-`build/site/assets/`.
+The site is written to `build/site/<lang>/index.html`, with copied assets under
+`build/site/<lang>/assets/`. English is the default language.
+
+```bash
+make site PORTFOLIO_LANG=es
+make site-all
+```
+
+`make site-all` writes both `build/site/en/` and `build/site/es/`, then creates
+`build/site/index.html` as a relative redirect to `build/site/en/`. The language
+switcher links between the equivalent language routes.
 
 `make site` refreshes dynamic GitHub and package data by default. To render from
 YAML and cached data without network refresh:
@@ -306,7 +429,8 @@ Use custom cache paths when needed:
 make site SITE_ARGS="--github-cache-path build/cache/github_repositories.json --package-cache-path build/cache/software_packages.json"
 ```
 
-Set `GITHUB_TOKEN` before `make site` for a higher GitHub API limit.
+Set `GITHUB_TOKEN` before `make site` or `make site-all` for a higher GitHub
+API limit.
 
 ## Website vs CV
 
@@ -357,8 +481,20 @@ These files are generated artifacts and can be removed to force a clean refresh.
 
 The repository includes `.github/workflows/deploy-site.yml`. On every push to
 `main`, GitHub Actions installs the project, validates the YAML data, runs tests
-and linting, generates the static site with `make site`, and deploys
+and linting, generates the static site, and deploys
 `build/site/` to GitHub Pages.
+
+The bilingual deployment contract is:
+
+```text
+/academic-portfolio/en/  English site
+/academic-portfolio/es/  Spanish site
+/academic-portfolio/     redirects to /academic-portfolio/en/
+```
+
+The workflow runs `make site-all`, so the static site artifact contains both
+language folders plus the root redirect page. It also writes `.nojekyll` so
+GitHub Pages serves the generated assets without Jekyll processing.
 
 To enable deployment for this repository:
 
