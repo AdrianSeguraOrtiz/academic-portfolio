@@ -179,6 +179,89 @@ def _load_cv_view(model_name: str) -> dict:
     )
 
 
+def _sample_github_stats_by_url() -> dict[str, dict]:
+    projects = load_data(Path("data")).documents["research/software_projects.yaml"]["projects"]
+    github_url = next(
+        str(project.get("urls", {}).get("github"))
+        for project in projects
+        if project.get("urls", {}).get("github")
+    )
+    return {
+        github_url: {
+            "repository": "fixture/repository",
+            "html_url": github_url,
+            "description": "Fixture repository metadata.",
+            "stargazers_count": 7,
+            "forks_count": 2,
+            "watchers_count": 7,
+            "subscribers_count": 1,
+            "open_issues_count": 1,
+            "language": "Java",
+            "languages": {"Java": 900, "Python": 100},
+            "license": "MIT",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2025-05-01T00:00:00Z",
+            "pushed_at": "2025-05-01T00:00:00Z",
+            "default_branch": "main",
+            "archived": False,
+            "size_kb": 100,
+            "commits_count": 3,
+            "first_commit_at": "2024-01-15T00:00:00Z",
+            "last_commit_at": "2025-05-01T00:00:00Z",
+            "commit_months": [
+                {"month": "2024-01", "count": 2},
+                {"month": "2025-05", "count": 1},
+            ],
+        }
+    }
+
+
+def _sample_package_stats_by_id() -> dict[str, dict]:
+    package = load_data(Path("data")).documents["research/software_packages.yaml"][
+        "software_packages"
+    ][0]
+    package_name = str(package.get("package_name") or package.get("name") or "package")
+    return {
+        str(package["id"]): {
+            "ecosystem": "PyPI",
+            "package_name": package_name,
+            "package_url": f"https://pypi.org/project/{package_name}/",
+            "clickpy_url": f"https://clickpy.clickhouse.com/dashboard/{package_name}",
+            "summary": "Fixture package metadata.",
+            "license": "MIT",
+            "requires_python": ">=3.10",
+            "latest_version": "1.0.0",
+            "release_count": 2,
+            "total_downloads": 1234,
+            "monthly_downloads": [
+                {
+                    "month": "2025-01-01",
+                    "label": "Jan",
+                    "downloads": 1234,
+                    "height": 100,
+                    "segments": [],
+                }
+            ],
+            "download_chart": [
+                {
+                    "month": "2025-01-01",
+                    "label": "Jan",
+                    "downloads": 1234,
+                    "height": 100,
+                    "segments": [],
+                }
+            ],
+            "downloads_by_version": [{"version": "1.0.0", "downloads": 1234}],
+            "downloads_by_country": [{"country_code": "ES", "downloads": 1234}],
+        }
+    }
+
+
+def _patch_dynamic_cv_stats(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(cv_module, "_cached_github_stats", _sample_github_stats_by_url)
+    monkeypatch.setattr(cv_module, "_cached_package_stats", _sample_package_stats_by_id)
+
+
 def _ids(records: list[dict]) -> list[str]:
     return [str(record["id"]) for record in records]
 
@@ -325,7 +408,8 @@ def test_build_cv_view_adds_derived_honors_and_grants() -> None:
     assert [item["id"] for item in position["record"]["related_grants"]] == ["grant_01"]
 
 
-def test_build_cv_view_adds_rich_web_snapshots() -> None:
+def test_build_cv_view_adds_rich_web_snapshots(monkeypatch: pytest.MonkeyPatch) -> None:
+    _patch_dynamic_cv_stats(monkeypatch)
     model = load_cv_model(Path("cv_models/academic_rich.toml"))
     resolver = PortfolioResolver(load_data(Path("data")))
 
@@ -398,7 +482,8 @@ def test_sober_cv_view_exposes_atomic_data_without_visual_snapshots() -> None:
     assert all("css_class" not in item for item in sober_view["atomic_sections"]["publications"])
 
 
-def test_build_cv_view_adds_summary_levels() -> None:
+def test_build_cv_view_adds_summary_levels(monkeypatch: pytest.MonkeyPatch) -> None:
+    _patch_dynamic_cv_stats(monkeypatch)
     view = _load_cv_view("academic_rich")
     summary = view["summary"]
 
@@ -562,7 +647,8 @@ def test_cv_implementation_has_no_data_specific_literals_or_record_ids() -> None
             assert term not in content, path
 
 
-def test_generate_cv_writes_html(tmp_path: Path) -> None:
+def test_generate_cv_writes_html(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _patch_dynamic_cv_stats(monkeypatch)
     output = generate_cv(output_dir=tmp_path, output_format="html")
     parser = _parse_cv_html(output.content)
 
@@ -650,7 +736,11 @@ def test_generate_cv_writes_html(tmp_path: Path) -> None:
     assert "null" not in output.content
 
 
-def test_generate_cv_accepts_explicit_spanish_language(tmp_path: Path) -> None:
+def test_generate_cv_accepts_explicit_spanish_language(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_dynamic_cv_stats(monkeypatch)
     output = generate_cv(output_dir=tmp_path, output_format="html", language="es")
 
     assert output.model.language == "es"
@@ -669,7 +759,11 @@ def test_generate_cv_rejects_unsupported_language(tmp_path: Path) -> None:
         generate_cv(output_dir=tmp_path, output_format="html", language="fr")
 
 
-def test_rich_cv_follows_web_equivalent_editorial_contract(tmp_path: Path) -> None:
+def test_rich_cv_follows_web_equivalent_editorial_contract(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_dynamic_cv_stats(monkeypatch)
     output = generate_cv(
         model="academic_rich",
         output_dir=tmp_path,
