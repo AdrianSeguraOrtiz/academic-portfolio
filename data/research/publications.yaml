@@ -171,6 +171,42 @@ journal_papers:
   stay_ids: []
   grant_ids:
   - grant_01
+- id: publication_07
+  title: Deciphering the Influence of Gut Microbiome Disruption on Human Health Through Multi-Algorithm
+    Approaches
+  authors:
+  - Bohdan Vodianyk
+  - María Luisa Antequera-Gómez
+  - Adrián Segura-Ortiz
+  - Anton Popov
+  - José García-Nieto
+  - Ismael Navas-Delgado
+  venue: Current Bioinformatics
+  publisher: Bentham Science Publishers Ltd.
+  volume: '21'
+  article_number: null
+  publication_date: '2026-05-09'
+  type: Scientific paper
+  format: Journal
+  doi: 10.2174/0115748936437763260125211015
+  url: https://doi.org/10.2174/0115748936437763260125211015
+  total_authors: 6
+  corresponding_author: null
+  organization_ids:
+  - organization_03
+  - organization_06
+  - organization_01
+  - organization_07
+  - organization_16
+  - organization_17
+  software_project_ids: []
+  research_project_ids: []
+  position_ids:
+  - position_05
+  - position_06
+  stay_ids: []
+  grant_ids:
+  - grant_01
 conference_papers:
 - id: publication_02
   title: >-

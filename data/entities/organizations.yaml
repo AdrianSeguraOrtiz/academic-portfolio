@@ -194,3 +194,29 @@ organizations:
       latitude: null
       longitude: null
   website: https://www.imfahe.org/
+- id: organization_16
+  name: Instituto de Ingeniería Oceánica
+  full_name: Instituto de Ingeniería Oceánica
+  abbreviation: IIO
+  type: Research institute
+  parent_organization_id: null
+  location:
+    city: Málaga
+    country: Spain
+    coordinates:
+      latitude: 36.7213
+      longitude: -4.4214
+  website: null
+- id: organization_17
+  name: National Technical University of Ukraine “Igor Sikorsky Kyiv Polytechnic Institute”
+  full_name: National Technical University of Ukraine “Igor Sikorsky Kyiv Polytechnic Institute”
+  abbreviation: KPI
+  type: University
+  parent_organization_id: null
+  location:
+    city: Kyiv
+    country: Ukraine
+    coordinates:
+      latitude: 50.4547
+      longitude: 30.5238
+  website: https://www.kpi.ua
