@@ -206,7 +206,7 @@ organizations:
     coordinates:
       latitude: 36.7213
       longitude: -4.4214
-  website: null
+  website: https://www.uma.es/instituto-universitario-de-ingenieria-oceanica/
 - id: organization_17
   name: National Technical University of Ukraine “Igor Sikorsky Kyiv Polytechnic Institute”
   full_name: National Technical University of Ukraine “Igor Sikorsky Kyiv Polytechnic Institute”
