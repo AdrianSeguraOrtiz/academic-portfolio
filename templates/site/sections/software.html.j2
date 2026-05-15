@@ -77,7 +77,7 @@
         <strong>{{ software_language_chart[0].name }}</strong>
       </div>
       <div class="snapshot-language-key">
-        {% for language in software_language_chart[:5] %}
+        {% for language in software_language_chart %}
         <span><i style="background: {{ language.color }};"></i>{{ language.name }}</span>
         {% endfor %}
       </div>

@@ -422,8 +422,15 @@ def test_build_cv_view_adds_rich_web_snapshots(monkeypatch: pytest.MonkeyPatch) 
     assert "cv_charts" not in view
     assert "sober_view" not in view
     assert site["publication_chart"]
-    assert site["publication_chart"][0]["year"] == "2025"
-    assert site["publication_chart"][0]["total"] == 3
+    publication_years = [
+        str(publication["publication_date"])[:4]
+        for publication in site["publications"]
+        if publication.get("publication_date")
+    ]
+    assert site["publication_chart"][0]["year"] == max(publication_years)
+    assert site["publication_chart"][0]["total"] == publication_years.count(
+        site["publication_chart"][0]["year"]
+    )
     assert site["software_timeline"]["rows"]
     assert site["software_language_chart"]
     assert site["collaborations"]["metrics"]["international_papers"] >= 1

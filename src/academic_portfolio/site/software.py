@@ -25,6 +25,7 @@ LANGUAGE_COLORS = {
 }
 
 OTHER_LANGUAGE_COLOR = "#66706d"
+LANGUAGE_CHART_TOP_LIMIT = 7
 
 
 def _attach_github_stats(
@@ -153,7 +154,7 @@ def _software_language_chart(projects: list[dict[str, Any]]) -> list[dict[str, A
     if total_bytes == 0:
         return []
 
-    top_languages = language_totals.most_common(7)
+    top_languages = language_totals.most_common(LANGUAGE_CHART_TOP_LIMIT)
     other_bytes = total_bytes - sum(byte_count for _language, byte_count in top_languages)
     chart = [
         {

@@ -1,6 +1,6 @@
 {% macro org_links(record) -%}
   {%- for organization in record.get("resolved", {}).get("organization_ids", []) -%}
-    <a href="{{ organization.website }}">{{ organization.name }}</a>{% if not loop.last %}, {% endif %}
+    {%- if organization.website -%}<a href="{{ organization.website }}">{{ organization.name }}</a>{%- else -%}{{ organization.name }}{%- endif -%}{% if not loop.last %}, {% endif %}
   {%- endfor -%}
 {%- endmacro %}
 

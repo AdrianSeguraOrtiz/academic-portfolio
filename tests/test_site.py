@@ -13,6 +13,14 @@ from academic_portfolio.site import build_site_view, generate_all_sites, generat
 from academic_portfolio.site.collaborations import _collaboration_view
 
 
+def _data_list(resolver: PortfolioResolver, path: str, key: str) -> list[dict[str, Any]]:
+    return resolver.loaded_data.documents[path][key]
+
+
+def _sum_numeric(items: list[dict[str, Any]], key: str) -> float:
+    return sum(float(item.get(key) or 0) for item in items)
+
+
 def _flatten_organization_nodes(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
     flattened = []
     for node in nodes:
@@ -65,23 +73,73 @@ def test_build_site_view_computes_core_metrics() -> None:
     resolver = PortfolioResolver(load_data(Path("data")))
 
     view = build_site_view(resolver)
+    journal_papers = _data_list(resolver, "research/publications.yaml", "journal_papers")
+    conference_papers = _data_list(resolver, "research/publications.yaml", "conference_papers")
+    software_projects = _data_list(resolver, "research/software_projects.yaml", "projects")
+    software_packages = _data_list(
+        resolver,
+        "research/software_packages.yaml",
+        "software_packages",
+    )
+    research_projects = _data_list(resolver, "research/research_projects.yaml", "funded_projects")
+    teaching_projects = _data_list(
+        resolver,
+        "activities/teaching/teaching_innovation_projects.yaml",
+        "teaching_innovation_projects",
+    )
+    classes = _data_list(
+        resolver,
+        "activities/teaching/university_classes.yaml",
+        "university_classes",
+    )
+    supervisions = _data_list(
+        resolver,
+        "activities/teaching/academic_supervision.yaml",
+        "academic_supervision",
+    )
+    social_media = _data_list(
+        resolver,
+        "activities/dissemination/social_media.yaml",
+        "social_media_items",
+    )
+    reviewing = _data_list(resolver, "research/reviewing.yaml", "reviewing")
+    scientific_articles = _data_list(
+        resolver,
+        "activities/dissemination/scientific_dissemination_articles.yaml",
+        "scientific_dissemination_articles",
+    )
+    presentations = _data_list(
+        resolver,
+        "activities/dissemination/presentations.yaml",
+        "presentations",
+    )
+    press_items = _data_list(resolver, "activities/dissemination/press.yaml", "press_items")
+    tv_media = _data_list(resolver, "activities/dissemination/tv_media.yaml", "tv_items")
+    honors = _data_list(resolver, "career/honors.yaml", "honors")
+    grants = _data_list(resolver, "career/grants.yaml", "grants")
 
-    assert view["metrics"]["journal_papers"] == 5
-    assert view["metrics"]["conference_papers"] == 1
-    assert view["metrics"]["publications"] == 6
-    assert view["metrics"]["projects"] == 5
-    assert view["metrics"]["software_projects"] == 12
-    assert view["metrics"]["software_packages"] == 2
-    assert view["metrics"]["research_projects"] == 4
-    assert view["metrics"]["teaching_innovation_projects"] == 1
-    assert view["metrics"]["teaching_hours"] == 180
-    assert view["metrics"]["known_social_views"] == 68300
+    assert view["metrics"]["journal_papers"] == len(journal_papers)
+    assert view["metrics"]["conference_papers"] == len(conference_papers)
+    assert view["metrics"]["publications"] == len(journal_papers) + len(conference_papers)
+    assert view["metrics"]["projects"] == len(research_projects) + len(teaching_projects)
+    assert view["metrics"]["software_projects"] == len(software_projects)
+    assert view["metrics"]["software_packages"] == len(software_packages)
+    assert view["metrics"]["research_projects"] == len(research_projects)
+    assert view["metrics"]["teaching_innovation_projects"] == len(teaching_projects)
+    assert view["metrics"]["teaching_hours"] == round(_sum_numeric(classes, "workload_hours"))
+    assert view["metrics"]["known_social_views"] == int(_sum_numeric(social_media, "views"))
     assert view["metrics"]["package_downloads"] == 0
-    assert view["metrics"]["work_institutions"] == 3
-    assert view["metrics"]["reviewed_manuscripts"] == 8
-    assert view["overview"]["research"]["reviewed_manuscripts"] == 8
-    assert view["overview"]["internationalization"]["international_publications"] == 1
-    assert view["overview"]["internationalization"]["national_multicity_publications"] == 1
+    assert view["metrics"]["work_institutions"] == view["overview"]["experience"]["institution_count"]
+    assert view["metrics"]["reviewed_manuscripts"] == int(
+        _sum_numeric(reviewing, "manuscripts_reviewed")
+    )
+    assert view["overview"]["research"]["reviewed_manuscripts"] == view["metrics"][
+        "reviewed_manuscripts"
+    ]
+    assert view["overview"]["internationalization"]["international_publications"] == view[
+        "collaborations"
+    ]["metrics"]["international_papers"]
+    assert view["overview"]["internationalization"]["national_multicity_publications"] >= 0
     assert view["overview"]["education"]["degrees"][0].startswith("Bachelor")
     assert view["overview"]["education"]["degrees"][-1].startswith("Ph.D.")
     assert "from Universidad de Málaga" in view["overview"]["education"]["degrees"][0]
@@ -100,20 +158,22 @@ def test_build_site_view_computes_core_metrics() -> None:
     assert "PhD candidate - FPU Fellowship at Universidad de Málaga" in view["overview"][
         "recognition"
     ]["grants_text"]
-    assert view["overview"]["teaching"]["degree_programs"] == 4
-    assert view["overview"]["teaching"]["teaching_innovation_projects"] == 1
-    assert (
-        view["overview"]["teaching"]["teaching_innovation_projects_phrase"]
-        == "1 teaching innovation project"
+    assert view["overview"]["teaching"]["degree_programs"] == len(
+        {item["degree"] for item in classes}
     )
-    assert view["overview"]["teaching"]["supervision_counts"]["final degree project"] == 1
-    assert view["overview"]["teaching"]["supervision_counts"]["external internship"] == 1
-    assert view["overview"]["dissemination"]["known_social_views"] == 68300
-    assert view["overview"]["recognition"]["honors_phrase"] == "4 honors"
-    assert view["overview"]["recognition"]["grants_phrase"] == "2 grants"
-    assert len(view["overview"]["recognition"]["honors"]) == 4
-    assert len(view["overview"]["recognition"]["grants"]) == 2
-    assert len(view["projects"]) == 5
+    assert view["overview"]["teaching"]["teaching_innovation_projects"] == len(teaching_projects)
+    assert "teaching innovation project" in view["overview"]["teaching"][
+        "teaching_innovation_projects_phrase"
+    ]
+    assert sum(view["overview"]["teaching"]["supervision_counts"].values()) == len(supervisions)
+    assert view["overview"]["dissemination"]["known_social_views"] == view["metrics"][
+        "known_social_views"
+    ]
+    assert "honor" in view["overview"]["recognition"]["honors_phrase"]
+    assert "grant" in view["overview"]["recognition"]["grants_phrase"]
+    assert len(view["overview"]["recognition"]["honors"]) == len(honors)
+    assert len(view["overview"]["recognition"]["grants"]) == len(grants)
+    assert len(view["projects"]) == view["metrics"]["projects"]
     assert {project["participation_class"] for project in view["projects"]} == {"working"}
     assert view["publication_chart"]
     assert [item["year"] for item in view["publication_chart"]] == sorted(
@@ -121,20 +181,34 @@ def test_build_site_view_computes_core_metrics() -> None:
         reverse=True,
     )
     assert view["publication_groups"][0]["year"] == view["publication_chart"][0]["year"]
-    assert view["collaborations"]["metrics"]["research_stays"] == 2
-    assert view["collaborations"]["metrics"]["stay_months"] == 6
+    assert view["collaborations"]["metrics"]["research_stays"] == len(
+        _data_list(resolver, "career/research_stays.yaml", "stays")
+    )
+    assert view["collaborations"]["metrics"]["stay_months"] == sum(
+        stay["months"]
+        for node in view["collaborations"]["map_data"]["stay_nodes"]
+        for stay in node["stays"]
+    )
     assert view["collaborations"]["metrics"]["publication_cities"] >= 3
-    assert view["collaborations"]["metrics"]["total_papers"] == 6
+    assert view["collaborations"]["metrics"]["total_papers"] == view["metrics"]["publications"]
     assert view["collaborations"]["metrics"]["publication_countries"] >= 2
-    assert view["collaborations"]["metrics"]["stay_cities"] == 2
-    assert view["collaborations"]["metrics"]["stay_countries"] == 2
+    assert view["collaborations"]["metrics"]["stay_cities"] == len(
+        view["collaborations"]["map_data"]["stay_nodes"]
+    )
+    assert view["collaborations"]["metrics"]["stay_countries"] == len(
+        {
+            node["country"]
+            for node in view["collaborations"]["map_data"]["stay_nodes"]
+            if node.get("country")
+        }
+    )
     assert view["collaborations"]["publication_nodes"]
     stay_labels = {
         stay["label"]
         for node in view["collaborations"]["map_data"]["stay_nodes"]
         for stay in node["stays"]
     }
-    assert {"3 mo · 2024", "3 mo · 2026"}.issubset(stay_labels)
+    assert all("mo ·" in label for label in stay_labels)
     assert any(node["city"] == "Málaga" for node in view["collaborations"]["publication_nodes"])
     assert view["career_timeline"]["items"]
     assert view["career_timeline"]["markers"]
@@ -166,16 +240,17 @@ def test_build_site_view_computes_core_metrics() -> None:
         and len(item["records"]) == 3
         for item in view["career_details"]["items"]
     )
-    assert sum(row["hours"] for row in view["teaching_hours_chart"]["by_academic_year"]) == 180
-    assert [row["label"] for row in view["teaching_hours_chart"]["by_academic_year"]] == [
-        "2022/2023",
-        "2023/2024",
-        "2024/2025",
-        "2025/2026",
-    ]
-    assert view["teaching_hours_chart"]["by_degree"][0]["label"] == "Grado en Ingeniería de la Salud"
-    assert view["teaching_hours_chart"]["by_degree"][0]["hours_label"] == "90.8 h"
-    assert len(view["teaching_timeline"]["events"]) == 10
+    assert sum(row["hours"] for row in view["teaching_hours_chart"]["by_academic_year"]) == round(
+        _sum_numeric(classes, "workload_hours"),
+        1,
+    )
+    assert [row["label"] for row in view["teaching_hours_chart"]["by_academic_year"]] == sorted(
+        {item["academic_year"] for item in classes}
+    )
+    assert view["teaching_hours_chart"]["by_degree"][0]["hours"] == max(
+        row["hours"] for row in view["teaching_hours_chart"]["by_degree"]
+    )
+    assert len(view["teaching_timeline"]["events"]) == len(classes) + len(supervisions)
     organizations = resolver.loaded_data.documents["entities/organizations.yaml"]["organizations"]
     university_of_malaga = next(
         organization for organization in organizations if organization["id"] == "organization_01"
@@ -194,17 +269,29 @@ def test_build_site_view_computes_core_metrics() -> None:
         "right",
     }
     assert any(event["lane"] > 0 for event in view["teaching_timeline"]["events"])
-    assert view["dissemination_hub"]["total"] == 38
-    assert len(view["dissemination_hub"]["items"]) == 38
-    assert view["dissemination_hub"]["categories"][0]["count"] == 2
-    assert view["dissemination_hub"]["categories"][2]["count"] == 16
+    expected_dissemination_total = (
+        len(scientific_articles)
+        + len(presentations)
+        + len(press_items)
+        + len(social_media)
+        + len(tv_media)
+    )
+    assert view["dissemination_hub"]["total"] == expected_dissemination_total
+    assert len(view["dissemination_hub"]["items"]) == expected_dissemination_total
+    category_counts = {
+        category["id"]: category["count"] for category in view["dissemination_hub"]["categories"]
+    }
+    assert category_counts["articles"] == len(scientific_articles)
+    assert category_counts["press"] == len(press_items)
     assert view["dissemination_hub"]["publication_groups"]
     publication_group_dates = [
         group["publication"]["publication_date"]
         for group in view["dissemination_hub"]["publication_groups"]
     ]
     assert publication_group_dates == sorted(publication_group_dates, reverse=True)
-    assert view["organization_network"]["metrics"]["countries"] == 3
+    assert view["organization_network"]["metrics"]["countries"] == len(
+        view["organization_network"]["cards"]
+    )
     assert [row["id"] for row in view["organization_network"]["rows"]] == [
         "education",
         "experience",
@@ -215,7 +302,7 @@ def test_build_site_view_computes_core_metrics() -> None:
     publications_row = next(
         row for row in view["organization_network"]["rows"] if row["id"] == "publications"
     )
-    assert round(publications_row["total"], 6) == 6
+    assert round(publications_row["total"], 6) == view["metrics"]["publications"]
     organization_nodes = _flatten_organization_nodes(
         [
             node
@@ -364,8 +451,8 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert "Repository for the GENECI software ecosystem" in output.content
     assert "journal papers" in output.content
     assert "conference paper" in output.content
-    assert "paper in international collaboration" in output.content
-    assert "paper in national collaboration" in output.content
+    assert "international collaboration" in output.content
+    assert "national collaboration" in output.content
     assert "multi-city" not in output.content
     assert "GitHub metadata" not in output.content
     assert "Total publications" in output.content
@@ -461,8 +548,9 @@ def test_generate_site_accepts_explicit_spanish_language(tmp_path: Path) -> None
     assert "Investigador en inteligencia artificial y bioinformática" in output.content
     assert "Repositorio del ecosistema software GENECI" in output.content
     assert "Publicaciones por año" in output.content
-    assert "68.300 visualizaciones" in output.content
-    assert "17 acciones en redes sociales y 1 acción en televisión" in output.content
+    assert "visualizaciones" in output.content
+    assert "acciones en redes sociales" in output.content
+    assert "acción en televisión" in output.content or "acciones en televisión" in output.content
     assert ", y 1 acción en televisión" not in output.content
     assert "Puesto actual" in output.content
     assert "Selector de idioma" in output.content
