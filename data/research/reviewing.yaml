@@ -1,9 +1,4 @@
 reviewing:
-- id: reviewing_01
-  journal: BMC Bioinformatics
-  publisher: BMC
-  manuscripts_reviewed: 1
-  last_updated: '2025-07-15'
 - id: reviewing_02
   journal: European Journal of Medical Research
   publisher: BMC
@@ -29,3 +24,8 @@ reviewing:
   publisher: BMC
   manuscripts_reviewed: 1
   last_updated: '2026-05-03'
+- id: reviewing_01
+  journal: BMC Bioinformatics
+  publisher: BMC
+  manuscripts_reviewed: 2
+  last_updated: '2026-05-13'
