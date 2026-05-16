@@ -162,24 +162,11 @@ def main() -> int:
         ),
     )
     parser.add_argument(
-        "--no-affiliations",
-        action="store_true",
-        help="Do not query OpenAlex for DOI affiliations.",
-    )
-    parser.add_argument(
-        "--interactive-organizations",
-        action="store_true",
-        help=(
-            "Ask which suggested organizations should be added to organizations.yaml. "
-            "Selected organizations are enriched from public metadata when possible."
-        ),
-    )
-    parser.add_argument(
         "--interactive-contexts",
         action="store_true",
         help=(
-            "Ask which recommended positions and research stays should be linked. "
-            "Derived grants are suggested afterwards."
+            "Recover affiliations, suggest missing organizations, and ask which "
+            "recommended positions, research stays, and derived grants should be linked."
         ),
     )
     parser.add_argument("--profile-file", default="data/profile.yaml", type=Path)
@@ -192,7 +179,10 @@ def main() -> int:
         metadata = fetch_doi_metadata(args.doi, mailto=args.mailto)
         document = load_publications(args.data_file)
         affiliation_report = AffiliationReport([], [], [])
-        if not args.no_affiliations:
+        selected_organizations = []
+        context_suggestions: list[ResearchContextSuggestion] = []
+        selected_grant_ids: list[str] = []
+        if args.interactive_contexts:
             affiliation_report = fetch_affiliation_report(
                 metadata.doi,
                 args.organizations_file,
@@ -206,8 +196,7 @@ def main() -> int:
             organization_ids=affiliation_report.matched_organization_ids,
         )
         assert_new_doi(document, record["doi"])
-        selected_organizations = []
-        if args.interactive_organizations:
+        if args.interactive_contexts:
             selected_organizations = select_suggested_organizations(
                 affiliation_report.suggested_organizations,
                 args.organizations_file,
@@ -216,9 +205,6 @@ def main() -> int:
             record["organization_ids"] = unique_strings(
                 [*record["organization_ids"], *(item["id"] for item in selected_organizations)]
             )
-        context_suggestions: list[ResearchContextSuggestion] = []
-        selected_grant_ids: list[str] = []
-        if args.interactive_contexts:
             context_suggestions = recommend_research_contexts(
                 publication_date=record["publication_date"],
                 publication_organization_ids=record["organization_ids"],
@@ -264,6 +250,7 @@ def main() -> int:
         selected_organizations,
         context_suggestions,
         selected_grant_ids,
+        context_enrichment_enabled=args.interactive_contexts,
     )
     return 0
 
@@ -1441,6 +1428,7 @@ def print_report(
     selected_organizations: list[dict[str, Any]],
     context_suggestions: list[ResearchContextSuggestion],
     selected_grant_ids: list[str],
+    context_enrichment_enabled: bool,
 ) -> None:
     missing = [
         field
@@ -1473,48 +1461,52 @@ def print_report(
     for field in MANUAL_FIELDS:
         print(f"- {field}: {record[field]}")
 
-    print("\nAffiliations recovered from DOI metadata:")
-    if affiliation_report.matched_organization_ids:
-        print("- matched existing organization_ids:")
-        for organization_id in affiliation_report.matched_organization_ids:
-            print(f"  - {organization_id}")
+    if not context_enrichment_enabled:
+        print("\nAffiliations, organizations, and research contexts:")
+        print("- skipped; run with --interactive-contexts to recover and link them.")
     else:
-        print("- matched existing organization_ids: none")
+        print("\nAffiliations recovered from DOI metadata:")
+        if affiliation_report.matched_organization_ids:
+            print("- matched existing organization_ids:")
+            for organization_id in affiliation_report.matched_organization_ids:
+                print(f"  - {organization_id}")
+        else:
+            print("- matched existing organization_ids: none")
 
-    print("- suggested new organizations to review (provisional IDs): ")
-    if affiliation_report.suggested_organizations:
-        print(
-            yaml.safe_dump(
-                {"organizations": affiliation_report.suggested_organizations},
-                sort_keys=False,
-                allow_unicode=True,
-                width=100,
-            ).strip()
-        )
-    else:
-        print("  none")
-
-    if selected_organizations:
-        print("- selected organizations to add/link:")
-        print(
-            yaml.safe_dump(
-                {"organizations": selected_organizations},
-                sort_keys=False,
-                allow_unicode=True,
-                width=100,
-            ).strip()
-        )
-
-    if context_suggestions:
-        print("\nPosition and research stay recommendations:")
-        for suggestion in context_suggestions:
-            label = "position_ids" if suggestion.kind == "position" else "stay_ids"
-            selected = suggestion.item_id in record[label]
-            marker = "selected" if selected else "not selected"
+        print("- suggested new organizations to review (provisional IDs): ")
+        if affiliation_report.suggested_organizations:
             print(
-                f"- {suggestion.item_id}: {suggestion.title} "
-                f"({label}, {marker}; reasons: {', '.join(suggestion.reasons)})"
+                yaml.safe_dump(
+                    {"organizations": affiliation_report.suggested_organizations},
+                    sort_keys=False,
+                    allow_unicode=True,
+                    width=100,
+                ).strip()
             )
+        else:
+            print("  none")
+
+        if selected_organizations:
+            print("- selected organizations to add/link:")
+            print(
+                yaml.safe_dump(
+                    {"organizations": selected_organizations},
+                    sort_keys=False,
+                    allow_unicode=True,
+                    width=100,
+                ).strip()
+            )
+
+        if context_suggestions:
+            print("\nPosition and research stay recommendations:")
+            for suggestion in context_suggestions:
+                label = "position_ids" if suggestion.kind == "position" else "stay_ids"
+                selected = suggestion.item_id in record[label]
+                marker = "selected" if selected else "not selected"
+                print(
+                    f"- {suggestion.item_id}: {suggestion.title} "
+                    f"({label}, {marker}; reasons: {', '.join(suggestion.reasons)})"
+                )
 
     if selected_grant_ids:
         print("\nDerived grant_ids selected:")

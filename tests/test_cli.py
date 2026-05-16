@@ -1,5 +1,6 @@
 from pathlib import Path
 import subprocess
+import sys
 from types import SimpleNamespace
 
 from typer.testing import CliRunner
@@ -188,6 +189,20 @@ def test_make_targets_pass_language_arguments() -> None:
     assert "academic_sober_en.pdf" in cv_site_downloads_result.stdout
     assert "academic_rich_es.pdf" in cv_site_downloads_result.stdout
     assert "academic_sober_es.pdf" in cv_site_downloads_result.stdout
+
+
+def test_publication_importer_uses_single_interactive_context_flag() -> None:
+    result = subprocess.run(
+        [sys.executable, "scripts/add_publication_from_doi.py", "--help"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "--interactive-contexts" in result.stdout
+    assert "--interactive-organizations" not in result.stdout
+    assert "--no-affiliations" not in result.stdout
 
 
 def test_pages_workflow_builds_bilingual_site() -> None:
