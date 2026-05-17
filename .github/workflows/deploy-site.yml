@@ -61,6 +61,7 @@ jobs:
           touch build/site/.nojekyll
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

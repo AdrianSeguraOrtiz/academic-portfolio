@@ -6,6 +6,9 @@
     <title>{{ profile.person.full_name }} | {{ t("site.document.title_suffix") }}</title>
     <meta name="description" content="{{ profile.research_profile.summary }}">
     <link rel="stylesheet" href="assets/site.css">
+    {% if analytics.provider == "cloudflare" and analytics.cloudflare_token %}
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{{ {"token": analytics.cloudflare_token} | tojson }}'></script>
+    {% endif %}
   </head>
   <body>
     <header class="site-header">

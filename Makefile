@@ -7,6 +7,8 @@ FORMAT ?= pdf
 PAGES ?=
 PORTFOLIO_LANG ?= $(if $(filter en es,$(LANG)),$(LANG),en)
 SITE_ARGS ?=
+CLOUDFLARE_WEB_ANALYTICS_TOKEN ?=
+SITE_ANALYTICS_ARGS = $(if $(CLOUDFLARE_WEB_ANALYTICS_TOKEN),--cloudflare-analytics-token $(CLOUDFLARE_WEB_ANALYTICS_TOKEN),)
 PLAYWRIGHT_INSTALL_ARGS ?= chromium
 CV_PAGE_ARGS = $(if $(PAGES),--pages $(PAGES),)
 CV_LANG_ARGS = --lang $(PORTFOLIO_LANG)
@@ -90,16 +92,16 @@ clean-cv:
 
 site:
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run portfolio site generate $(SITE_LANG_ARGS) $(SITE_ARGS); \
+		uv run portfolio site generate $(SITE_LANG_ARGS) $(SITE_ANALYTICS_ARGS) $(SITE_ARGS); \
 	else \
-		$(VENV)/bin/portfolio site generate $(SITE_LANG_ARGS) $(SITE_ARGS); \
+		$(VENV)/bin/portfolio site generate $(SITE_LANG_ARGS) $(SITE_ANALYTICS_ARGS) $(SITE_ARGS); \
 	fi
 
 site-all:
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run portfolio site generate-all $(SITE_ARGS); \
+		uv run portfolio site generate-all $(SITE_ANALYTICS_ARGS) $(SITE_ARGS); \
 	else \
-		$(VENV)/bin/portfolio site generate-all $(SITE_ARGS); \
+		$(VENV)/bin/portfolio site generate-all $(SITE_ANALYTICS_ARGS) $(SITE_ARGS); \
 	fi
 
 clean-site:

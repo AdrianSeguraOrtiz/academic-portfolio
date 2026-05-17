@@ -1,4 +1,5 @@
 from academic_portfolio.site.build import (
+    SiteAnalyticsConfig,
     SiteBuildSet,
     SiteOutput,
     build_site_view,
@@ -8,6 +9,7 @@ from academic_portfolio.site.build import (
 )
 
 __all__ = [
+    "SiteAnalyticsConfig",
     "SiteBuildSet",
     "SiteOutput",
     "build_site_view",

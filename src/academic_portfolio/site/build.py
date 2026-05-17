@@ -69,6 +69,25 @@ class SiteDynamicData:
     package_errors: dict[str, str]
 
 
+@dataclass(frozen=True)
+class SiteAnalyticsConfig:
+    provider: str | None = None
+    cloudflare_token: str | None = None
+
+    @classmethod
+    def cloudflare(cls, token: str | None) -> "SiteAnalyticsConfig":
+        clean_token = (token or "").strip()
+        if not clean_token:
+            return cls()
+        return cls(provider="cloudflare", cloudflare_token=clean_token)
+
+    def template_context(self) -> dict[str, str | None]:
+        return {
+            "provider": self.provider,
+            "cloudflare_token": self.cloudflare_token,
+        }
+
+
 def build_site_view(
     resolver: PortfolioResolver,
     github_stats_by_url: dict[str, dict[str, Any]] | None = None,
@@ -407,6 +426,7 @@ def generate_site(
     github_cache_path: Path | str = "build/cache/github_repositories.json",
     refresh_packages: bool = False,
     package_cache_path: Path | str = "build/cache/software_packages.json",
+    cloudflare_analytics_token: str | None = None,
 ) -> SiteOutput:
     if language not in SUPPORTED_LANGUAGES:
         raise ValueError(f"Unsupported language: {language}")
@@ -426,6 +446,7 @@ def generate_site(
         language=language,
         template_dir=template_dir,
         static_dir=static_dir,
+        analytics=SiteAnalyticsConfig.cloudflare(cloudflare_analytics_token),
     )
 
 
@@ -440,6 +461,7 @@ def generate_all_sites(
     github_cache_path: Path | str = "build/cache/github_repositories.json",
     refresh_packages: bool = False,
     package_cache_path: Path | str = "build/cache/software_packages.json",
+    cloudflare_analytics_token: str | None = None,
 ) -> SiteBuildSet:
     unsupported_languages = sorted(set(languages) - set(SUPPORTED_LANGUAGES))
     if unsupported_languages:
@@ -463,6 +485,7 @@ def generate_all_sites(
             language=language,
             template_dir=template_dir,
             static_dir=static_dir,
+            analytics=SiteAnalyticsConfig.cloudflare(cloudflare_analytics_token),
         )
         for language in languages
     ]
@@ -550,6 +573,7 @@ def _render_site_output(
     language: str,
     template_dir: Path | str,
     static_dir: Path | str,
+    analytics: SiteAnalyticsConfig,
 ) -> SiteOutput:
     translator = load_translator(language)
     view = build_site_view(
@@ -562,7 +586,10 @@ def _render_site_output(
     )
 
     environment = _create_environment(template_dir, translator)
-    content = environment.get_template("index.html.j2").render(**view)
+    content = environment.get_template("index.html.j2").render(
+        **view,
+        analytics=analytics.template_context(),
+    )
 
     output_path = Path(output_dir) / language / "index.html"
     output_path.parent.mkdir(parents=True, exist_ok=True)

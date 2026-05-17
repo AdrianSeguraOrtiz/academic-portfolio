@@ -450,6 +450,23 @@ make site SITE_ARGS="--github-cache-path build/cache/github_repositories.json --
 Set `GITHUB_TOKEN` before `make site` or `make site-all` for a higher GitHub
 API limit.
 
+### Cloudflare Web Analytics
+
+The static site can include the Cloudflare Web Analytics beacon without storing
+the site token in the repository. Create a Cloudflare Web Analytics site, copy
+its token, and pass it at build time:
+
+```bash
+CLOUDFLARE_WEB_ANALYTICS_TOKEN=your-token make site-all
+```
+
+The generated pages include the beacon only when the token is provided. Local
+builds without `CLOUDFLARE_WEB_ANALYTICS_TOKEN` remain analytics-free.
+
+For GitHub Pages deployment, add the token as the repository secret
+`CLOUDFLARE_WEB_ANALYTICS_TOKEN`. The Pages workflow forwards that secret to
+`make site-all`, so both `/en/` and `/es/` are tracked after the next deploy.
+
 ## Website vs CV
 
 Both outputs use the same curated YAML data, but they serve different purposes.

@@ -110,6 +110,30 @@ def test_site_generate_passes_language_to_generator(monkeypatch) -> None:
     assert "Generated site: build/site/es/index.html" in result.stdout
 
 
+def test_site_generate_passes_cloudflare_analytics_token(monkeypatch) -> None:
+    runner = CliRunner()
+    seen_kwargs = {}
+
+    def fake_generate_site(**kwargs):
+        seen_kwargs.update(kwargs)
+        return SimpleNamespace(
+            output_path=Path("build/site/en/index.html"),
+            content="",
+            asset_paths=[],
+            language="en",
+        )
+
+    monkeypatch.setattr(cli_module, "generate_site", fake_generate_site)
+
+    result = runner.invoke(
+        app,
+        ["site", "generate", "--cloudflare-analytics-token", "test-token"],
+    )
+
+    assert result.exit_code == 0
+    assert seen_kwargs["cloudflare_analytics_token"] == "test-token"
+
+
 def test_site_generate_all_uses_bilingual_generator(monkeypatch) -> None:
     runner = CliRunner()
     seen_kwargs = {}
@@ -133,6 +157,31 @@ def test_site_generate_all_uses_bilingual_generator(monkeypatch) -> None:
     assert "Generated site en: build/site/en/index.html" in result.stdout
     assert "Generated site es: build/site/es/index.html" in result.stdout
     assert "Generated site redirect: build/site/index.html" in result.stdout
+
+
+def test_site_generate_all_passes_cloudflare_analytics_token(monkeypatch) -> None:
+    runner = CliRunner()
+    seen_kwargs = {}
+
+    def fake_generate_all_sites(**kwargs):
+        seen_kwargs.update(kwargs)
+        return SimpleNamespace(
+            outputs=[
+                SimpleNamespace(language="en", output_path=Path("build/site/en/index.html")),
+                SimpleNamespace(language="es", output_path=Path("build/site/es/index.html")),
+            ],
+            redirect_path=Path("build/site/index.html"),
+        )
+
+    monkeypatch.setattr(cli_module, "generate_all_sites", fake_generate_all_sites)
+
+    result = runner.invoke(
+        app,
+        ["site", "generate-all", "--cloudflare-analytics-token", "test-token"],
+    )
+
+    assert result.exit_code == 0
+    assert seen_kwargs["cloudflare_analytics_token"] == "test-token"
 
 
 def test_make_targets_pass_language_arguments() -> None:
@@ -178,6 +227,19 @@ def test_make_targets_pass_language_arguments() -> None:
         capture_output=True,
         text=True,
     )
+    site_analytics_result = subprocess.run(
+        [
+            "make",
+            "--dry-run",
+            "--no-print-directory",
+            "site-all",
+            "CLOUDFLARE_WEB_ANALYTICS_TOKEN=test-token",
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
 
     assert "--lang en" in default_cv_result.stdout
     assert "--lang es" in cv_result.stdout
@@ -189,6 +251,7 @@ def test_make_targets_pass_language_arguments() -> None:
     assert "academic_sober_en.pdf" in cv_site_downloads_result.stdout
     assert "academic_rich_es.pdf" in cv_site_downloads_result.stdout
     assert "academic_sober_es.pdf" in cv_site_downloads_result.stdout
+    assert "--cloudflare-analytics-token test-token" in site_analytics_result.stdout
 
 
 def test_publication_importer_uses_single_interactive_context_flag() -> None:
@@ -212,4 +275,5 @@ def test_pages_workflow_builds_bilingual_site() -> None:
 
     assert "make site-all" in workflow
     assert "make cv-site-downloads" in workflow
+    assert "CLOUDFLARE_WEB_ANALYTICS_TOKEN" in workflow
     assert "path: build/site" in workflow

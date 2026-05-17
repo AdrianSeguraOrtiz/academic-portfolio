@@ -532,9 +532,25 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert "Contained organizations" in output.content
     assert "organization-relationship-chart" not in output.content
     assert "relationship-country-track" not in output.content
+    assert "static.cloudflareinsights.com/beacon.min.js" not in output.content
     assert "undefined" not in output.content
     assert "null" not in output.content
     assert "None" not in output.content
+
+
+def test_generate_site_includes_cloudflare_analytics_when_configured(tmp_path: Path) -> None:
+    output = generate_site(output_dir=tmp_path, cloudflare_analytics_token="test-token")
+
+    assert "https://static.cloudflareinsights.com/beacon.min.js" in output.content
+    assert """data-cf-beacon='{"token": "test-token"}'""" in output.content
+
+
+def test_generate_all_sites_includes_cloudflare_analytics_when_configured(tmp_path: Path) -> None:
+    output = generate_all_sites(output_dir=tmp_path, cloudflare_analytics_token="test-token")
+
+    for site_output in output.outputs:
+        assert "https://static.cloudflareinsights.com/beacon.min.js" in site_output.content
+        assert """data-cf-beacon='{"token": "test-token"}'""" in site_output.content
 
 
 def test_generate_site_accepts_explicit_spanish_language(tmp_path: Path) -> None:

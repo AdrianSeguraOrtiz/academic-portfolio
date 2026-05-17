@@ -163,6 +163,11 @@ def site_generate(
         Path("build/cache/software_packages.json"),
         help="Local cache for package registry and download statistics.",
     ),
+    cloudflare_analytics_token: str | None = typer.Option(
+        None,
+        "--cloudflare-analytics-token",
+        help="Cloudflare Web Analytics site token. Omit to render without analytics.",
+    ),
 ) -> None:
     """Generate the static personal website."""
 
@@ -176,6 +181,7 @@ def site_generate(
         github_cache_path=github_cache_path,
         refresh_packages=refresh_packages,
         package_cache_path=package_cache_path,
+        cloudflare_analytics_token=cloudflare_analytics_token,
     )
     console.print(f"Generated [bold]site[/bold]: {output.output_path}")
 
@@ -204,6 +210,11 @@ def site_generate_all(
         Path("build/cache/software_packages.json"),
         help="Local cache for package registry and download statistics.",
     ),
+    cloudflare_analytics_token: str | None = typer.Option(
+        None,
+        "--cloudflare-analytics-token",
+        help="Cloudflare Web Analytics site token. Omit to render without analytics.",
+    ),
 ) -> None:
     """Generate all static website language routes and the root redirect."""
 
@@ -216,6 +227,7 @@ def site_generate_all(
         github_cache_path=github_cache_path,
         refresh_packages=refresh_packages,
         package_cache_path=package_cache_path,
+        cloudflare_analytics_token=cloudflare_analytics_token,
     )
     for site_output in output.outputs:
         console.print(f"Generated [bold]site {site_output.language}[/bold]: {site_output.output_path}")
