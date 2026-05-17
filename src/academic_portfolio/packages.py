@@ -72,14 +72,39 @@ def _fetch_pypi_stats(package: dict[str, Any]) -> dict[str, Any]:
     metadata = _http_json(f"https://pypi.org/pypi/{quote(package_name)}/json")
     info = metadata.get("info", {})
     releases = _pypi_releases(metadata.get("releases", {}), package_name)
-    total_downloads = _clickhouse_scalar(
+    clickhouse_errors: list[str] = []
+    clickhouse_available = True
+
+    def clickhouse_scalar(query: str) -> int | None:
+        nonlocal clickhouse_available
+        if not clickhouse_available:
+            return None
+        try:
+            return _clickhouse_scalar(query)
+        except (HTTPError, KeyError, OSError, RuntimeError, TimeoutError, URLError, ValueError) as error:
+            clickhouse_available = False
+            clickhouse_errors.append(str(error))
+            return None
+
+    def clickhouse_rows(query: str) -> list[dict[str, Any]]:
+        nonlocal clickhouse_available
+        if not clickhouse_available:
+            return []
+        try:
+            return _clickhouse_rows(query)
+        except (HTTPError, KeyError, OSError, RuntimeError, TimeoutError, URLError, ValueError) as error:
+            clickhouse_available = False
+            clickhouse_errors.append(str(error))
+            return []
+
+    total_downloads = clickhouse_scalar(
         f"""
         SELECT sum(count) AS downloads
         FROM pypi.pypi_downloads
         WHERE project = {_sql_string(package_name)}
         """
     )
-    monthly_downloads = _clickhouse_rows(
+    monthly_downloads = clickhouse_rows(
         f"""
         SELECT toStartOfMonth(date) AS month, sum(count) AS downloads
         FROM pypi.pypi_downloads_per_day
@@ -89,7 +114,7 @@ def _fetch_pypi_stats(package: dict[str, Any]) -> dict[str, Any]:
         FORMAT JSON
         """
     )
-    downloads_by_version = _clickhouse_rows(
+    downloads_by_version = clickhouse_rows(
         f"""
         SELECT version, sum(count) AS downloads
         FROM pypi.pypi_downloads_by_version
@@ -99,7 +124,7 @@ def _fetch_pypi_stats(package: dict[str, Any]) -> dict[str, Any]:
         FORMAT JSON
         """
     )
-    downloads_by_month_by_version = _clickhouse_rows(
+    downloads_by_month_by_version = clickhouse_rows(
         f"""
         SELECT toStartOfMonth(date) AS month, version, sum(count) AS downloads
         FROM pypi.pypi_downloads_per_day_by_version
@@ -131,7 +156,7 @@ def _fetch_pypi_stats(package: dict[str, Any]) -> dict[str, Any]:
             {**item, "color": version_colors.get(str(item["version"]), VERSION_COLORS[-1])}
             for item in downloads_by_version
         ],
-        "downloads_by_country": _clickhouse_rows(
+        "downloads_by_country": clickhouse_rows(
             f"""
             SELECT country_code, sum(count) AS downloads
             FROM pypi.pypi_downloads_per_day_by_version_by_country
@@ -141,7 +166,7 @@ def _fetch_pypi_stats(package: dict[str, Any]) -> dict[str, Any]:
             FORMAT JSON
             """
         ),
-        "downloads_by_python": _clickhouse_rows(
+        "downloads_by_python": clickhouse_rows(
             f"""
             SELECT python_minor, sum(count) AS downloads
             FROM pypi.pypi_downloads_per_day_by_version_by_python
@@ -152,7 +177,7 @@ def _fetch_pypi_stats(package: dict[str, Any]) -> dict[str, Any]:
             FORMAT JSON
             """
         ),
-        "downloads_by_system": _clickhouse_rows(
+        "downloads_by_system": clickhouse_rows(
             f"""
             SELECT system, sum(count) AS downloads
             FROM pypi.pypi_downloads_per_day_by_version_by_system
@@ -162,7 +187,7 @@ def _fetch_pypi_stats(package: dict[str, Any]) -> dict[str, Any]:
             FORMAT JSON
             """
         ),
-        "downloads_by_file_type": _clickhouse_rows(
+        "downloads_by_file_type": clickhouse_rows(
             f"""
             SELECT type, sum(count) AS downloads
             FROM pypi.pypi_downloads_per_day_by_version_by_file_type
@@ -172,6 +197,7 @@ def _fetch_pypi_stats(package: dict[str, Any]) -> dict[str, Any]:
             FORMAT JSON
             """
         ),
+        "download_stats_error": "; ".join(dict.fromkeys(clickhouse_errors)) or None,
     }
 
 

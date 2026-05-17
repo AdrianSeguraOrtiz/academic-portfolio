@@ -2705,6 +2705,7 @@ h3 {
 
 .package-carousel-shell .package-grid {
   display: grid;
+  align-items: start;
   grid-auto-columns: 100%;
   grid-auto-flow: column;
   grid-template-columns: none;

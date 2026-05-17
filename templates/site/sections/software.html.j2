@@ -145,7 +145,7 @@
 
       {% if package.ecosystem == "PyPI" and stats %}
       <div class="package-stat-grid">
-        <div><strong>{{ stats.total_downloads | number }}</strong><span>{{ t("cv.fields.total_downloads") }}</span></div>
+        <div><strong>{% if stats.total_downloads is not none %}{{ stats.total_downloads | number }}{% else %}n/a{% endif %}</strong><span>{{ t("cv.fields.total_downloads") }}</span></div>
         <div><strong>{{ stats.latest_version }}</strong><span>{{ t("cv.fields.latest_version") }}</span></div>
         <div><strong>{{ stats.release_count }}</strong><span>{{ t("cv.fields.releases") }}</span></div>
         <div><strong>{{ stats.requires_python or "n/a" }}</strong><span>{{ t("site.labels.python") }}</span></div>
@@ -179,6 +179,7 @@
         </div>
       </div>
       {% endif %}
+      {% if stats.downloads_by_version or stats.downloads_by_country %}
       <div class="package-splits">
         <div>
           <h4>{{ t("site.labels.versions") }}</h4>
@@ -197,7 +198,8 @@
           </div>
         </div>
       </div>
-      <p class="tags"><a href="{{ stats.clickpy_url }}">{{ t("site.labels.clickpy_dashboard") }}</a></p>
+      {% endif %}
+      {% if stats.clickpy_url %}<p class="tags"><a href="{{ stats.clickpy_url }}">{{ t("site.labels.clickpy_dashboard") }}</a></p>{% endif %}
       {% elif package.ecosystem == "Maven" and stats %}
       <div class="package-stat-grid">
         <div><strong>{{ stats.latest_version }}</strong><span>{{ t("cv.fields.latest_version") }}</span></div>
