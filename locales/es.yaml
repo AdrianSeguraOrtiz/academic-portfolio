@@ -308,6 +308,7 @@ cv:
     classroom_hours_by_degree: Horas de docencia por titulación
     teaching_timeline_snapshot: Instantánea temporal de docencia
     university_classes: Docencia universitaria
+    relevant_courses: Asignaturas relevantes
     academic_supervision: Supervisión académica
     teaching_innovation_projects: Proyectos de innovación docente
     dissemination_media: Divulgación y medios
@@ -324,6 +325,7 @@ cv:
     dissemination: Divulgación
     reviewing: Revisión científica
     scientific_dissemination_articles: Artículos de divulgación científica
+    selected_outreach: Divulgación seleccionada
     presentations: Presentaciones
     press: Prensa
     social_media: Redes sociales

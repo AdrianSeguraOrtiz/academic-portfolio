@@ -6,7 +6,12 @@ import re
 import pytest
 
 import academic_portfolio.cv as cv_module
-from academic_portfolio.cv import build_cv_view, generate_cv, load_cv_model
+from academic_portfolio.cv import (
+    build_cv_view,
+    generate_cv,
+    load_cv_model,
+    load_cv_model_with_application,
+)
 from academic_portfolio.i18n import load_translator
 from academic_portfolio.loader import load_data
 from academic_portfolio.resolver import PortfolioResolver
@@ -176,6 +181,77 @@ def _load_cv_view(model_name: str) -> dict:
     return build_cv_view(
         load_cv_model(Path(f"cv_models/{model_name}.toml")),
         PortfolioResolver(load_data(Path("data"))),
+    )
+
+
+def _write_overlay(path: Path, extra: str = "") -> None:
+    path.write_text(
+        f"""
+base_model = "academic_sober"
+name = "test_application"
+language = "en"
+output_stem = "Test_Application_CV"
+page_limit = 7
+
+summary_override = \"\"\"
+Tailored profile paragraph.
+
+Second tailored profile paragraph.
+\"\"\"
+
+section_order = [
+  "profile",
+  "application_fit",
+  "degrees",
+  "experience",
+  "research_stays",
+  "publications",
+  "software",
+  "teaching",
+  "research_projects",
+  "honors",
+  "grants",
+  "reviewing",
+  "dissemination",
+]
+
+[section_titles]
+application_fit = "Selected fit for this call"
+software = "Open research software"
+publications = "Relevant publications"
+
+[sections]
+current_positions = "hidden"
+degrees = "standard"
+experience = "standard"
+research_stays = "standard"
+honors = "compact"
+grants = "compact"
+publications = "compact"
+software_projects = "standard"
+software_packages = "standard"
+research_projects = "compact"
+teaching = "aggregate"
+dissemination = "aggregate"
+reviewing = "aggregate"
+
+[limits]
+max_certifications = 1
+max_scientific_articles = 1
+
+[[extra_sections]]
+id = "application_fit"
+title = "Selected fit for this call"
+placement = "after_summary"
+style = "bullets"
+items = [
+  "Evidence-based fit highlight.",
+  "Second fit highlight.",
+]
+{extra}
+""".strip()
+        + "\n",
+        encoding="utf-8",
     )
 
 
@@ -590,6 +666,182 @@ def test_definitive_cv_models_exist() -> None:
     assert models["academic_sober"].page_limit is None
 
 
+def test_application_overlay_merges_with_sober_model(tmp_path: Path) -> None:
+    overlay_path = tmp_path / "application.toml"
+    _write_overlay(
+        overlay_path,
+        """
+[fit_detail_floors]
+degrees = "standard"
+
+[featured_ids]
+software_projects = ["software_12", "software_10"]
+university_classes = ["course_08"]
+scientific_articles = ["scientific_dissemination_article_02"]
+
+[task_filters.experience]
+max_tasks_per_record = 2
+include_keywords = ["Docker", "workflow orchestration"]
+exclude_keywords = ["OpenProject"]
+""",
+    )
+
+    model = load_cv_model_with_application(overlay_path)
+
+    assert model.name == "test_application"
+    assert model.style == "sober"
+    assert model.output_stem == "Test_Application_CV"
+    assert model.page_limit == 7
+    assert model.summary_override
+    assert model.sections["current_positions"] == "hidden"
+    assert model.sections["degrees"] == "standard"
+    assert model.sections["publications"] == "compact"
+    assert model.section_order[:3] == ["profile", "application_fit", "degrees"]
+    assert model.section_titles["software"] == "Open research software"
+    assert model.extra_sections[0]["id"] == "application_fit"
+    assert model.fit_detail_floors == {"degrees": "standard"}
+    assert model.featured_ids["software_projects"] == ["software_12", "software_10"]
+    assert model.task_filters["experience"]["max_tasks_per_record"] == 2
+    assert model.task_filters["experience"]["include_keywords"] == [
+        "Docker",
+        "workflow orchestration",
+    ]
+
+
+def test_application_overlay_rejects_hidden_nuclear_section(tmp_path: Path) -> None:
+    overlay_path = tmp_path / "invalid_application.toml"
+    overlay_path.write_text(
+        """
+base_model = "academic_sober"
+
+[sections]
+publications = "hidden"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="cannot hide nuclear"):
+        load_cv_model_with_application(overlay_path)
+
+
+def test_application_overlay_rejects_section_order_omitting_nuclear_section(
+    tmp_path: Path,
+) -> None:
+    overlay_path = tmp_path / "invalid_order_application.toml"
+    overlay_path.write_text(
+        """
+base_model = "academic_sober"
+section_order = ["profile", "degrees", "experience", "research_stays"]
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="section_order cannot omit"):
+        load_cv_model_with_application(overlay_path)
+
+
+def test_application_overlay_rejects_invalid_fit_detail_floor(tmp_path: Path) -> None:
+    overlay_path = tmp_path / "invalid_floor_application.toml"
+    overlay_path.write_text(
+        """
+base_model = "academic_sober"
+
+[fit_detail_floors]
+degrees = "aggregate"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="invalid fit detail floors"):
+        load_cv_model_with_application(overlay_path)
+
+
+def test_application_overlay_rejects_unknown_featured_ids(tmp_path: Path) -> None:
+    overlay_path = tmp_path / "unknown_featured_application.toml"
+    _write_overlay(
+        overlay_path,
+        """
+[featured_ids]
+software_projects = ["missing_software_project"]
+""",
+    )
+
+    model = load_cv_model_with_application(overlay_path)
+    with pytest.raises(ValueError, match="Unknown featured_ids for software_projects"):
+        build_cv_view(model, PortfolioResolver(load_data(Path("data"))))
+
+
+def test_application_overlay_fit_detail_floors_survive_compression(tmp_path: Path) -> None:
+    overlay_path = tmp_path / "floored_application.toml"
+    _write_overlay(
+        overlay_path,
+        """
+[fit_detail_floors]
+degrees = "standard"
+""",
+    )
+    model = load_cv_model_with_application(overlay_path)
+
+    compressed = cv_module._compressed_model(
+        model,
+        stage="compact",
+        density="compact",
+        font_scale="small",
+        core_detail_cap="compact",
+        include_charts=False,
+    )
+
+    assert compressed.sections["degrees"] == "standard"
+    assert compressed.sections["experience"] == "compact"
+
+
+def test_application_overlay_featured_records_and_task_filters_render(
+    tmp_path: Path,
+) -> None:
+    overlay_path = tmp_path / "featured_application.toml"
+    _write_overlay(
+        overlay_path,
+        """
+[featured_ids]
+software_projects = ["software_10", "software_12"]
+university_classes = ["course_08", "course_02"]
+scientific_articles = ["scientific_dissemination_article_02"]
+
+[task_filters.experience]
+max_tasks_per_record = 2
+include_keywords = ["NGS", "FastQC", "Docker", "workflow orchestration"]
+exclude_keywords = ["OpenProject", "crop"]
+""",
+    )
+    model = load_cv_model_with_application(overlay_path)
+    view = build_cv_view(model, PortfolioResolver(load_data(Path("data"))))
+
+    output = generate_cv(
+        application=overlay_path,
+        output_dir=tmp_path / "cv",
+        output_format="html",
+    )
+
+    assert [
+        item["id"] for item in view["aggregates"]["software"]["projects"]["items"][:2]
+    ] == ["software_10", "software_12"]
+    assert "Developed an automated NGS analysis pipeline" in output.content
+    assert "Integrated FastQC, MultiQC, Qualimap" in output.content
+    assert "Developed a workflow orchestration tool" in output.content
+    assert "Managed project tasks and coordination through OpenProject" not in output.content
+    assert "Developed Progressive Web Applications" not in output.content
+    assert "<h3>Relevant courses</h3>" in output.content
+    assert "Biología de Sistemas" in output.content
+    assert "Informática" in output.content
+    assert "<h3>University Classes</h3>" not in output.content
+    assert "<h3>Selected outreach</h3>" in output.content
+    assert "MOEBA-BIO: An Open and Extensible Framework" in output.content
+    assert "Context-Guided Evolutionary Algorithms" not in output.content
+
+
 def test_cv_templates_are_editorially_separated() -> None:
     rich_model = load_cv_model(Path("cv_models/academic_rich.toml"))
     sober_model = load_cv_model(Path("cv_models/academic_sober.toml"))
@@ -859,6 +1111,49 @@ def test_generate_cv_writes_formal_full_sober_html(tmp_path: Path) -> None:
     assert "Journal:" in output.content
     assert "Conference:" in output.content
     assert "Venue:" not in output.content
+
+
+def test_generate_cv_writes_application_overlay_html(tmp_path: Path) -> None:
+    overlay_path = tmp_path / "application.toml"
+    _write_overlay(overlay_path)
+
+    output = generate_cv(
+        application=overlay_path,
+        output_dir=tmp_path / "cv",
+        output_format="html",
+    )
+    parser = _parse_cv_html(output.content)
+
+    assert output.model.name == "test_application"
+    assert output.output_path == tmp_path / "cv" / "Test_Application_CV.html"
+    assert output.html_path == tmp_path / "cv" / "Test_Application_CV.html"
+    assert output.model.page_limit == 7
+    assert output.model.language == "en"
+    assert "Tailored profile paragraph." in output.content
+    assert "My academic background comprises" not in output.content
+    assert "<h2>Selected fit for this call</h2>" in output.content
+    assert "Evidence-based fit highlight." in output.content
+    assert "<h2>Relevant publications</h2>" in output.content
+    assert "<h2>Open research software</h2>" in output.content
+    assert "<h2>Current Activity</h2>" not in output.content
+    _assert_ordered_subset(
+        parser.h2,
+        [
+            "Summary",
+            "Selected fit for this call",
+            "Education",
+            "Experience",
+            "Research Stays",
+            "Relevant publications",
+            "Open research software",
+            "Teaching",
+            "Research Projects",
+            "Honors",
+            "Grants",
+            "Reviewing",
+            "Dissemination",
+        ],
+    )
 
 
 def test_sober_cv_follows_institutional_editorial_contract(tmp_path: Path) -> None:

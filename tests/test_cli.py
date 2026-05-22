@@ -73,6 +73,41 @@ def test_cv_generate_omits_page_status_for_html(monkeypatch) -> None:
     assert "Fit status:" not in result.stdout
 
 
+def test_cv_generate_accepts_application_overlay(monkeypatch) -> None:
+    runner = CliRunner()
+    seen_kwargs = {}
+
+    def fake_generate_cv(**kwargs):
+        seen_kwargs.update(kwargs)
+        return SimpleNamespace(
+            model=SimpleNamespace(title="Application CV", layout={}),
+            output_path=Path("build/cv/Application_CV.html"),
+            html_path=Path("build/cv/Application_CV.html"),
+            page_count=None,
+            page_limit=None,
+            fit_status="not_checked",
+        )
+
+    monkeypatch.setattr(cli_module, "generate_cv", fake_generate_cv)
+
+    result = runner.invoke(
+        app,
+        [
+            "cv",
+            "generate",
+            "--application",
+            "private/applications/example.toml",
+            "--format",
+            "html",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert seen_kwargs["application"] == Path("private/applications/example.toml")
+    assert seen_kwargs["language"] is None
+    assert "Generated Application CV: build/cv/Application_CV.html" in result.stdout
+
+
 def test_make_cv_all_declares_definitive_outputs() -> None:
     result = subprocess.run(
         ["make", "--dry-run", "--no-print-directory", "cv-all"],
@@ -86,6 +121,27 @@ def test_make_cv_all_declares_definitive_outputs() -> None:
     assert "make cv MODEL=academic_sober FORMAT=pdf PAGES=" in result.stdout
     assert "make cv MODEL=academic_sober FORMAT=pdf PAGES=4" in result.stdout
     assert "make cv MODEL=academic_sober FORMAT=pdf PAGES=3" in result.stdout
+
+
+def test_make_cv_application_passes_overlay_path() -> None:
+    result = subprocess.run(
+        [
+            "make",
+            "--dry-run",
+            "--no-print-directory",
+            "cv-application",
+            "APPLICATION=private/applications/example.toml",
+            "FORMAT=html",
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "portfolio cv generate --application private/applications/example.toml" in result.stdout
+    assert "--format html" in result.stdout
+    assert "--lang" not in result.stdout
 
 
 def test_site_generate_passes_language_to_generator(monkeypatch) -> None:

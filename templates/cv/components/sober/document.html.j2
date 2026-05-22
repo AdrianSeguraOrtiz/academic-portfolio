@@ -1,5 +1,41 @@
 {% set profile = core.profile %}
+{% set section_order = sober_view.section_order %}
+{% set section_titles = sober_view.section_titles %}
+{% set extra_sections_by_id = sober_view.extra_sections_by_id %}
 {% import "components/sober/macros.html.j2" as sober %}
+
+{% macro section_title(section_id, fallback_key) -%}
+{{ section_titles.get(section_id) or t(fallback_key) }}
+{%- endmacro %}
+
+{% macro render_summary() -%}
+<section class="sober-section sober-summary-section" data-summary-level="{{ summary.active_level }}">
+  <h2>{{ section_title("profile", "cv.sections.summary") }}</h2>
+  {% if summary.active.paragraphs %}
+  {% for paragraph in summary.active.paragraphs %}
+  <p class="sober-summary">{{ paragraph }}</p>
+  {% endfor %}
+  {% else %}
+  <p class="sober-empty">{{ t("cv.document.no_summary") }}</p>
+  {% endif %}
+</section>
+{%- endmacro %}
+
+{% macro render_extra_section(extra_section) -%}
+<section class="sober-section sober-extra-section sober-extra-section-{{ extra_section['id'] }}">
+  <h2>{{ section_titles.get(extra_section["id"]) or extra_section["title"] }}</h2>
+  {% for paragraph in extra_section["paragraphs"] %}
+  <p class="sober-summary">{{ paragraph }}</p>
+  {% endfor %}
+  {% if extra_section["items"] %}
+  <ul class="sober-extra-list">
+    {% for item in extra_section["items"] %}
+    <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+{%- endmacro %}
 
 <!doctype html>
 <html lang="{{ model.language }}">
@@ -21,183 +57,188 @@
       </address>
     </header>
 
-    <section class="sober-section sober-summary-section" data-summary-level="{{ summary.active_level }}">
-      <h2>{{ t("cv.sections.summary") }}</h2>
-      {% if summary.active.paragraphs %}
-      {% for paragraph in summary.active.paragraphs %}
-      <p class="sober-summary">{{ paragraph }}</p>
-      {% endfor %}
-      {% else %}
-      <p class="sober-empty">{{ t("cv.document.no_summary") }}</p>
-      {% endif %}
-    </section>
+    {% for display_section in section_order %}
+      {% if display_section == "profile" %}
+      {{ render_summary() }}
 
-    {% if "degrees" in sections %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.education") }}</h2>
-      {{ sober.item_list(core.education["items"], section_details.degrees) }}
-    </section>
-    {% endif %}
+      {% elif extra_sections_by_id.get(display_section) %}
+      {{ render_extra_section(extra_sections_by_id[display_section]) }}
 
-    {% if "experience" in sections %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.experience") }}</h2>
-      {% if core.experience.groups %}
-        {% for group in core.experience.groups %}
-        {{ sober.experience_group(group, section_details.experience) }}
-        {% endfor %}
-      {% else %}
-      {{ sober.item_list(core.experience["items"], section_details.experience) }}
-      {% endif %}
-    </section>
-    {% endif %}
+      {% elif display_section == "degrees" and "degrees" in sections %}
+      <section class="sober-section">
+        <h2>{{ section_title("degrees", "cv.sections.education") }}</h2>
+        {{ sober.item_list(core.education["items"], section_details.degrees) }}
+      </section>
 
-    {% if "research_stays" in sections %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.research_stays") }}</h2>
-      {{ sober.item_list(core.research_stays["items"], section_details.research_stays) }}
-    </section>
-    {% endif %}
-
-    {% if "publications" in sections %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.publications") }}</h2>
-      {% if core.publications["items"] %}
-        {% for publication in core.publications["items"] %}
-        {% if section_details.publications == "micro" %}
-        {{ sober.compact_entry_block(publication) }}
+      {% elif display_section == "experience" and "experience" in sections %}
+      <section class="sober-section">
+        <h2>{{ section_title("experience", "cv.sections.experience") }}</h2>
+        {% if core.experience.groups %}
+          {% for group in core.experience.groups %}
+          {{ sober.experience_group(group, section_details.experience) }}
+          {% endfor %}
         {% else %}
-        {{ sober.entry_block(publication, t("cv.labels.publication")) }}
+        {{ sober.item_list(core.experience["items"], section_details.experience) }}
         {% endif %}
-        {% endfor %}
-      {% else %}
-      <p class="sober-empty">{{ t("cv.document.no_publications") }}</p>
+      </section>
+
+      {% elif display_section == "research_stays" and "research_stays" in sections %}
+      <section class="sober-section">
+        <h2>{{ section_title("research_stays", "cv.sections.research_stays") }}</h2>
+        {{ sober.item_list(core.research_stays["items"], section_details.research_stays) }}
+      </section>
+
+      {% elif display_section == "publications" and "publications" in sections %}
+      <section class="sober-section">
+        <h2>{{ section_title("publications", "cv.sections.publications") }}</h2>
+        {% if core.publications["items"] %}
+          {% for publication in core.publications["items"] %}
+          {% if section_details.publications == "micro" %}
+          {{ sober.compact_entry_block(publication) }}
+          {% else %}
+          {{ sober.entry_block(publication, t("cv.labels.publication")) }}
+          {% endif %}
+          {% endfor %}
+        {% else %}
+        <p class="sober-empty">{{ t("cv.document.no_publications") }}</p>
+        {% endif %}
+      </section>
+
+      {% elif display_section == "research_projects" and "research_projects" in sections %}
+      <section class="sober-section">
+        <h2>{{ section_title("research_projects", "cv.sections.research_projects") }}</h2>
+        {{ sober.item_list(core.research_projects["items"], section_details.research_projects) }}
+      </section>
+
+      {% elif display_section == "honors" and "honors" in sections %}
+      <section class="sober-section">
+        <h2>{{ section_title("honors", "cv.sections.honors") }}</h2>
+        {{ sober.item_list(core.honors["items"], section_details.honors) }}
+      </section>
+
+      {% elif display_section == "grants" and "grants" in sections %}
+      <section class="sober-section">
+        <h2>{{ section_title("grants", "cv.sections.grants") }}</h2>
+        {{ sober.item_list(core.grants["items"], section_details.grants) }}
+      </section>
+
+      {% elif display_section == "certifications" and "certifications" in sections and section_details.certifications != "aggregate" %}
+      <section class="sober-section">
+        <h2>{{ section_title("certifications", "cv.sections.certifications") }}</h2>
+        {{ sober.item_list(aggregates.certifications["items"], section_details.certifications) }}
+      </section>
+
+      {% elif display_section == "teaching" and "teaching" in sections %}
+      <section class="sober-section">
+        <h2>{{ section_title("teaching", "cv.sections.teaching") }}</h2>
+        {% if aggregates.teaching.summary.metrics %}
+        <div class="sober-metrics">
+          {% for metric in aggregates.teaching.summary.metrics %}
+          <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if section_details.teaching == "aggregate" and sober_view.featured_ids.get("university_classes") and aggregates.teaching.classes["items"] %}
+        <h3>{{ t("cv.sections.relevant_courses") }}</h3>
+        <p class="sober-note">
+          {% for course in aggregates.teaching.classes["items"] -%}
+          {{ course.title }}{% if not loop.last %}; {% endif %}
+          {%- endfor %}
+        </p>
+        {% endif %}
+
+        {% if section_details.teaching == "aggregate" and aggregates.teaching.supervision["items"] %}
+        <h3>{{ t("cv.sections.academic_supervision") }}</h3>
+        {{ sober.item_list(aggregates.teaching.supervision["items"], "compact") }}
+        {% endif %}
+
+        {% if section_details.teaching != "aggregate" %}
+        <h3>{{ t("cv.sections.university_classes") }}</h3>
+        {{ sober.item_list(aggregates.teaching.classes["items"], section_details.teaching) }}
+
+        <h3>{{ t("cv.sections.academic_supervision") }}</h3>
+        {{ sober.item_list(aggregates.teaching.supervision["items"], section_details.teaching) }}
+
+        <h3>{{ t("cv.sections.teaching_innovation_projects") }}</h3>
+        {{ sober.item_list(aggregates.teaching.innovation_projects["items"], section_details.teaching) }}
+        {% endif %}
+      </section>
+
+      {% elif display_section == "software" and ("software_projects" in sections or "software_packages" in sections) %}
+      <section class="sober-section">
+        <h2>{{ section_title("software", "cv.sections.software") }}</h2>
+        {% if aggregates.software.summary.metrics %}
+        <div class="sober-metrics">
+          {% for metric in aggregates.software.summary.metrics %}
+          <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if "software_projects" in sections and section_details.software_projects != "aggregate" %}
+        <h3>{{ section_title("software_projects", "cv.sections.software_projects") }}</h3>
+        {{ sober.item_list(aggregates.software.projects["items"], section_details.software_projects) }}
+        {% endif %}
+
+        {% if "software_packages" in sections and section_details.software_packages != "aggregate" %}
+        <h3>{{ section_title("software_packages", "cv.sections.software_packages") }}</h3>
+        {{ sober.item_list(aggregates.software.packages["items"], section_details.software_packages) }}
+        {% endif %}
+      </section>
+
+      {% elif display_section == "dissemination" and "dissemination" in sections and render_options.get("include_dissemination", true) %}
+      <section class="sober-section">
+        <h2>{{ section_title("dissemination", "cv.sections.dissemination") }}</h2>
+        {% if aggregates.dissemination.summary.metrics %}
+        <div class="sober-metrics">
+          {% for metric in aggregates.dissemination.summary.metrics %}
+          <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if aggregates.dissemination.summary.highlights %}
+        <p class="sober-note">{{ aggregates.dissemination.summary.highlights | join(". ") }}</p>
+        {% endif %}
+
+        {% if section_details.dissemination == "aggregate" and sober_view.featured_ids.get("scientific_articles") and aggregates.dissemination.scientific_articles["items"] %}
+        <h3>{{ t("cv.sections.selected_outreach") }}</h3>
+        {{ sober.item_list(aggregates.dissemination.scientific_articles["items"], "compact") }}
+        {% endif %}
+
+        {% if section_details.dissemination != "aggregate" %}
+        <h3>{{ t("cv.sections.scientific_dissemination_articles") }}</h3>
+        {{ sober.item_list(aggregates.dissemination.scientific_articles["items"], section_details.dissemination) }}
+
+        <h3>{{ t("cv.sections.presentations") }}</h3>
+        {{ sober.item_list(aggregates.dissemination.presentations["items"], section_details.dissemination) }}
+
+        <h3>{{ t("cv.sections.press") }}</h3>
+        {{ sober.item_list(aggregates.dissemination.press["items"], section_details.dissemination) }}
+
+        <h3>{{ t("cv.sections.social_media") }}</h3>
+        {{ sober.item_list(aggregates.dissemination.social_media["items"], section_details.dissemination) }}
+
+        <h3>{{ t("cv.sections.tv_media") }}</h3>
+        {{ sober.item_list(aggregates.dissemination.tv_media["items"], section_details.dissemination) }}
+        {% endif %}
+      </section>
+
+      {% elif display_section == "reviewing" and "reviewing" in sections %}
+      <section class="sober-section">
+        <h2>{{ section_title("reviewing", "cv.sections.reviewing") }}</h2>
+        {% if aggregates.reviewing.summary.metrics %}
+        <div class="sober-metrics">
+          {% for metric in aggregates.reviewing.summary.metrics %}
+          <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if section_details.reviewing != "aggregate" %}
+        {{ sober.item_list(aggregates.reviewing["items"], section_details.reviewing) }}
+        {% endif %}
+      </section>
       {% endif %}
-    </section>
-    {% endif %}
-
-    {% if "research_projects" in sections %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.research_projects") }}</h2>
-      {{ sober.item_list(core.research_projects["items"], section_details.research_projects) }}
-    </section>
-    {% endif %}
-
-    {% if "honors" in sections %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.honors") }}</h2>
-      {{ sober.item_list(core.honors["items"], section_details.honors) }}
-    </section>
-    {% endif %}
-
-    {% if "grants" in sections %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.grants") }}</h2>
-      {{ sober.item_list(core.grants["items"], section_details.grants) }}
-    </section>
-    {% endif %}
-
-    {% if "certifications" in sections and section_details.certifications != "aggregate" %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.certifications") }}</h2>
-      {{ sober.item_list(aggregates.certifications["items"], section_details.certifications) }}
-    </section>
-    {% endif %}
-
-    {% if "teaching" in sections %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.teaching") }}</h2>
-      {% if aggregates.teaching.summary.metrics %}
-      <div class="sober-metrics">
-        {% for metric in aggregates.teaching.summary.metrics %}
-        <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      {% if section_details.teaching != "aggregate" %}
-      <h3>{{ t("cv.sections.university_classes") }}</h3>
-      {{ sober.item_list(aggregates.teaching.classes["items"], section_details.teaching) }}
-
-      <h3>{{ t("cv.sections.academic_supervision") }}</h3>
-      {{ sober.item_list(aggregates.teaching.supervision["items"], section_details.teaching) }}
-
-      <h3>{{ t("cv.sections.teaching_innovation_projects") }}</h3>
-      {{ sober.item_list(aggregates.teaching.innovation_projects["items"], section_details.teaching) }}
-      {% endif %}
-    </section>
-    {% endif %}
-
-    {% if "software_projects" in sections or "software_packages" in sections %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.software") }}</h2>
-      {% if aggregates.software.summary.metrics %}
-      <div class="sober-metrics">
-        {% for metric in aggregates.software.summary.metrics %}
-        <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      {% if "software_projects" in sections and section_details.software_projects != "aggregate" %}
-      <h3>{{ t("cv.sections.software_projects") }}</h3>
-      {{ sober.item_list(aggregates.software.projects["items"], section_details.software_projects) }}
-      {% endif %}
-
-      {% if "software_packages" in sections and section_details.software_packages != "aggregate" %}
-      <h3>{{ t("cv.sections.software_packages") }}</h3>
-      {{ sober.item_list(aggregates.software.packages["items"], section_details.software_packages) }}
-      {% endif %}
-    </section>
-    {% endif %}
-
-    {% if "dissemination" in sections and render_options.get("include_dissemination", true) %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.dissemination") }}</h2>
-      {% if aggregates.dissemination.summary.metrics %}
-      <div class="sober-metrics">
-        {% for metric in aggregates.dissemination.summary.metrics %}
-        <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
-        {% endfor %}
-      </div>
-      {% endif %}
-      {% if aggregates.dissemination.summary.highlights %}
-      <p class="sober-note">{{ aggregates.dissemination.summary.highlights | join(". ") }}</p>
-      {% endif %}
-
-      {% if section_details.dissemination != "aggregate" %}
-      <h3>{{ t("cv.sections.scientific_dissemination_articles") }}</h3>
-      {{ sober.item_list(aggregates.dissemination.scientific_articles["items"], section_details.dissemination) }}
-
-      <h3>{{ t("cv.sections.presentations") }}</h3>
-      {{ sober.item_list(aggregates.dissemination.presentations["items"], section_details.dissemination) }}
-
-      <h3>{{ t("cv.sections.press") }}</h3>
-      {{ sober.item_list(aggregates.dissemination.press["items"], section_details.dissemination) }}
-
-      <h3>{{ t("cv.sections.social_media") }}</h3>
-      {{ sober.item_list(aggregates.dissemination.social_media["items"], section_details.dissemination) }}
-
-      <h3>{{ t("cv.sections.tv_media") }}</h3>
-      {{ sober.item_list(aggregates.dissemination.tv_media["items"], section_details.dissemination) }}
-      {% endif %}
-    </section>
-    {% endif %}
-
-    {% if "reviewing" in sections %}
-    <section class="sober-section">
-      <h2>{{ t("cv.sections.reviewing") }}</h2>
-      {% if aggregates.reviewing.summary.metrics %}
-      <div class="sober-metrics">
-        {% for metric in aggregates.reviewing.summary.metrics %}
-        <p><strong>{{ metric.value }}</strong> {{ metric.label }}</p>
-        {% endfor %}
-      </div>
-      {% endif %}
-      {% if section_details.reviewing != "aggregate" %}
-      {{ sober.item_list(aggregates.reviewing["items"], section_details.reviewing) }}
-      {% endif %}
-    </section>
-    {% endif %}
+    {% endfor %}
   </body>
 </html>

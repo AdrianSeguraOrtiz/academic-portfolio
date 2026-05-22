@@ -308,6 +308,7 @@ cv:
     classroom_hours_by_degree: Classroom Hours by Degree Programme
     teaching_timeline_snapshot: Teaching Timeline Snapshot
     university_classes: University Classes
+    relevant_courses: Relevant courses
     academic_supervision: Academic Supervision
     teaching_innovation_projects: Teaching Innovation Projects
     dissemination_media: Dissemination and Media
@@ -324,6 +325,7 @@ cv:
     dissemination: Dissemination
     reviewing: Reviewing
     scientific_dissemination_articles: Scientific Dissemination Articles
+    selected_outreach: Selected outreach
     presentations: Presentations
     press: Press
     social_media: Social Media
