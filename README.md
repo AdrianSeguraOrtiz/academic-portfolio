@@ -300,6 +300,32 @@ Models without a page limit report only the generated page count, for example
 Every active CV model includes the profile summary. Page-limited variants use a
 shorter summary level automatically, but they do not remove the summary.
 
+### Application Overlays
+
+Tailored CVs for specific calls should use application overlays instead of new
+permanent model files. An overlay is a small TOML file that points to a base CV
+model, then overrides only application-specific choices such as the summary,
+section order, section titles, detail levels, aggregate limits, output stem, and
+extra fit/highlight sections.
+
+Real overlays should live under `private/applications/`, which is ignored by
+git:
+
+```bash
+make cv-application APPLICATION=private/applications/example_call.toml
+portfolio cv generate --application private/applications/example_call.toml
+```
+
+Use `examples/applications/application_overlay.example.toml` as a neutral
+starting point. Application overlays are currently supported for sober CVs only.
+They cannot hide nuclear sections: degrees, experience, research stays, honors,
+grants, publications, or research projects.
+
+When an overlay has a page limit, the normal fitting process may aggregate
+non-core sections. Use `preserve_sections_on_fit` in `[layout]` for non-core
+sections that must remain itemized during fitting, for example software or
+teaching blocks.
+
 ### Page Limits
 
 Dedicated short-model TOML files are no longer part of the active model set.

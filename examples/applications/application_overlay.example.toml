@@ -1,0 +1,90 @@
+base_model = "academic_sober"
+name = "example_application"
+language = "en"
+output_stem = "Example_Application_CV"
+page_limit = 7
+
+summary_override = """
+Write a concise application-specific profile here. Keep it evidence-based and
+limited to information already available in the canonical portfolio data.
+"""
+
+section_order = [
+  "profile",
+  "application_fit",
+  "degrees",
+  "experience",
+  "research_stays",
+  "publications",
+  "software",
+  "teaching",
+  "research_projects",
+  "honors",
+  "grants",
+  "reviewing",
+  "dissemination",
+]
+
+[section_titles]
+application_fit = "Selected fit for this application"
+software = "Research software and open science"
+publications = "Publications"
+
+[layout]
+preserve_sections_on_fit = ["software_projects", "software_packages"]
+
+[fit_detail_floors]
+degrees = "standard"
+
+[featured_ids]
+# Example: software_projects = ["software_project_id", "another_software_project_id"]
+software_projects = []
+# Example: university_classes = ["course_id", "another_course_id"]
+university_classes = []
+# Example: scientific_articles = ["scientific_article_id"]
+scientific_articles = []
+
+[task_filters.experience]
+max_tasks_per_record = 5
+include_keywords = [
+  "keyword that should be present in existing task text",
+  "another relevant keyword",
+]
+exclude_keywords = [
+  "keyword that should suppress an existing task",
+]
+
+[sections]
+profile = "standard"
+current_positions = "hidden"
+degrees = "standard"
+certifications = "aggregate"
+experience = "standard"
+research_stays = "standard"
+honors = "compact"
+grants = "compact"
+publications = "compact"
+software_projects = "standard"
+software_packages = "standard"
+research_projects = "compact"
+teaching = "compact"
+dissemination = "aggregate"
+reviewing = "aggregate"
+
+[limits]
+max_certifications = 2
+max_scientific_articles = 2
+max_presentations = 0
+max_press = 0
+max_social_media = 0
+max_tv_media = 0
+
+[[extra_sections]]
+id = "application_fit"
+title = "Selected fit for this application"
+placement = "after_summary"
+style = "bullets"
+items = [
+  "Add a concise highlight grounded in canonical YAML data.",
+  "Add another application-specific highlight without introducing new facts.",
+]

@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.table import Table
 
 from academic_portfolio.cv import CVOutput, generate_cv
+from academic_portfolio.i18n import DEFAULT_LANGUAGE
 from academic_portfolio.loader import load_data
 from academic_portfolio.resolver import PortfolioResolver
 from academic_portfolio.site import generate_all_sites, generate_site
@@ -82,8 +83,13 @@ def data_resolve(
 @cv_app.command("generate")
 def cv_generate(
     model: str = typer.Option("academic_rich", help="CV model name or TOML path."),
+    application: Path | None = typer.Option(
+        None,
+        "--application",
+        help="Application overlay TOML path. When provided, it supplies the base model.",
+    ),
     output_format: str = typer.Option("pdf", "--format", help="Output format: pdf or html."),
-    language: str = typer.Option("en", "--lang", help="Output language: en or es."),
+    language: str | None = typer.Option(None, "--lang", help="Output language: en or es."),
     pages: int | None = typer.Option(
         None,
         "--pages",
@@ -98,12 +104,14 @@ def cv_generate(
 ) -> None:
     """Generate a CV from a configured model."""
 
+    resolved_language = language if language is not None else (None if application else DEFAULT_LANGUAGE)
     output = generate_cv(
         model=model,
+        application=application,
         output_dir=output_dir,
         output_format=output_format,
         page_limit=pages,
-        language=language,
+        language=resolved_language,
         data_dir=data_dir,
         model_dir=model_dir,
         template_dir=template_dir,

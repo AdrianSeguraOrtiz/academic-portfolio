@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from contextlib import contextmanager
 from contextvars import ContextVar
-from dataclasses import dataclass, fields, replace
+from dataclasses import dataclass, field as dataclass_field, fields, replace
 from datetime import date
 import json
 from pathlib import Path
@@ -93,6 +93,51 @@ AGGREGABLE_SECTIONS = {
     "dissemination",
     "reviewing",
 }
+FEATURED_RECORD_COLLECTIONS = {
+    "certifications",
+    "software_projects",
+    "software_packages",
+    "reviewing",
+    "university_classes",
+    "academic_supervision",
+    "teaching_innovation_projects",
+    "scientific_articles",
+    "presentations",
+    "press",
+    "social_media",
+    "tv_media",
+}
+TASK_FILTER_SECTIONS = {"experience"}
+SOBER_DISPLAY_SECTIONS = (
+    "profile",
+    "degrees",
+    "experience",
+    "research_stays",
+    "publications",
+    "research_projects",
+    "honors",
+    "grants",
+    "certifications",
+    "teaching",
+    "software",
+    "dissemination",
+    "reviewing",
+)
+SOBER_DISPLAY_SECTION_TO_CV_SECTIONS = {
+    "profile": {"profile"},
+    "degrees": {"degrees"},
+    "experience": {"experience"},
+    "research_stays": {"research_stays"},
+    "publications": {"publications"},
+    "research_projects": {"research_projects"},
+    "honors": {"honors"},
+    "grants": {"grants"},
+    "certifications": {"certifications"},
+    "teaching": {"teaching"},
+    "software": {"software_projects", "software_packages"},
+    "dissemination": {"dissemination"},
+    "reviewing": {"reviewing"},
+}
 PDF_PAGE_PATTERN = re.compile(rb"/Type\s*/Page\b")
 _ACTIVE_TRANSLATOR: ContextVar[Translator | None] = ContextVar(
     "academic_portfolio_cv_translator",
@@ -111,6 +156,14 @@ class CVModel:
     sections: dict[str, str]
     layout: dict[str, Any]
     limits: dict[str, Any]
+    output_stem: str | None = None
+    summary_override: str | None = None
+    section_order: list[str] = dataclass_field(default_factory=list)
+    section_titles: dict[str, str] = dataclass_field(default_factory=dict)
+    extra_sections: list[dict[str, Any]] = dataclass_field(default_factory=list)
+    fit_detail_floors: dict[str, str] = dataclass_field(default_factory=dict)
+    featured_ids: dict[str, list[str]] = dataclass_field(default_factory=dict)
+    task_filters: dict[str, dict[str, Any]] = dataclass_field(default_factory=dict)
 
     @property
     def reverse_chronological(self) -> bool:
@@ -148,6 +201,27 @@ class CVOutput:
     page_count: int | None = None
     page_limit: int | None = None
     fit_status: str = "not_checked"
+
+
+@dataclass(frozen=True)
+class ApplicationOverlay:
+    path: Path
+    base_model: str
+    name: str | None = None
+    title: str | None = None
+    language: str | None = None
+    output_stem: str | None = None
+    page_limit: int | None = None
+    summary_override: str | None = None
+    sections: dict[str, str] = dataclass_field(default_factory=dict)
+    layout: dict[str, Any] = dataclass_field(default_factory=dict)
+    limits: dict[str, Any] = dataclass_field(default_factory=dict)
+    section_order: list[str] = dataclass_field(default_factory=list)
+    section_titles: dict[str, str] = dataclass_field(default_factory=dict)
+    extra_sections: list[dict[str, Any]] = dataclass_field(default_factory=list)
+    fit_detail_floors: dict[str, str] = dataclass_field(default_factory=dict)
+    featured_ids: dict[str, list[str]] = dataclass_field(default_factory=dict)
+    task_filters: dict[str, dict[str, Any]] = dataclass_field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -212,6 +286,119 @@ def load_cv_model(model_path: Path | str) -> CVModel:
     )
 
 
+def load_application_overlay(overlay_path: Path | str) -> ApplicationOverlay:
+    path = Path(overlay_path)
+    with path.open("rb") as handle:
+        raw_overlay = tomllib.load(handle)
+
+    _validate_overlay_shape(path, raw_overlay)
+
+    page_limit = (
+        _parse_page_limit(raw_overlay.get("page_limit"))
+        if raw_overlay.get("page_limit") is not None
+        else None
+    )
+    sections = {
+        str(section): str(detail)
+        for section, detail in dict(raw_overlay.get("sections", {})).items()
+    }
+    layout = dict(raw_overlay.get("layout", {}))
+    limits = dict(raw_overlay.get("limits", {}))
+    section_order = [str(section) for section in raw_overlay.get("section_order", [])]
+    section_titles = {
+        str(section): str(title)
+        for section, title in dict(raw_overlay.get("section_titles", {})).items()
+    }
+    extra_sections = _normalized_extra_sections(path, raw_overlay.get("extra_sections", []))
+    fit_detail_floors = {
+        str(section): str(detail)
+        for section, detail in dict(raw_overlay.get("fit_detail_floors", {})).items()
+    }
+    featured_ids = {
+        str(collection): _string_list(ids)
+        for collection, ids in dict(raw_overlay.get("featured_ids", {})).items()
+    }
+    task_filters = _normalized_task_filters(path, raw_overlay.get("task_filters", {}))
+
+    _validate_overlay_values(
+        path=path,
+        sections=sections,
+        layout=layout,
+        limits=limits,
+        section_order=section_order,
+        section_titles=section_titles,
+        extra_sections=extra_sections,
+        fit_detail_floors=fit_detail_floors,
+        featured_ids=featured_ids,
+        task_filters=task_filters,
+    )
+
+    return ApplicationOverlay(
+        path=path,
+        base_model=str(raw_overlay["base_model"]),
+        name=str(raw_overlay["name"]) if raw_overlay.get("name") else None,
+        title=str(raw_overlay["title"]) if raw_overlay.get("title") else None,
+        language=str(raw_overlay["language"]) if raw_overlay.get("language") else None,
+        output_stem=str(raw_overlay["output_stem"]) if raw_overlay.get("output_stem") else None,
+        page_limit=page_limit,
+        summary_override=(
+            str(raw_overlay["summary_override"]) if raw_overlay.get("summary_override") else None
+        ),
+        sections=sections,
+        layout=layout,
+        limits=limits,
+        section_order=section_order,
+        section_titles=section_titles,
+        extra_sections=extra_sections,
+        fit_detail_floors=fit_detail_floors,
+        featured_ids=featured_ids,
+        task_filters=task_filters,
+    )
+
+
+def load_cv_model_with_application(
+    overlay_path: Path | str,
+    model_dir: Path | str = "cv_models",
+) -> CVModel:
+    overlay = load_application_overlay(overlay_path)
+    base_model = load_cv_model(model_path_for(overlay.base_model, model_dir))
+    if base_model.style != "sober":
+        raise ValueError("Application overlays are currently supported only for sober CV models.")
+
+    merged_sections = {**base_model.sections, **overlay.sections}
+    merged_layout = {**base_model.layout, **overlay.layout}
+    merged_limits = {**base_model.limits, **overlay.limits}
+    merged_model = replace(
+        base_model,
+        name=overlay.name or base_model.name,
+        title=overlay.title or base_model.title,
+        language=overlay.language or base_model.language,
+        page_limit=overlay.page_limit if overlay.page_limit is not None else base_model.page_limit,
+        sections=merged_sections,
+        layout=merged_layout,
+        limits=merged_limits,
+        output_stem=overlay.output_stem,
+        summary_override=overlay.summary_override,
+        section_order=overlay.section_order,
+        section_titles=overlay.section_titles,
+        extra_sections=overlay.extra_sections,
+        fit_detail_floors=overlay.fit_detail_floors,
+        featured_ids=overlay.featured_ids,
+        task_filters=overlay.task_filters,
+    )
+
+    _validate_model_values(
+        path=overlay.path,
+        style=merged_model.style,
+        page_limit=merged_model.page_limit,
+        sections=merged_model.sections,
+        layout=merged_model.layout,
+        limits=merged_model.limits,
+    )
+    _validate_sober_section_order(overlay.path, merged_model)
+    return merged_model
+
+
 def _validate_model_shape(path: Path, raw_model: dict[str, Any]) -> None:
     allowed_fields = {
         "name",
@@ -241,6 +428,221 @@ def _validate_model_shape(path: Path, raw_model: dict[str, Any]) -> None:
 
     if "limits" in raw_model and not isinstance(raw_model["limits"], dict):
         raise ValueError(f"{path} must define [limits] as a TOML table.")
+
+
+def _validate_overlay_shape(path: Path, raw_overlay: dict[str, Any]) -> None:
+    allowed_fields = {
+        "base_model",
+        "name",
+        "title",
+        "language",
+        "output_stem",
+        "page_limit",
+        "summary_override",
+        "section_order",
+        "section_titles",
+        "sections",
+        "layout",
+        "limits",
+        "extra_sections",
+        "fit_detail_floors",
+        "featured_ids",
+        "task_filters",
+    }
+    unknown_fields = sorted(set(raw_overlay) - allowed_fields)
+    if unknown_fields:
+        raise ValueError(f"{path} defines unknown application overlay fields: {unknown_fields}")
+
+    if "base_model" not in raw_overlay:
+        raise ValueError(f"{path} is missing required application overlay field: base_model")
+
+    for table_name in (
+        "sections",
+        "layout",
+        "limits",
+        "section_titles",
+        "fit_detail_floors",
+        "featured_ids",
+        "task_filters",
+    ):
+        if table_name in raw_overlay and not isinstance(raw_overlay[table_name], dict):
+            raise ValueError(f"{path} must define [{table_name}] as a TOML table.")
+
+    if "section_order" in raw_overlay and not isinstance(raw_overlay["section_order"], list):
+        raise ValueError(f"{path} must define section_order as a TOML array.")
+
+    if "extra_sections" in raw_overlay and not isinstance(raw_overlay["extra_sections"], list):
+        raise ValueError(f"{path} must define [[extra_sections]] as an array of tables.")
+
+
+def _normalized_extra_sections(path: Path, raw_sections: Any) -> list[dict[str, Any]]:
+    extra_sections = []
+    for index, raw_section in enumerate(raw_sections):
+        if not isinstance(raw_section, dict):
+            raise ValueError(f"{path} extra_sections[{index}] must be a TOML table.")
+        section_id = str(raw_section.get("id") or "").strip()
+        if not section_id:
+            raise ValueError(f"{path} extra_sections[{index}] is missing id.")
+        title = str(raw_section.get("title") or "").strip()
+        placement = str(raw_section.get("placement") or "after_summary").strip()
+        style = str(raw_section.get("style") or "bullets").strip()
+        paragraphs = _string_list(raw_section.get("paragraphs", []))
+        items = _string_list(raw_section.get("items", []))
+        extra_sections.append(
+            {
+                "id": section_id,
+                "title": title,
+                "placement": placement,
+                "style": style,
+                "paragraphs": paragraphs,
+                "items": items,
+            }
+        )
+    return extra_sections
+
+
+def _string_list(value: Any) -> list[str]:
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ValueError(f"Expected a TOML array of strings, got {type(value).__name__}.")
+    return [str(item) for item in value if str(item).strip()]
+
+
+def _normalized_task_filters(path: Path, raw_filters: Any) -> dict[str, dict[str, Any]]:
+    if raw_filters is None:
+        return {}
+    if not isinstance(raw_filters, dict):
+        raise ValueError(f"{path} must define [task_filters] as a TOML table.")
+
+    filters: dict[str, dict[str, Any]] = {}
+    for section, raw_filter in raw_filters.items():
+        section_name = str(section)
+        if section_name not in TASK_FILTER_SECTIONS:
+            raise ValueError(f"{path} defines unsupported task filter section: {section_name}")
+        if not isinstance(raw_filter, dict):
+            raise ValueError(f"{path} task_filters.{section_name} must be a TOML table.")
+
+        max_tasks = raw_filter.get("max_tasks_per_record")
+        if max_tasks is not None:
+            try:
+                max_tasks = int(max_tasks)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"{path} task_filters.{section_name}.max_tasks_per_record must be an integer."
+                ) from exc
+            if max_tasks < 0:
+                raise ValueError(
+                    f"{path} task_filters.{section_name}.max_tasks_per_record must be non-negative."
+                )
+
+        filters[section_name] = {
+            "max_tasks_per_record": max_tasks,
+            "include_keywords": _string_list(raw_filter.get("include_keywords", [])),
+            "exclude_keywords": _string_list(raw_filter.get("exclude_keywords", [])),
+        }
+    return filters
+
+
+def _validate_overlay_values(
+    *,
+    path: Path,
+    sections: dict[str, str],
+    layout: dict[str, Any],
+    limits: dict[str, Any],
+    section_order: list[str],
+    section_titles: dict[str, str],
+    extra_sections: list[dict[str, Any]],
+    fit_detail_floors: dict[str, str],
+    featured_ids: dict[str, list[str]],
+    task_filters: dict[str, dict[str, Any]],
+) -> None:
+    unknown_sections = sorted(set(sections) - CV_SECTIONS)
+    if unknown_sections:
+        raise ValueError(f"{path} defines unknown CV sections: {unknown_sections}")
+
+    invalid_details = {
+        section: detail
+        for section, detail in sections.items()
+        if detail not in SECTION_DETAIL_LEVELS
+    }
+    if invalid_details:
+        raise ValueError(f"{path} defines invalid section detail levels: {invalid_details}")
+
+    hidden_nuclear_sections = sorted(
+        section
+        for section in NUCLEAR_SECTIONS
+        if sections.get(section) == "hidden"
+    )
+    if hidden_nuclear_sections:
+        raise ValueError(f"{path} cannot hide nuclear CV sections: {hidden_nuclear_sections}")
+
+    _validate_model_values(
+        path=path,
+        style="sober",
+        page_limit=None,
+        sections={section: "full" for section in NUCLEAR_SECTIONS} | sections,
+        layout=layout,
+        limits=limits,
+    )
+
+    extra_ids = {section["id"] for section in extra_sections}
+    duplicate_extra_ids = sorted(
+        section_id
+        for section_id in extra_ids
+        if [section["id"] for section in extra_sections].count(section_id) > 1
+    )
+    if duplicate_extra_ids:
+        raise ValueError(f"{path} defines duplicate extra section ids: {duplicate_extra_ids}")
+
+    reserved_extra_ids = sorted(extra_ids & set(SOBER_DISPLAY_SECTIONS))
+    if reserved_extra_ids:
+        raise ValueError(f"{path} extra section ids cannot reuse built-in sections: {reserved_extra_ids}")
+
+    allowed_order_ids = set(SOBER_DISPLAY_SECTIONS) | extra_ids
+    unknown_order_ids = sorted(set(section_order) - allowed_order_ids)
+    if unknown_order_ids:
+        raise ValueError(f"{path} section_order contains unknown sections: {unknown_order_ids}")
+
+    unknown_title_ids = sorted(set(section_titles) - allowed_order_ids)
+    if unknown_title_ids:
+        raise ValueError(f"{path} section_titles contains unknown sections: {unknown_title_ids}")
+
+    invalid_extra_styles = sorted(
+        {section["style"] for section in extra_sections} - {"bullets", "paragraphs"}
+    )
+    if invalid_extra_styles:
+        raise ValueError(f"{path} defines unsupported extra section styles: {invalid_extra_styles}")
+
+    invalid_placements = sorted(
+        {section["placement"] for section in extra_sections} - {"after_summary"}
+    )
+    if invalid_placements:
+        raise ValueError(f"{path} defines unsupported extra section placements: {invalid_placements}")
+
+    unknown_floor_sections = sorted(set(fit_detail_floors) - CV_SECTIONS)
+    if unknown_floor_sections:
+        raise ValueError(f"{path} defines unknown fit detail floor sections: {unknown_floor_sections}")
+
+    invalid_floor_details = {
+        section: detail
+        for section, detail in fit_detail_floors.items()
+        if detail not in SECTION_DETAIL_LEVELS or detail in {"hidden", "aggregate"}
+    }
+    if invalid_floor_details:
+        raise ValueError(f"{path} defines invalid fit detail floors: {invalid_floor_details}")
+
+    unknown_featured_collections = sorted(set(featured_ids) - FEATURED_RECORD_COLLECTIONS)
+    if unknown_featured_collections:
+        raise ValueError(
+            f"{path} defines unsupported featured_id collections: {unknown_featured_collections}"
+        )
+
+    unknown_task_filter_sections = sorted(set(task_filters) - TASK_FILTER_SECTIONS)
+    if unknown_task_filter_sections:
+        raise ValueError(
+            f"{path} defines unsupported task filter sections: {unknown_task_filter_sections}"
+        )
 
 
 def _validate_model_values(
@@ -305,6 +707,28 @@ def _validate_model_values(
             raise ValueError(f"{path} limit {name} must be non-negative: {value}")
 
 
+def _validate_sober_section_order(path: Path, model: CVModel) -> None:
+    if model.style != "sober" or not model.section_order:
+        return
+
+    covered_cv_sections = set()
+    for display_section in model.section_order:
+        covered_cv_sections.update(
+            SOBER_DISPLAY_SECTION_TO_CV_SECTIONS.get(display_section, set())
+        )
+
+    omitted_nuclear_sections = sorted(
+        section
+        for section in NUCLEAR_SECTIONS
+        if model.includes_section(section) and section not in covered_cv_sections
+    )
+    if omitted_nuclear_sections:
+        raise ValueError(
+            f"{path} section_order cannot omit active nuclear CV sections: "
+            f"{omitted_nuclear_sections}"
+        )
+
+
 def _parse_page_limit(value: Any) -> int | None:
     if value is None:
         return None
@@ -336,12 +760,11 @@ def build_cv_view(
 def _build_cv_view(model: CVModel, resolver: PortfolioResolver) -> dict[str, Any]:
     source_records = _load_cv_records(model, resolver)
     source_records = _localized_record_set(source_records, _current_translator())
-    aggregate_records = _aggregate_record_mapping(source_records)
     records = _records_for_model(model, source_records)
     record_mapping = _record_mapping(records)
     site_view = _cv_site_view(resolver)
     core = _core_view(model, record_mapping)
-    aggregates = _aggregate_view(model, record_mapping, aggregate_records)
+    aggregates = _aggregate_view(model, record_mapping)
 
     view: dict[str, Any] = {
         "model": model,
@@ -357,7 +780,7 @@ def _build_cv_view(model: CVModel, resolver: PortfolioResolver) -> dict[str, Any
     if model.style == "rich":
         view["rich_view"] = _rich_cv_view(site_view)
     else:
-        view["sober_view"] = _sober_cv_view(core, aggregates)
+        view["sober_view"] = _sober_cv_view(model, core, aggregates)
 
     return view
 
@@ -504,7 +927,7 @@ def _load_cv_records(model: CVModel, resolver: PortfolioResolver) -> CVRecordSet
         conference_papers,
     )
 
-    return CVRecordSet(
+    record_set = CVRecordSet(
         profile=profile,
         degrees=degrees,
         certifications=certifications,
@@ -528,48 +951,107 @@ def _load_cv_records(model: CVModel, resolver: PortfolioResolver) -> CVRecordSet
         social_media=social_media,
         tv_media=tv_media,
     )
+    _validate_featured_ids_exist(model, record_set)
+    return record_set
+
+
+def _validate_featured_ids_exist(model: CVModel, records: CVRecordSet) -> None:
+    for collection, featured_ids in model.featured_ids.items():
+        available_ids = {str(record.get("id")) for record in getattr(records, collection)}
+        unknown_ids = [record_id for record_id in featured_ids if record_id not in available_ids]
+        if unknown_ids:
+            raise ValueError(
+                f"Unknown featured_ids for {collection}: {', '.join(unknown_ids)}"
+            )
 
 
 def _records_for_model(model: CVModel, records: CVRecordSet) -> CVRecordSet:
     return replace(
         records,
-        certifications=_limit_by_model(model, records.certifications, "max_certifications"),
+        certifications=_featured_limit_by_model(
+            model,
+            records.certifications,
+            "certifications",
+            "max_certifications",
+        ),
         software_projects=_limit_by_model(
             model,
-            records.software_projects,
+            _featured_records_first(model, records.software_projects, "software_projects"),
             "max_software_projects",
         ),
         software_packages=_limit_by_model(
             model,
-            records.software_packages,
+            _featured_records_first(model, records.software_packages, "software_packages"),
             "max_software_packages",
         ),
-        reviewing=_limit_by_model(model, records.reviewing, "max_reviewing"),
-        university_classes=_limit_by_model(
+        reviewing=_featured_limit_by_model(model, records.reviewing, "reviewing", "max_reviewing"),
+        university_classes=_featured_limit_by_model(
             model,
             records.university_classes,
+            "university_classes",
             "max_university_classes",
         ),
-        academic_supervision=_limit_by_model(
+        academic_supervision=_featured_limit_by_model(
             model,
             records.academic_supervision,
+            "academic_supervision",
             "max_academic_supervision",
         ),
-        teaching_innovation_projects=_limit_by_model(
+        teaching_innovation_projects=_featured_limit_by_model(
             model,
             records.teaching_innovation_projects,
+            "teaching_innovation_projects",
             "max_teaching_innovation_projects",
         ),
-        scientific_articles=_limit_by_model(
+        scientific_articles=_featured_limit_by_model(
             model,
             records.scientific_articles,
+            "scientific_articles",
             "max_scientific_articles",
         ),
-        presentations=_limit_by_model(model, records.presentations, "max_presentations"),
-        press=_limit_by_model(model, records.press, "max_press"),
-        social_media=_limit_by_model(model, records.social_media, "max_social_media"),
-        tv_media=_limit_by_model(model, records.tv_media, "max_tv_media"),
+        presentations=_featured_limit_by_model(
+            model,
+            records.presentations,
+            "presentations",
+            "max_presentations",
+        ),
+        press=_featured_limit_by_model(model, records.press, "press", "max_press"),
+        social_media=_featured_limit_by_model(
+            model,
+            records.social_media,
+            "social_media",
+            "max_social_media",
+        ),
+        tv_media=_featured_limit_by_model(model, records.tv_media, "tv_media", "max_tv_media"),
     )
+
+
+def _featured_limit_by_model(
+    model: CVModel,
+    records: list[dict[str, Any]],
+    collection: str,
+    limit_name: str,
+) -> list[dict[str, Any]]:
+    return _limit_by_model(model, _featured_records_first(model, records, collection), limit_name)
+
+
+def _featured_records_first(
+    model: CVModel,
+    records: list[dict[str, Any]],
+    collection: str,
+) -> list[dict[str, Any]]:
+    featured_ids = model.featured_ids.get(collection, [])
+    if not featured_ids:
+        return records
+
+    by_id = {str(record.get("id")): record for record in records}
+    featured_records = [by_id[record_id] for record_id in featured_ids if record_id in by_id]
+    remaining_records = [
+        record
+        for record in records
+        if str(record.get("id")) not in set(featured_ids)
+    ]
+    return featured_records + remaining_records
 
 
 def _record_mapping(records: CVRecordSet) -> dict[str, Any]:
@@ -645,23 +1127,6 @@ def _localized_participation(value: Any) -> str:
     return text
 
 
-def _aggregate_record_mapping(records: CVRecordSet) -> dict[str, Any]:
-    return {
-        "certifications": records.certifications,
-        "software_projects": records.software_projects,
-        "software_packages": records.software_packages,
-        "reviewing": records.reviewing,
-        "university_classes": records.university_classes,
-        "academic_supervision": records.academic_supervision,
-        "teaching_innovation_projects": records.teaching_innovation_projects,
-        "scientific_articles": records.scientific_articles,
-        "presentations": records.presentations,
-        "press": records.press,
-        "social_media": records.social_media,
-        "tv_media": records.tv_media,
-    }
-
-
 def _active_sections(model: CVModel) -> list[str]:
     return [section for section, detail in model.sections.items() if detail != "hidden"]
 
@@ -695,8 +1160,19 @@ def _rich_cv_view(site_view: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _sober_cv_view(core: dict[str, Any], aggregates: dict[str, Any]) -> dict[str, Any]:
+def _sober_cv_view(
+    model: CVModel,
+    core: dict[str, Any],
+    aggregates: dict[str, Any],
+) -> dict[str, Any]:
     return {
+        "section_order": _sober_section_order(model),
+        "section_titles": model.section_titles,
+        "extra_sections": model.extra_sections,
+        "extra_sections_by_id": {
+            section["id"]: section for section in model.extra_sections
+        },
+        "featured_ids": model.featured_ids,
         "atomic_sections": {
             "degrees": core["education"]["items"],
             "experience": core["experience"]["items"],
@@ -724,6 +1200,18 @@ def _sober_cv_view(core: dict[str, Any], aggregates: dict[str, Any]) -> dict[str
             "reviewing": aggregates["reviewing"]["items"],
         },
     }
+
+
+def _sober_section_order(model: CVModel) -> list[str]:
+    if model.section_order:
+        return list(model.section_order)
+
+    section_order = list(SOBER_DISPLAY_SECTIONS)
+    for extra_section in reversed(model.extra_sections):
+        if extra_section.get("placement") != "after_summary":
+            continue
+        section_order.insert(1, str(extra_section["id"]))
+    return section_order
 
 
 def _cv_site_view(resolver: PortfolioResolver) -> dict[str, Any]:
@@ -760,14 +1248,23 @@ def _cv_summary_view(
         "micro": micro,
     }
     active_level = _summary_level_for_model(model)
+    if model.summary_override:
+        levels[active_level] = _summary_level(
+            level=active_level,
+            paragraphs=_paragraphs_from_text(model.summary_override),
+        )
     return {
         "active_level": active_level,
         "active": levels[active_level],
         "levels": levels,
-        "summary_full": full,
-        "summary_compact": compact,
-        "summary_micro": micro,
+        "summary_full": levels["full"],
+        "summary_compact": levels["compact"],
+        "summary_micro": levels["micro"],
     }
+
+
+def _paragraphs_from_text(value: str) -> list[str]:
+    return [paragraph.strip() for paragraph in re.split(r"\n\s*\n", value) if paragraph.strip()]
 
 
 def _summary_level(level: str, paragraphs: list[str]) -> dict[str, Any]:
@@ -1195,7 +1692,7 @@ def _core_view(model: CVModel, records: dict[str, Any]) -> dict[str, Any]:
             "positions": _finalize_entries(
                 model,
                 [
-                    _prepare_position(record, model.section_detail("current_positions"))
+                    _prepare_position(record, model.section_detail("current_positions"), model)
                     for record in profile.get("current_positions", [])
                 ],
             ),
@@ -1230,7 +1727,6 @@ def _core_view(model: CVModel, records: dict[str, Any]) -> dict[str, Any]:
 def _aggregate_view(
     model: CVModel,
     records: dict[str, Any],
-    aggregate_records: dict[str, Any],
 ) -> dict[str, Any]:
     certifications = _entry_block(
         model,
@@ -1253,8 +1749,8 @@ def _aggregate_view(
             _prepare_software_package,
         ),
         "summary": _software_summary(
-            aggregate_records["software_projects"],
-            aggregate_records["software_packages"],
+            records["software_projects"],
+            records["software_packages"],
         ),
     }
     teaching = {
@@ -1278,9 +1774,9 @@ def _aggregate_view(
             _prepare_teaching_innovation_project,
         ),
         "summary": _teaching_summary(
-            aggregate_records["university_classes"],
-            aggregate_records["academic_supervision"],
-            aggregate_records["teaching_innovation_projects"],
+            records["university_classes"],
+            records["academic_supervision"],
+            records["teaching_innovation_projects"],
         ),
     }
     dissemination = {
@@ -1306,11 +1802,11 @@ def _aggregate_view(
         ),
         "tv_media": _entry_block(model, "dissemination", records["tv_media"], _prepare_tv_item),
         "summary": _dissemination_summary(
-            aggregate_records["scientific_articles"],
-            aggregate_records["presentations"],
-            aggregate_records["press"],
-            aggregate_records["social_media"],
-            aggregate_records["tv_media"],
+            records["scientific_articles"],
+            records["presentations"],
+            records["press"],
+            records["social_media"],
+            records["tv_media"],
         ),
     }
     reviewing = _entry_block(model, "reviewing", records["reviewing"], _prepare_reviewing)
@@ -1321,7 +1817,7 @@ def _aggregate_view(
         "dissemination": dissemination,
         "reviewing": {
             **reviewing,
-            "summary": _reviewing_summary(aggregate_records["reviewing"]),
+            "summary": _reviewing_summary(records["reviewing"]),
         },
         "highlights": _aggregate_highlights(software, teaching, dissemination, reviewing),
     }
@@ -1345,7 +1841,12 @@ def _entry_block(
 
 
 def _experience_block(model: CVModel, records: list[dict[str, Any]]) -> dict[str, Any]:
-    block = _entry_block(model, "experience", records, _prepare_position)
+    block = _entry_block(
+        model,
+        "experience",
+        records,
+        lambda record, detail: _prepare_position(record, detail, model),
+    )
     block["groups"] = _experience_groups(model, records, block["detail"])
     return block
 
@@ -1376,7 +1877,7 @@ def _experience_groups(
         )
         role_entries = _finalize_entries(
             model,
-            [_prepare_position(record, detail) for record in sorted_records],
+            [_prepare_position(record, detail, model) for record in sorted_records],
         )
         roles = [
             _experience_role(record, entry)
@@ -1579,7 +2080,11 @@ def _prepare_certification(record: dict[str, Any], detail: str) -> dict[str, Any
     )
 
 
-def _prepare_position(record: dict[str, Any], detail: str) -> dict[str, Any]:
+def _prepare_position(
+    record: dict[str, Any],
+    detail: str,
+    model: CVModel | None = None,
+) -> dict[str, Any]:
     meta_parts = []
     if record.get("department"):
         meta_parts.append(str(record["department"]))
@@ -1592,9 +2097,53 @@ def _prepare_position(record: dict[str, Any], detail: str) -> dict[str, Any]:
         date=_date_span(record),
         meta=_join_nonempty(meta_parts, separator=" · "),
         references=_references(_reference("grants", record.get("related_grants", []))),
-        tasks=list(record.get("tasks") or []) if _detail_at_least(detail, "full") else [],
+        tasks=_position_tasks(record, detail, model),
         css_class="cv-entry-experience",
     )
+
+
+def _position_tasks(
+    record: dict[str, Any],
+    detail: str,
+    model: CVModel | None = None,
+) -> list[str]:
+    tasks = [str(task) for task in record.get("tasks") or [] if str(task).strip()]
+    if not tasks:
+        return []
+
+    task_filter = model.task_filters.get("experience") if model is not None else None
+    if not task_filter:
+        return tasks if _detail_at_least(detail, "full") else []
+
+    if detail in {"hidden", "micro"}:
+        return []
+
+    include_keywords = _lowered_keywords(task_filter.get("include_keywords", []))
+    exclude_keywords = _lowered_keywords(task_filter.get("exclude_keywords", []))
+    selected_tasks = [
+        task
+        for task in tasks
+        if _task_matches_filter(task, include_keywords, exclude_keywords)
+    ]
+    max_tasks = task_filter.get("max_tasks_per_record")
+    if max_tasks is not None:
+        selected_tasks = selected_tasks[: int(max_tasks)]
+    return selected_tasks
+
+
+def _lowered_keywords(keywords: Any) -> list[str]:
+    return [str(keyword).lower() for keyword in keywords or [] if str(keyword).strip()]
+
+
+def _task_matches_filter(
+    task: str,
+    include_keywords: list[str],
+    exclude_keywords: list[str],
+) -> bool:
+    task_text = task.lower()
+    if include_keywords and not any(keyword in task_text for keyword in include_keywords):
+        return False
+    return not any(keyword in task_text for keyword in exclude_keywords)
 
 
 def _prepare_stay(record: dict[str, Any], detail: str) -> dict[str, Any]:
@@ -2121,6 +2670,21 @@ def _dissemination_summary(
         + len(social_media)
         + len(tv_media)
     )
+    metrics = [
+        _metric_key("dissemination_items", total_items),
+        _metric_key("scientific_articles", len(scientific_articles)),
+    ]
+    if presentations:
+        metrics.append(_metric_key("presentations", len(presentations)))
+    if press:
+        metrics.append(_metric_key("press_items", len(press)))
+    if social_media:
+        metrics.append(_metric_key("social_media_items", len(social_media)))
+    if tv_media:
+        metrics.append(_metric_key("tv_media_items", len(tv_media)))
+    if known_views:
+        metrics.append(_metric_key("known_social_views", _format_number(sum(known_views))))
+
     return {
         "counts": {
             "total_items": total_items,
@@ -2131,15 +2695,7 @@ def _dissemination_summary(
             "tv_media": len(tv_media),
             "known_social_views": _format_number(sum(known_views)),
         },
-        "metrics": [
-            _metric_key("dissemination_items", total_items),
-            _metric_key("scientific_articles", len(scientific_articles)),
-            _metric_key("presentations", len(presentations)),
-            _metric_key("press_items", len(press)),
-            _metric_key("social_media_items", len(social_media)),
-            _metric_key("tv_media_items", len(tv_media)),
-            _metric_key("known_social_views", _format_number(sum(known_views))),
-        ],
+        "metrics": metrics,
         "highlights": _summary_lines(
             (
                 "highest_known_social_media_item",
@@ -2424,7 +2980,8 @@ def generate_cv(
     output_dir: Path | str = "build/cv",
     output_format: str = "pdf",
     page_limit: int | None = None,
-    language: str = DEFAULT_LANGUAGE,
+    language: str | None = DEFAULT_LANGUAGE,
+    application: Path | str | None = None,
     data_dir: Path | str = "data",
     model_dir: Path | str = "cv_models",
     template_dir: Path | str = "templates/cv",
@@ -2433,14 +2990,20 @@ def generate_cv(
     output_format = output_format.lower()
     if output_format not in {"html", "pdf"}:
         raise ValueError(f"Unsupported CV format: {output_format}")
-    if language not in SUPPORTED_LANGUAGES:
-        raise ValueError(f"Unsupported language: {language}")
 
-    cv_model = load_cv_model(model_path_for(model, model_dir))
-    cv_model = replace(cv_model, language=language)
+    if application is not None:
+        cv_model = load_cv_model_with_application(application, model_dir)
+        resolved_language = language or cv_model.language
+    else:
+        cv_model = load_cv_model(model_path_for(model, model_dir))
+        resolved_language = language or DEFAULT_LANGUAGE
+    if resolved_language not in SUPPORTED_LANGUAGES:
+        raise ValueError(f"Unsupported language: {resolved_language}")
+
+    cv_model = replace(cv_model, language=resolved_language)
     cv_model = _with_page_limit_override(cv_model, page_limit)
     resolver = PortfolioResolver(load_data(data_dir))
-    translator = load_translator(language)
+    translator = load_translator(resolved_language)
 
     output_base_dir = Path(output_dir)
     output_stem = _output_stem(cv_model, page_limit)
@@ -2488,6 +3051,9 @@ def _with_page_limit_override(model: CVModel, page_limit: int | None) -> CVModel
 
 
 def _output_stem(model: CVModel, page_limit_override: int | None) -> str:
+    if model.output_stem:
+        return model.output_stem
+
     language_suffix = f"_{model.language}"
     if page_limit_override is None:
         return f"{model.name}{language_suffix}"
@@ -2589,9 +3155,16 @@ def _compressed_model(
         section: _capped_detail(detail, core_detail_cap)
         for section, detail in model.sections.items()
     }
+    preserved_sections = set(model.layout.get("preserve_sections_on_fit") or [])
     for section in AGGREGABLE_SECTIONS:
-        if sections.get(section) != "hidden":
+        if section not in preserved_sections and sections.get(section) != "hidden":
             sections[section] = "aggregate"
+
+    for section, floor in model.fit_detail_floors.items():
+        if sections.get(section) in {None, "hidden"}:
+            continue
+        if SECTION_DETAIL_RANKS[sections[section]] < SECTION_DETAIL_RANKS[floor]:
+            sections[section] = floor
 
     if current_positions_detail is not None:
         sections["current_positions"] = current_positions_detail
@@ -2629,13 +3202,21 @@ def _unique_models(models: list[CVModel]) -> list[CVModel]:
     for model in models:
         signature = (
             tuple(sorted(model.sections.items())),
-            tuple(sorted(model.layout.items())),
+            _hashable_config(model.layout),
         )
         if signature in seen_signatures:
             continue
         seen_signatures.add(signature)
         unique_models.append(model)
     return unique_models
+
+
+def _hashable_config(value: Any) -> Any:
+    if isinstance(value, dict):
+        return tuple(sorted((key, _hashable_config(child)) for key, child in value.items()))
+    if isinstance(value, list):
+        return tuple(_hashable_config(child) for child in value)
+    return value
 
 
 def _page_limit_failure_message(

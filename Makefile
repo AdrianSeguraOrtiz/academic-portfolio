@@ -1,8 +1,9 @@
-.PHONY: install install-playwright validate-data data-summary data-resolve cv cv-pdf cv-html cv-all cv-all-lang cv-site-downloads cv-check clean-cv site site-all clean-site test lint
+.PHONY: install install-playwright validate-data data-summary data-resolve cv cv-application cv-pdf cv-html cv-all cv-all-lang cv-site-downloads cv-check clean-cv site site-all clean-site test lint
 
 PYTHON ?= python3
 VENV ?= .venv
 MODEL ?= academic_rich
+APPLICATION ?=
 FORMAT ?= pdf
 PAGES ?=
 PORTFOLIO_LANG ?= $(if $(filter en es,$(LANG)),$(LANG),en)
@@ -52,6 +53,17 @@ cv:
 		uv run portfolio cv generate --model $(MODEL) --format $(FORMAT) $(CV_LANG_ARGS) $(CV_PAGE_ARGS); \
 	else \
 		$(VENV)/bin/portfolio cv generate --model $(MODEL) --format $(FORMAT) $(CV_LANG_ARGS) $(CV_PAGE_ARGS); \
+	fi
+
+cv-application:
+	@if [ -z "$(APPLICATION)" ]; then \
+		echo "APPLICATION=path/to/application_overlay.toml is required"; \
+		exit 1; \
+	fi
+	@if command -v uv >/dev/null 2>&1; then \
+		uv run portfolio cv generate --application $(APPLICATION) --format $(FORMAT) $(CV_PAGE_ARGS); \
+	else \
+		$(VENV)/bin/portfolio cv generate --application $(APPLICATION) --format $(FORMAT) $(CV_PAGE_ARGS); \
 	fi
 
 cv-pdf:
