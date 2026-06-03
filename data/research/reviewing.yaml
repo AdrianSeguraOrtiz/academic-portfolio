@@ -29,3 +29,8 @@ reviewing:
   publisher: BMC
   manuscripts_reviewed: 2
   last_updated: '2026-05-13'
+- id: reviewing_07
+  journal: Archives of Computational Methods in Engineering
+  publisher: Springer Nature
+  manuscripts_reviewed: 1
+  last_updated: '2026-06-03'
