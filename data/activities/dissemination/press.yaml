@@ -158,3 +158,62 @@ press_items:
   country: Spain
   publication_ids:
   - publication_05
+- id: press_17
+  title: Cómo combinar inteligencia artificial y conocimiento experto para inferir
+    redes genéticas
+  outlet: IBIMA
+  date: '2026-05-26'
+  url: https://ibima.eu/en/como-combinar-inteligencia-artificial-y-conocimiento-experto-para-inferir-redes-geneticas/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_06
+- id: press_18
+  title: "'PBEvoGen', una nueva metodología que permite al investigador orientar
+    el proceso computacional y reducir el tiempo de cálculo"
+  outlet: Universidad de Málaga
+  date: '2026-05-26'
+  url: https://www.uma.es/sala-de-prensa/noticias/pbevogen-una-nueva-metodologia-que-permite-al-investigador-orientar-el-proceso-computacional-y-reducir-el-tiempo-de-calculo/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_06
+- id: press_19
+  title: Cómo combinar inteligencia artificial y conocimiento experto para inferir
+    redes genéticas
+  outlet: UMA Divulga
+  date: '2026-05-26'
+  url: https://www.umadivulga.uma.es/noticias/como-combinar-inteligencia-artificial-y-conocimiento-experto-para-inferir-redes-geneticas/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_06
+- id: press_20
+  title: "'PBEvoGen', una nueva metodología que permite al investigador orientar
+    el proceso computacional y reducir el tiempo de cálculo"
+  outlet: Europa Press
+  date: '2026-05-26'
+  url: https://fotos.europapress.es/fotonoticia/f7551531
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_06
+- id: press_21
+  title: La metodología que reduce el tiempo de cálculo en las investigaciones científicas
+  outlet: Nova Ciencia
+  date: '2026-05-26'
+  url: https://novaciencia.es/la-metodologia-que-reduce-el-tiempo-de-calculo-en-las-investigaciones-cientificas/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_06
+- id: press_22
+  title: PBEvoGen, una nueva metodología que permite al investigador orientar el proceso
+    computacional y reducir el tiempo de cálculo
+  outlet: La Noción
+  date: '2026-05-26'
+  url: https://www.lanocion.es/malaga-capital/20260526/pbevogen-una-nueva-metodologia-que-permite-al-inv-68b3d.html
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_06
