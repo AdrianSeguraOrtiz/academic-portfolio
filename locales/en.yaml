@@ -241,6 +241,7 @@ site:
     software_public_activity: "The public software portfolio spans {repositories}, with {stars} and {forks}."
     package_usage: "Package usage records {downloads}."
     teaching_activity: "My teaching activity includes {institutions}, amounting to {hours} across {years}, {courses}, and {degree_programmes}."
+    teaching_recommendation: "This teaching activity began in the {first_year} academic year at {institution}, when I was the youngest lecturer to take on teaching duties in the Department of Languages and Computer Science, a fact later acknowledged in a 2026 recommendation letter signed by the Director of the ETSII de la UMA."
     teaching_innovation: "This teaching activity also includes {projects}."
     academic_supervision: "Academic supervision includes {supervision}."
     dissemination_activity: "Scientific dissemination activity covers {items} across media, institutional channels, and public-facing formats."

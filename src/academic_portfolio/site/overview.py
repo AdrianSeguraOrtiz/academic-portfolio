@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import unicodedata
 from collections import Counter, defaultdict
 from contextlib import contextmanager
 from contextvars import ContextVar
 from datetime import date
 from typing import Any
+
+from markupsafe import escape
 
 from academic_portfolio.i18n import Translator, format_duration, format_number, load_translator
 from academic_portfolio.render import record_name
@@ -134,11 +137,17 @@ def _build_overview_summary(
             "degrees_text": _join_semicolon_phrases(
                 _degree_summary(degree) for degree in education_records
             ),
+            "degrees_html": _join_semicolon_phrases(
+                _degree_summary_html(degree) for degree in education_records
+            ),
         },
         "experience": {
             "by_institution": experience_by_institution,
             "by_institution_text": _join_semicolon_phrases(
                 item["summary"] for item in experience_by_institution
+            ),
+            "by_institution_html": _join_semicolon_phrases(
+                item["summary_html"] for item in experience_by_institution
             ),
             "institution_count": len(
                 _record_root_organization_ids(
@@ -174,6 +183,9 @@ def _build_overview_summary(
             "stays": stay_summaries,
             "stays_text": _join_semicolon_phrases(
                 stay["summary"] for stay in stay_summaries
+            ),
+            "stays_html": _join_semicolon_phrases(
+                stay["summary_html"] for stay in stay_summaries
             ),
             "total_stay_months": sum(
                 _month_span_to_present(stay.get("start_date"), stay.get("end_date"))
@@ -232,6 +244,7 @@ def _teaching_overview(
     }
     supervision_counts = _supervision_counts(academic_supervision)
     institution_years = _teaching_years_by_organization(university_classes)
+    first_teaching_context = _first_teaching_context(university_classes)
     return {
         "institution_years": institution_years,
         "institution_years_text": _join_phrases(
@@ -240,6 +253,8 @@ def _teaching_overview(
         "total_hours": total_hours,
         "total_hours_label": _format_number(total_hours),
         "academic_years": len(academic_years),
+        "first_academic_year": first_teaching_context["academic_year"],
+        "first_institution": first_teaching_context["institution"],
         "courses": len(university_classes),
         "degree_programs": len(degree_programs),
         "teaching_innovation_projects": len(teaching_innovation_projects),
@@ -256,6 +271,20 @@ def _teaching_overview(
     }
 
 
+def _first_teaching_context(university_classes: list[dict[str, Any]]) -> dict[str, str]:
+    for course in sorted(
+        university_classes,
+        key=lambda course: str(course.get("start_date") or course.get("academic_year") or ""),
+    ):
+        organizations = course.get("resolved", {}).get("organization_ids", [])
+        if course.get("academic_year") and organizations:
+            return {
+                "academic_year": str(course.get("academic_year")),
+                "institution": _organization_full_label(organizations[0]),
+            }
+    return {"academic_year": "", "institution": ""}
+
+
 def _supervision_counts(academic_supervision: list[dict[str, Any]]) -> dict[str, int]:
     counts = {
         "final degree project": 0,
@@ -264,16 +293,26 @@ def _supervision_counts(academic_supervision: list[dict[str, Any]]) -> dict[str,
         "external internship": 0,
     }
     for supervision in academic_supervision:
-        supervision_type = str(supervision.get("type") or "").lower()
-        if "internship" in supervision_type:
+        supervision_type = _normalized_type_text(supervision.get("type"))
+        if "internship" in supervision_type or "practica" in supervision_type:
             counts["external internship"] += 1
-        elif "master" in supervision_type:
+        elif "master" in supervision_type or "tfm" in supervision_type:
             counts["final master project"] += 1
-        elif "doctoral" in supervision_type or "thesis" in supervision_type:
+        elif (
+            "doctoral" in supervision_type
+            or "thesis" in supervision_type
+            or "tesis" in supervision_type
+        ):
             counts["doctoral thesis"] += 1
-        elif "degree" in supervision_type:
+        elif "degree" in supervision_type or "grado" in supervision_type or "tfg" in supervision_type:
             counts["final degree project"] += 1
     return counts
+
+
+def _normalized_type_text(value: Any) -> str:
+    text = str(value or "").lower()
+    normalized = unicodedata.normalize("NFKD", text)
+    return "".join(character for character in normalized if not unicodedata.combining(character))
 
 
 def _dissemination_overview(
@@ -338,8 +377,12 @@ def _recognition_overview(
         "honors": [record_name(honor) for honor in honors],
         "grants": [_grant_summary(grant, organizations_by_id) for grant in grants],
         "honors_text": _join_semicolon_phrases(record_name(honor) for honor in honors),
+        "honors_html": _join_semicolon_phrases(_strong(record_name(honor)) for honor in honors),
         "grants_text": _join_semicolon_phrases(
             _grant_summary(grant, organizations_by_id) for grant in grants
+        ),
+        "grants_html": _join_semicolon_phrases(
+            _grant_summary_html(grant, organizations_by_id) for grant in grants
         ),
         "honors_phrase": _count_phrase("honor", len(honors)),
         "grants_phrase": _count_phrase("grant", len(grants)),
@@ -372,6 +415,11 @@ def _duration_by_root_organization(
                 "cv.summary_fragments.at",
                 value=_format_duration(_merged_month_span(intervals)),
                 organization=labels_by_organization[organization_id],
+            ),
+            "summary_html": _current_translator().t(
+                "cv.summary_fragments.at",
+                value=_html_escape(_format_duration(_merged_month_span(intervals))),
+                organization=_strong(labels_by_organization[organization_id]),
             ),
             "latest_month": max(end for _, end in intervals),
         }
@@ -523,6 +571,12 @@ def _stay_summaries(
         )
         if not label:
             label = record_name(stay, _current_translator())
+        label_html = _stay_label_html(
+            stay,
+            organizations_by_id,
+            place=place,
+            fallback_label=label,
+        )
         stays.append(
             {
                 "label": label,
@@ -531,6 +585,11 @@ def _stay_summaries(
                     "cv.summary_fragments.at",
                     value=_format_duration(months),
                     organization=label,
+                ),
+                "summary_html": _current_translator().t(
+                    "cv.summary_fragments.at",
+                    value=_html_escape(_format_duration(months)),
+                    organization=label_html,
                 ),
             }
         )
@@ -543,6 +602,36 @@ def _organization_hierarchy_text(
 ) -> str:
     chains = _deepest_organization_chains(organizations, organizations_by_id)
     return _join_semicolon_phrases(_organization_chain_text(chain) for chain in chains)
+
+
+def _organization_hierarchy_html(
+    organizations: list[dict[str, Any]],
+    organizations_by_id: dict[str, dict[str, Any]],
+) -> str:
+    chains = _deepest_organization_chains(organizations, organizations_by_id)
+    return _join_semicolon_phrases(
+        _strong(_organization_chain_text(chain)) for chain in chains
+    )
+
+
+def _stay_label_html(
+    stay: dict[str, Any],
+    organizations_by_id: dict[str, dict[str, Any]],
+    *,
+    place: str,
+    fallback_label: str,
+) -> str:
+    organizations = stay.get("resolved", {}).get("organization_ids", [])
+    organization_html = _organization_hierarchy_html(organizations, organizations_by_id)
+    if organization_html and place:
+        return _current_translator().t(
+            "cv.summary_fragments.located_in",
+            organization=organization_html,
+            place=_html_escape(place),
+        )
+    if organization_html:
+        return organization_html
+    return _html_escape(fallback_label)
 
 
 def _deepest_organization_chains(
@@ -662,6 +751,21 @@ def _degree_summary(degree: dict[str, Any]) -> str:
     )
 
 
+def _degree_summary_html(degree: dict[str, Any]) -> str:
+    organization_text = _join_semicolon_phrases(
+        _organization_full_label(organization)
+        for organization in degree.get("resolved", {}).get("organization_ids", [])
+    )
+    degree_name = record_name(degree, _current_translator())
+    if not organization_text:
+        return _strong(degree_name)
+    return _current_translator().t(
+        "cv.summary_fragments.degree_from",
+        degree=_strong(degree_name),
+        organization=_html_escape(organization_text),
+    )
+
+
 def _grant_summary(
     grant: dict[str, Any],
     organizations_by_id: dict[str, dict[str, Any]],
@@ -683,6 +787,28 @@ def _grant_summary(
     )
 
 
+def _grant_summary_html(
+    grant: dict[str, Any],
+    organizations_by_id: dict[str, dict[str, Any]],
+) -> str:
+    covered_records = [
+        *grant.get("resolved", {}).get("position_ids", []),
+        *grant.get("resolved", {}).get("stay_ids", []),
+        *grant.get("resolved", {}).get("degree_ids", []),
+    ]
+    covered_text = _join_phrases(
+        _covered_record_summary(record, organizations_by_id) for record in covered_records
+    )
+    grant_name = record_name(grant, _current_translator())
+    if not covered_text:
+        return _strong(grant_name)
+    return _current_translator().t(
+        "cv.summary_fragments.covering",
+        grant=_strong(grant_name),
+        records=_html_escape(covered_text),
+    )
+
+
 def _covered_record_summary(
     record: dict[str, Any],
     organizations_by_id: dict[str, dict[str, Any]],
@@ -695,6 +821,14 @@ def _covered_record_summary(
         value=record_name(record, _current_translator()),
         organization=organization_text,
     )
+
+
+def _html_escape(value: Any) -> str:
+    return str(escape(str(value or "")))
+
+
+def _strong(value: Any) -> str:
+    return f"<strong>{_html_escape(value)}</strong>"
 
 
 def _root_organization_text_for_record(

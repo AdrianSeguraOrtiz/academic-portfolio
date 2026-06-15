@@ -241,6 +241,7 @@ site:
     software_public_activity: "La actividad pública de software abarca {repositories}, con {stars} y {forks}."
     package_usage: "El uso de paquetes suma {downloads}."
     teaching_activity: "Mi actividad docente incluye {institutions}, alcanzando {hours} en {years}, {courses} y {degree_programmes}."
+    teaching_recommendation: "Esta actividad docente comenzó en el curso {first_year} en la {institution}, siendo en ese momento el docente más joven en incorporarse a labores docentes en el Departamento de Lenguajes y Ciencias de la Computación, algo que sería reconocido en 2026 en una carta de recomendación firmada por el director de la ETSII de la UMA."
     teaching_innovation: "Esta actividad docente también incluye {projects}."
     academic_supervision: "La supervisión académica incluye {supervision}."
     dissemination_activity: "La actividad de divulgación científica incluye {items} en medios, canales institucionales y formatos dirigidos al público."

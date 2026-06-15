@@ -8,10 +8,10 @@
         {{ t("site.overview.intro") }}
       </p>
       <p>
-        {{ t("site.overview.academic_background", degrees="<strong>" ~ overview.education.degrees_text ~ "</strong>") | safe }}
+        {{ t("site.overview.academic_background", degrees=overview.education.degrees_html) | safe }}
         {{ t("site.overview.professional_and_stays",
-          experience="<strong>" ~ overview.experience.by_institution_text ~ "</strong>",
-          stays="<strong>" ~ overview.internationalization.stays_text ~ "</strong>",
+          experience=overview.experience.by_institution_html,
+          stays=overview.internationalization.stays_html,
           months="<strong>" ~ unit("month", overview.internationalization.total_stay_months) ~ "</strong>"
         ) | safe }}
         {{ t("site.overview.direct_work",
@@ -56,6 +56,12 @@
           courses="<strong>" ~ unit("course", overview.teaching.courses) ~ "</strong>",
           degree_programmes="<strong>" ~ unit("degree_program", overview.teaching.degree_programs) ~ "</strong>"
         ) | safe }}
+        {% if overview.teaching.first_academic_year and overview.teaching.first_institution %}
+        {{ t("site.overview.teaching_recommendation",
+          first_year=overview.teaching.first_academic_year,
+          institution=overview.teaching.first_institution | e
+        ) | safe }}
+        {% endif %}
         {% if overview.teaching.teaching_innovation_projects %}
         {{ t("site.overview.teaching_innovation",
           projects="<strong>" ~ overview.teaching.teaching_innovation_projects_phrase ~ "</strong>"
@@ -86,9 +92,9 @@
       <p>
         {{ t("site.overview.recognition",
           honors="<strong>" ~ overview.recognition.honors_phrase ~ "</strong>",
-          honors_list="<strong>" ~ overview.recognition.honors_text ~ "</strong>",
+          honors_list=overview.recognition.honors_html,
           grants="<strong>" ~ overview.recognition.grants_phrase ~ "</strong>",
-          grants_list="<strong>" ~ overview.recognition.grants_text ~ "</strong>"
+          grants_list=overview.recognition.grants_html
         ) | safe }}
       </p>
     </div>
