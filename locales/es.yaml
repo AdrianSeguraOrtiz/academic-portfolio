@@ -541,6 +541,7 @@ cv:
     teaching_activity: "Mi actividad docente{context}, alcanzando {value}."
     teaching_context: " incluye {value}"
     teaching_innovation_includes: "También incluye {value}."
+    teaching_recommendation: "Esta actividad docente comenzó en el curso {first_year} en la {institution}, siendo en ese momento el docente más joven en incorporarse a labores docentes en el Departamento de Lenguajes y Ciencias de la Computación, algo que sería reconocido en 2026 en una carta de recomendación firmada por el director de la ETSII de la UMA."
     teaching_micro: "La actividad docente suma {value}."
   summary_fragments:
     at: "{value} en {organization}"

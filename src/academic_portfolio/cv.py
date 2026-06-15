@@ -1332,6 +1332,7 @@ def _summary_full(site_view: dict[str, Any], profile: dict[str, Any]) -> list[st
         ),
         _summary_paragraph(
             _teaching_sentence(teaching),
+            _teaching_recommendation_sentence(teaching),
             _sentence(
                 "teaching_innovation_includes",
                 teaching.get("teaching_innovation_projects_phrase"),
@@ -1385,6 +1386,7 @@ def _summary_compact(site_view: dict[str, Any], profile: dict[str, Any]) -> list
         ),
         _summary_paragraph(
             _teaching_sentence(teaching),
+            _teaching_recommendation_sentence(teaching),
             _sentence("dissemination_covers", dissemination.get("activity_text")),
             _social_views_sentence(metrics, dissemination),
             _recognition_sentence(recognition),
@@ -1566,6 +1568,19 @@ def _teaching_sentence(teaching: dict[str, Any]) -> str:
         _count_phrase("degree programme", degree_programs) if degree_programs else "",
     ]
     return _cv_text("summary", "teaching_activity", context=context, value=_join_summary_phrases(parts))
+
+
+def _teaching_recommendation_sentence(teaching: dict[str, Any]) -> str:
+    first_year = str(teaching.get("first_academic_year") or "")
+    institution = str(teaching.get("first_institution") or "")
+    if not first_year or not institution:
+        return ""
+    return _cv_text(
+        "summary",
+        "teaching_recommendation",
+        first_year=first_year,
+        institution=institution,
+    )
 
 
 def _teaching_micro_sentence(teaching: dict[str, Any]) -> str:
