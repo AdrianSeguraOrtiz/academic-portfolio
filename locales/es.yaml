@@ -400,6 +400,7 @@ cv:
     project_url: URL del proyecto
     publisher: Editorial
     purpose: Finalidad
+    reference: Referencia
     releases: Versiones
     repository: Repositorio
     requires_python: Requiere Python

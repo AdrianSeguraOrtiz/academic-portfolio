@@ -76,3 +76,42 @@ stays:
     en: Postdoctoral international research stay.
     es: Estancia internacional de investigación postdoctoral.
   notes: null
+- id: stay_03
+  title:
+    en: Postdoctoral Researcher (International Stay)
+    es: Investigador postdoctoral (estancia internacional)
+  organization_ids:
+  - organization_04
+  - organization_08
+  - organization_11
+  location:
+    city: Lille
+    region: Hauts-de-France
+    country: France
+    coordinates:
+      latitude: 50.6292
+      longitude: 3.0573
+  start_date: 2026-07
+  end_date: 2026-07
+  employment_type:
+    en: Full-time
+    es: Tiempo completo
+  work_mode:
+    en: On-site
+    es: Presencial
+  purpose:
+    en: Postdoctoral research
+    es: Investigación postdoctoral
+  type:
+    en: International stay
+    es: Estancia internacional
+  host_group:
+    en: ORKAD research group, CRIStAL centre
+    es: Grupo de investigación ORKAD, centro CRIStAL
+  grant_ids:
+  - grant_03
+  tasks: []
+  description:
+    en: Postdoctoral international stay at the CRIStAL centre of the University of Lille.
+    es: Estancia internacional postdoctoral en el centro CRIStAL de la Universidad de Lille.
+  notes: null

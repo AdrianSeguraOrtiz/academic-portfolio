@@ -400,6 +400,7 @@ cv:
     project_url: Project URL
     publisher: Publisher
     purpose: Purpose
+    reference: Reference
     releases: Releases
     repository: Repository
     requires_python: Requires Python

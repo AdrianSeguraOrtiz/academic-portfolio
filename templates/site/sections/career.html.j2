@@ -122,6 +122,7 @@
       <h3>{{ record.name }}</h3>
       <p>{{ record.issue_date }} · {{ record.awarding_entity }}</p>
       <p>{{ record.purpose }}</p>
+      {% if record.reference %}<p>{{ t("cv.fields.reference") }}: {{ record.reference }}</p>{% endif %}
       {% if common.date_span(record) %}<p class="tags">{{ common.date_span(record) }}</p>{% endif %}
       {% if record.notes %}<p>{{ record.notes }}</p>{% endif %}
       {% endif %}

@@ -12,6 +12,7 @@ grants:
   purpose:
     en: Predoctoral research funding
     es: Financiación de investigación predoctoral
+  reference: EST24/00186
   issue_date: 2022-12
   start_date: 2022-12
   end_date: null
@@ -30,9 +31,28 @@ grants:
   stay_ids:
   - stay_01
   purpose:
-    en: Predoctoral mobility
-    es: Movilidad predoctoral
+    en: Postdoctoral mobility
+    es: Movilidad postdoctoral
+  reference: FPUES21/00006
   issue_date: '2024-03-30'
   start_date: null
   end_date: '2024-06-28'
+  notes: null
+- id: grant_03
+  name: ROAR-NET COST Action mobility grant
+  awarding_entity: COST Action CA22137 - Randomised Optimisation Algorithms Research
+    Network (ROAR-NET)
+  awarding_entity_type:
+    en: International network
+    es: Red internacional
+  position_ids: []
+  stay_ids:
+  - stay_03
+  purpose:
+    en: Postdoctoral mobility
+    es: Movilidad postdoctoral
+  reference: E-COST-GRANT-CA22137-a111cd9a
+  issue_date: 2026-07
+  start_date: 2026-07
+  end_date: 2026-07
   notes: null
