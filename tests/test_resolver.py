@@ -23,8 +23,8 @@ def test_resolver_resolves_profile_current_activity() -> None:
     current_positions = resolver.resolve_many(profile["current_position_ids"])
     current_stays = resolver.resolve_many(profile["current_stay_ids"])
 
-    assert [position["id"] for position in current_positions] == ["position_05", "position_06"]
-    assert [stay["id"] for stay in current_stays] == ["stay_02"]
+    assert [position["id"] for position in current_positions] == profile["current_position_ids"]
+    assert [stay["id"] for stay in current_stays] == profile["current_stay_ids"]
 
 
 def test_resolver_resolves_publication_relationships() -> None:

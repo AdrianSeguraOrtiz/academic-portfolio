@@ -11,15 +11,16 @@ from academic_portfolio.view_records import (
 
 
 def test_profile_with_current_activity_resolves_references() -> None:
-    resolver = PortfolioResolver(load_data(Path("data")))
+    loaded_data = load_data(Path("data"))
+    resolver = PortfolioResolver(loaded_data)
+    source_profile = loaded_data.documents["profile.yaml"]
 
     profile = profile_with_current_activity(resolver)
 
-    assert [position["id"] for position in profile["current_positions"]] == [
-        "position_05",
-        "position_06",
+    assert [position["id"] for position in profile["current_positions"]] == source_profile[
+        "current_position_ids"
     ]
-    assert [stay["id"] for stay in profile["current_stays"]] == ["stay_02"]
+    assert [stay["id"] for stay in profile["current_stays"]] == source_profile["current_stay_ids"]
     assert profile["current_positions"][0]["resolved"]["organization_ids"]
 
 

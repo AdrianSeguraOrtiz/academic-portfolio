@@ -411,15 +411,18 @@ def _portfolio_specific_terms() -> set[str]:
 
 def test_build_cv_view_resolves_current_activity() -> None:
     model = load_cv_model(Path("cv_models/academic_rich.toml"))
-    resolver = PortfolioResolver(load_data(Path("data")))
+    loaded_data = load_data(Path("data"))
+    resolver = PortfolioResolver(loaded_data)
+    profile = loaded_data.documents["profile.yaml"]
 
     view = build_cv_view(model, resolver)
 
-    assert [position["id"] for position in view["core"]["profile"]["current_positions"]] == [
-        "position_05",
-        "position_06",
+    assert [position["id"] for position in view["core"]["profile"]["current_positions"]] == profile[
+        "current_position_ids"
     ]
-    assert [stay["id"] for stay in view["core"]["profile"]["current_stays"]] == ["stay_02"]
+    assert [stay["id"] for stay in view["core"]["profile"]["current_stays"]] == profile[
+        "current_stay_ids"
+    ]
 
 
 def test_build_cv_view_resolves_publication_references() -> None:
