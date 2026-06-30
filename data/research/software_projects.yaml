@@ -251,3 +251,47 @@ projects:
     es: Bioinformática
   urls:
     github: https://github.com/AdrianSeguraOrtiz/GENECI
+- id: software_13
+  name: AMIGA
+  full_name: Autonomous Multi-objective Individual GRN Assessment
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Python package for learning-to-rank post-Pareto selection of consensus gene
+      regulatory networks.
+    es: >-
+      Paquete Python para selección post-Pareto basada en aprendizaje de ranking
+      de redes de regulación génica por consenso.
+  domains:
+  - en: Gene regulatory network inference
+    es: Inferencia de redes de regulación génica
+  - en: Learning to rank
+    es: Aprendizaje de ranking
+  - en: Multi-objective optimization
+    es: Optimización multiobjetivo
+  urls:
+    github: https://github.com/AdrianSeguraOrtiz/AMIGA
+- id: software_14
+  name: ANDREA
+  full_name: Automated Network Discovery, Reproducible Evaluation and Analysis
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Platform for aggregated network discovery, simulation, inference, and benchmarking
+      workflows.
+    es: >-
+      Plataforma para flujos de descubrimiento agregado de redes, simulación, inferencia
+      y benchmarking.
+  domains:
+  - en: Network discovery
+    es: Descubrimiento de redes
+  - en: Simulation workflows
+    es: Flujos de simulación
+  - en: Benchmarking
+    es: Benchmarking
+  urls:
+    github: https://github.com/AdrianSeguraOrtiz/ANDREA

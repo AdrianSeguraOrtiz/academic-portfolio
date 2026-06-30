@@ -11,3 +11,15 @@ software_packages:
   package_name: null
   group_id: io.github.adrianseguraortiz
   artifact_id: moeba-bio
+- id: package_03
+  name: AMIGA
+  ecosystem: PyPI
+  package_name: amiga-grn
+  group_id: null
+  artifact_id: null
+- id: package_04
+  name: ANDREA
+  ecosystem: PyPI
+  package_name: ANDREA
+  group_id: null
+  artifact_id: null
