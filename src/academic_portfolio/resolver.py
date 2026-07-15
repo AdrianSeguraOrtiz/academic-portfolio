@@ -14,6 +14,7 @@ REFERENCE_PREFIXES = {
     "parent_organization_id": "organization_",
     "degree_ids": "degree_",
     "position_ids": "position_",
+    "origin_position_ids": "position_",
     "current_position_ids": "position_",
     "stay_ids": "stay_",
     "current_stay_ids": "stay_",

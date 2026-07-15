@@ -8,7 +8,7 @@ const WORLD_ATLAS_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-11
 
 // Layout constants keep the collaboration map visually stable across rebuilds.
 const MAP_LAYOUT = {
-  height: 500,
+  height: 540,
   width: 960,
   projectionPadding: {
     bottom: 18,
@@ -24,6 +24,13 @@ const MAP_LAYOUT = {
     labelX: 8,
     labelY: -24,
     stemY: -22,
+  },
+  workMarker: {
+    holeRadius: 2.5,
+    labelX: 10,
+    labelY: -22,
+    path:
+      "M0,0 L-7,-20 A7,7 0 1 1 7,-20 Z",
   },
   zoomExtentFactor: 2,
   zoomMax: 10,
@@ -70,6 +77,8 @@ function renderCollaborationMap(mapElement, data) {
   const graticule = window.d3.geoGraticule10();
   const publicationNodes = prepareMapNodes(asArray(data.publication_nodes), projection);
   const stayNodes = prepareMapNodes(asArray(data.stay_nodes), projection);
+  const workNodes = prepareMapNodes(asArray(data.work_nodes), projection);
+  const routeNodes = prepareRouteNodes(asArray(data.route_nodes), projection);
   const zoomBehavior = buildZoomBehavior(baseLayer, pointLayer);
 
   svg.call(zoomBehavior);
@@ -79,11 +88,13 @@ function renderCollaborationMap(mapElement, data) {
   loadCountries()
     .then((countries) => {
       drawCountries(baseLayer, countries, geoPath);
+      drawStayRoutes(pointLayer, routeNodes);
       drawPublicationNodes(pointLayer, publicationNodes);
       drawStayMarkers(pointLayer, stayNodes);
+      drawWorkMarkers(pointLayer, workNodes);
       svg.call(
         zoomBehavior.transform,
-        fitPointsTransform([...publicationNodes, ...stayNodes], width, height),
+        fitPointsTransform([...publicationNodes, ...stayNodes, ...workNodes], width, height),
       );
       mapElement.classList.add("loaded");
     })
@@ -162,6 +173,47 @@ function prepareMapNodes(nodes, projection) {
     .filter(Boolean);
 }
 
+function prepareRouteNodes(nodes, projection) {
+  const routeNodes = nodes
+    .map((node) => {
+      const origin = projection([node.origin_longitude, node.origin_latitude]);
+      const destination = projection([node.destination_longitude, node.destination_latitude]);
+      return origin && destination
+        ? {
+            ...node,
+            originX: origin[0],
+            originY: origin[1],
+            destinationX: destination[0],
+            destinationY: destination[1],
+          }
+        : null;
+    })
+    .filter(Boolean);
+  assignRouteOffsets(routeNodes);
+  return routeNodes;
+}
+
+function assignRouteOffsets(nodes) {
+  const groups = new Map();
+  nodes.forEach((node) => {
+    const key = [
+      Math.round(node.originX),
+      Math.round(node.originY),
+      Math.round(node.destinationX),
+      Math.round(node.destinationY),
+    ].join(":");
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key).push(node);
+  });
+  groups.forEach((routes) => {
+    routes.forEach((route, index) => {
+      route.curveOffset = (index - (routes.length - 1) / 2) * 22;
+    });
+  });
+}
+
 function fitPointsTransform(nodes, width, height) {
   if (!nodes.length) {
     return window.d3.zoomIdentity;
@@ -190,6 +242,9 @@ function fitPointsTransform(nodes, width, height) {
 function applyMapTransform(baseLayer, pointLayer, transform) {
   baseLayer.attr("transform", transform);
   pointLayer
+    .selectAll(".stay-route-line")
+    .attr("d", (node) => routePath(node, transform));
+  pointLayer
     .selectAll(".publication-map-node")
     .attr("cx", (node) => transform.applyX(node.x))
     .attr("cy", (node) => transform.applyY(node.y));
@@ -200,6 +255,43 @@ function applyMapTransform(baseLayer, pointLayer, transform) {
       const y = transform.applyY(node.y);
       return `translate(${x},${y})`;
     });
+  pointLayer
+    .selectAll(".work-map-marker")
+    .attr("transform", (node) => {
+      const x = transform.applyX(node.x);
+      const y = transform.applyY(node.y);
+      return `translate(${x},${y})`;
+    });
+}
+
+function drawStayRoutes(layer, nodes) {
+  const routes = layer
+    .append("g")
+    .attr("class", "stay-route-layer")
+    .selectAll("g")
+    .data(nodes)
+    .join("g")
+    .attr("class", "stay-route");
+
+  routes
+    .append("path")
+    .attr("class", "stay-route-line stay-route-path")
+    .attr("d", (node) => routePath(node));
+  routes.append("title").text((node) => node.label);
+}
+
+function routePath(node, transform = window.d3.zoomIdentity) {
+  const x1 = transform.applyX(node.originX);
+  const y1 = transform.applyY(node.originY);
+  const x2 = transform.applyX(node.destinationX);
+  const y2 = transform.applyY(node.destinationY);
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const distance = Math.hypot(dx, dy) || 1;
+  const curve = Math.min(90, Math.max(34, distance * 0.2)) + (node.curveOffset || 0);
+  const controlX = (x1 + x2) / 2 + (-dy / distance) * curve;
+  const controlY = (y1 + y2) / 2 + (dx / distance) * curve;
+  return `M${x1},${y1} Q${controlX},${controlY} ${x2},${y2}`;
 }
 
 function drawPublicationNodes(layer, nodes) {
@@ -268,6 +360,49 @@ function stayLabels(node) {
     return stays;
   }
   return [{ label: `${node.months} mo` }];
+}
+
+function drawWorkMarkers(layer, nodes) {
+  const { holeRadius, labelX, labelY, path } = MAP_LAYOUT.workMarker;
+  const markers = layer
+    .append("g")
+    .attr("class", "work-layer")
+    .selectAll("g")
+    .data(nodes)
+    .join("g")
+    .attr("class", "work-map-marker")
+    .attr("transform", (node) => `translate(${node.x},${node.y})`);
+
+  markers.append("path").attr("class", "work-marker-pin-halo").attr("d", path);
+  markers.append("path").attr("class", "work-marker-pin").attr("d", path);
+  markers
+    .append("circle")
+    .attr("class", "work-marker-hole")
+    .attr("cx", 0)
+    .attr("cy", -20)
+    .attr("r", holeRadius);
+  markers
+    .selectAll("text")
+    .data((node) => workLabels(node))
+    .join("text")
+    .attr("class", "work-label")
+    .attr("x", labelX)
+    .attr("y", (_label, index) => labelY + index * 15)
+    .text((label) => label);
+  markers.append("title").text((node) => {
+    const lines = [`${node.city}, ${node.country}`, ...workLabels(node)];
+    asArray(node.appointments).forEach((appointment) => {
+      const titles = asArray(appointment.titles).join("; ");
+      if (titles) {
+        lines.push(`${appointment.organization}: ${titles}`);
+      }
+    });
+    return lines.join("\n");
+  });
+}
+
+function workLabels(node) {
+  return asArray(node.labels);
 }
 
 initCollaborationMap();

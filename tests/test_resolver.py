@@ -55,6 +55,7 @@ def test_resolver_resolves_research_stay_grants() -> None:
     references = resolver.references_for(stay)
 
     assert [record["id"] for record in references["grant_ids"]] == ["grant_02"]
+    assert [record["id"] for record in references["origin_position_ids"]] == ["position_04"]
 
 
 def test_resolver_rejects_duplicate_ids() -> None:

@@ -29,6 +29,20 @@
         {% endfor %}
       </div>
     </article>
+    <article class="cv-chart-card">
+      <h3>{{ t("cv.sections.research_appointments") }}</h3>
+      <div class="cv-metric-strip">
+        <span><strong>{{ site.collaborations.metrics.work_appointments }}</strong>{{ t("cv.metrics.appointments") }}</span>
+        <span><strong>{{ site.collaborations.metrics.work_cities }}</strong>{{ t("cv.metrics.cities") }}</span>
+        <span><strong>{{ site.collaborations.metrics.work_countries }}</strong>{{ t("cv.metrics.countries") }}</span>
+        <span><strong>{{ site.collaborations.metrics.active_work_institutions }}</strong>{{ t("cv.metrics.active_appointments") }}</span>
+      </div>
+      <div class="cv-city-list">
+        {% for city in site.collaborations.cities if city.appointment_count %}
+        <p><strong>{{ city.city }}, {{ city.country }}</strong><span>{{ city.appointment_count }} {{ t("cv.metrics.appointments") }}</span></p>
+        {% endfor %}
+      </div>
+    </article>
   </div>
 </section>
 {% endif %}

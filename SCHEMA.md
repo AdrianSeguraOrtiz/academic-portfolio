@@ -137,7 +137,7 @@ Allowed relationship fields are intentionally limited by record type:
 | `career/degrees.yaml` / `degrees` | `organization_ids`, `grant_ids` |
 | `career/certifications.yaml` / `certifications` | `organization_ids` |
 | `career/experience.yaml` / `positions` | `organization_ids` |
-| `career/research_stays.yaml` / `stays` | `organization_ids`, `grant_ids` |
+| `career/research_stays.yaml` / `stays` | `organization_ids`, `origin_position_ids`, `grant_ids` |
 | `career/honors.yaml` / `honors` | `degree_ids` |
 | `career/grants.yaml` / `grants` | `position_ids`, `stay_ids` |
 | `research/publications.yaml` / `journal_papers` | `organization_ids`, `software_project_ids`, `research_project_ids`, `position_ids`, `stay_ids`, `grant_ids` |

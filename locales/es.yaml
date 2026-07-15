@@ -91,6 +91,9 @@ units:
   publication:
     one: "{count} publicación"
     other: "{count} publicaciones"
+  position:
+    one: "{count} puesto"
+    other: "{count} puestos"
   repository:
     one: "{count} repositorio"
     other: "{count} repositorios"
@@ -131,7 +134,7 @@ site:
     cv_downloads: Descarga de CV
     research_focus: Líneas de investigación
     portfolio_metrics: Métricas del portafolio
-    world_map: Mapa mundial de estancias de investigación y colaboraciones en publicaciones
+    world_map: Mapa mundial de contratos de investigación, estancias y colaboraciones en publicaciones
     map_legend: Leyenda del mapa
     publications_by_year: Publicaciones por año
     publications_grouped_by_year: Publicaciones agrupadas por año
@@ -202,7 +205,10 @@ site:
     knowledge_transfer: Transferencia de conocimiento
     location: Ubicación
     map_loading: Cargando mapa mundial
-    month_short: "{count} meses"
+    month_short:
+      one: "{count} mes"
+      other: "{count} meses"
+    more_items: "+{count} más"
     mvnrepository: MvnRepository
     open: abiertas
     open_research_software: Software científico abierto
@@ -220,6 +226,7 @@ site:
     repository_created: "Repositorio creado: {date}"
     research_output: Producción investigadora
     research_stay: Estancia de investigación
+    research_appointment: Contrato de investigación
     snapshot: Instantánea
     software_index: Índice de software
     supervision: Supervisión
@@ -288,9 +295,10 @@ cv:
   sections:
     summary: Resumen
     portfolio_summary: Resumen del portafolio
-    collaborations: Estancias de investigación y ciudades de publicación
+    collaborations: Huella investigadora y colaboraciones en publicaciones
     publication_collaboration: Colaboración en publicaciones
     research_stays: Estancias de investigación
+    research_appointments: Contratos de investigación
     publications: Publicaciones
     publications_by_year: Publicaciones por año
     software: Software
@@ -337,6 +345,8 @@ cv:
     research_projects: Proyectos de investigación
     teaching_hours: Horas de docencia
     work_institutions: Instituciones de trabajo
+    appointments: Contratos
+    active_appointments: Contratos activos
     package_downloads: Descargas de paquetes
     known_social_views: Visualizaciones registradas en redes
     total_papers: Artículos totales

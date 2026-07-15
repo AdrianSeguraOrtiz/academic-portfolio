@@ -12,6 +12,7 @@
   --conference: #8a3342;
   --conference-soft: #f2dce2;
   --gold: #a66f21;
+  --work-appointment: #d88a00;
   --honor: #c0567a;
   --teaching: #5f7f4f;
   --shadow: 0 16px 34px rgba(27, 38, 35, 0.08);
@@ -666,10 +667,12 @@ h3 {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.45fr);
   gap: 18px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .collaboration-map-card {
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 18px;
@@ -680,10 +683,11 @@ h3 {
 .collaboration-map {
   position: relative;
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
   width: 100%;
-  aspect-ratio: 2 / 1;
+  min-height: clamp(340px, 31vw, 430px);
   border-radius: 8px;
   background: var(--surface-muted);
   cursor: grab;
@@ -737,6 +741,20 @@ h3 {
   stroke-width: 2.2;
 }
 
+.stay-route-line {
+  fill: none;
+  pointer-events: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.stay-route-path {
+  opacity: 0.82;
+  stroke: var(--conference);
+  stroke-dasharray: 6 7;
+  stroke-width: 1.7;
+}
+
 .stay-stem-halo,
 .stay-stem {
   stroke-linecap: round;
@@ -764,6 +782,40 @@ h3 {
   stroke-linejoin: round;
   stroke-width: 3;
   font-size: 13px;
+  font-weight: 850;
+  letter-spacing: 0;
+  paint-order: stroke fill;
+}
+
+.work-marker-pin-halo,
+.work-marker-pin {
+  stroke-linejoin: round;
+}
+
+.work-marker-pin-halo {
+  fill: none;
+  stroke: var(--surface);
+  stroke-width: 3.2;
+}
+
+.work-marker-pin {
+  fill: var(--work-appointment);
+  stroke: var(--surface);
+  stroke-width: 1.4;
+}
+
+.work-marker-hole {
+  fill: var(--surface);
+  stroke: rgba(102, 112, 109, 0.28);
+  stroke-width: 1;
+}
+
+.work-label {
+  fill: var(--work-appointment);
+  stroke: var(--surface);
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+  font-size: 10.6px;
   font-weight: 850;
   letter-spacing: 0;
   paint-order: stroke fill;
@@ -821,6 +873,31 @@ h3 {
   height: 9px;
   border-radius: 999px;
   background: var(--conference);
+  content: "";
+}
+
+.legend-work {
+  position: relative;
+  width: 12px !important;
+  height: 14px !important;
+}
+
+.legend-work::before {
+  position: absolute;
+  inset: 0;
+  background: var(--work-appointment);
+  clip-path: polygon(50% 100%, 16% 32%, 28% 8%, 50% 0, 72% 8%, 84% 32%);
+  content: "";
+}
+
+.legend-work::after {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--surface);
   content: "";
 }
 
@@ -3180,6 +3257,10 @@ h3 {
 
   .overview .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .collaboration-map {
+    min-height: clamp(300px, 76vw, 440px);
   }
 
   .dissemination-layout {

@@ -7,6 +7,8 @@ stays:
   - organization_04
   - organization_08
   - organization_11
+  origin_position_ids:
+  - position_04
   location:
     city: Lille
     region: Hauts-de-France
@@ -48,6 +50,8 @@ stays:
     es: Investigador postdoctoral (estancia internacional)
   organization_ids:
   - organization_05
+  origin_position_ids:
+  - position_06
   location:
     city: Athens
     region: Attiki
@@ -84,6 +88,8 @@ stays:
   - organization_04
   - organization_08
   - organization_11
+  origin_position_ids:
+  - position_06
   location:
     city: Lille
     region: Hauts-de-France

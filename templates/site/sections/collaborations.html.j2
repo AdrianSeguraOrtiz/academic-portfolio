@@ -9,17 +9,24 @@
       <div class="map-legend" aria-label="{{ t("site.aria.map_legend") }}">
         <span><i class="legend-publication"></i> {{ t("site.labels.publication_city") }}</span>
         <span><i class="legend-stay"></i> {{ t("site.labels.research_stay") }}</span>
+        <span><i class="legend-work"></i> {{ t("site.labels.research_appointment") }}</span>
       </div>
       <script type="application/json" id="collaboration-map-data">{{ collaborations.map_data | tojson }}</script>
     </article>
 
     <aside class="collaboration-panel">
       <div class="collaboration-metric-block">
+        <h3>{{ t("cv.sections.research_appointments") }}</h3>
+        <div class="collaboration-metrics">
+          <div><strong>{{ collaborations.metrics.work_appointments }}</strong><span>{{ t("cv.metrics.appointments") }}</span></div>
+          <div><strong>{{ collaborations.metrics.work_cities }}</strong><span>{{ t("cv.metrics.cities") }}</span></div>
+        </div>
+      </div>
+      <div class="collaboration-metric-block">
         <h3>{{ t("cv.sections.publications") }}</h3>
         <div class="collaboration-metrics">
           <div><strong>{{ collaborations.metrics.total_papers }}</strong><span>{{ t("cv.metrics.total_papers") }}</span></div>
           <div><strong>{{ collaborations.metrics.international_papers }}</strong><span>{{ t("cv.metrics.international_papers") }}</span></div>
-          <div><strong>{{ collaborations.metrics.publication_countries }}</strong><span>{{ t("site.labels.countries_in_papers") }}</span></div>
         </div>
       </div>
       <div class="collaboration-metric-block">

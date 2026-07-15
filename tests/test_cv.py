@@ -34,7 +34,7 @@ DEFINITIVE_CV_MODELS = (
 CV_TEMPLATE_ROOT = Path("templates/cv")
 RICH_WEB_SECTIONS = [
     "Portfolio Summary",
-    "Research Stays and Publication Cities",
+    "Research Footprint and Publication Collaborations",
     "Publications",
     "Software",
     "Academic Trajectory",
@@ -61,6 +61,7 @@ SOBER_ATOMIC_SECTIONS = [
 RICH_WEB_CHART_TITLES = {
     "Publication Collaboration",
     "Research Stays",
+    "Research Appointments",
     "Publications by Year",
     "Commit Activity",
     "Languages",
@@ -431,9 +432,7 @@ def test_build_cv_view_resolves_publication_references() -> None:
 
     view = build_cv_view(model, resolver)
     publication = next(
-        item
-        for item in view["core"]["publications"]["items"]
-        if item["id"] == "publication_04"
+        item for item in view["core"]["publications"]["items"] if item["id"] == "publication_04"
     )
     publication_record = publication["record"]
 
@@ -444,9 +443,7 @@ def test_build_cv_view_resolves_publication_references() -> None:
         "grant_01",
         "grant_02",
     ]
-    assert [
-        item["id"] for item in view["core"]["publications"]["groups"]["conference_papers"]
-    ] == [
+    assert [item["id"] for item in view["core"]["publications"]["groups"]["conference_papers"]] == [
         "publication_02"
     ]
     assert "publication_02" not in [
@@ -459,9 +456,7 @@ def test_build_cv_view_resolves_research_stay_grants() -> None:
     resolver = PortfolioResolver(load_data(Path("data")))
 
     view = build_cv_view(model, resolver)
-    stay = next(
-        item for item in view["core"]["research_stays"]["items"] if item["id"] == "stay_01"
-    )
+    stay = next(item for item in view["core"]["research_stays"]["items"] if item["id"] == "stay_01")
     stay_record = stay["record"]
 
     assert [item["id"] for item in stay_record["resolved"]["grant_ids"]] == ["grant_02"]
@@ -473,9 +468,7 @@ def test_build_cv_view_adds_derived_honors_and_grants() -> None:
     resolver = PortfolioResolver(load_data(Path("data")))
 
     view = build_cv_view(model, resolver)
-    degree = next(
-        item for item in view["core"]["education"]["items"] if item["id"] == "degree_01"
-    )
+    degree = next(item for item in view["core"]["education"]["items"] if item["id"] == "degree_01")
     position = next(
         item for item in view["core"]["experience"]["items"] if item["id"] == "position_04"
     )
@@ -559,10 +552,14 @@ def test_sober_cv_view_exposes_atomic_data_without_visual_snapshots() -> None:
     assert "site" not in view
     assert "cv_charts" not in view
     assert sober_view["atomic_sections"]["publications"] == view["core"]["publications"]["items"]
-    assert sober_view["atomic_sections"]["research_projects"] == view["core"]["research_projects"]["items"]
+    assert (
+        sober_view["atomic_sections"]["research_projects"]
+        == view["core"]["research_projects"]["items"]
+    )
     assert sober_view["experience_groups"] == view["core"]["experience"]["groups"]
-    assert sober_view["aggregate_sections"]["software_projects"] == (
-        view["aggregates"]["software"]["projects"]["items"]
+    assert (
+        sober_view["aggregate_sections"]["software_projects"]
+        == (view["aggregates"]["software"]["projects"]["items"])
     )
     assert all("css_class" not in item for item in sober_view["atomic_sections"]["degrees"])
     assert all("css_class" not in item for item in sober_view["atomic_sections"]["publications"])
@@ -615,7 +612,9 @@ def test_cv_view_uses_requested_language_for_shared_formatting() -> None:
         load_translator("es"),
     )
     khaos_group = next(
-        group for group in view["core"]["experience"]["groups"] if group["title"] == "Khaos Research"
+        group
+        for group in view["core"]["experience"]["groups"]
+        if group["title"] == "Khaos Research"
     )
 
     assert khaos_group["period"] == "2021-07 - Actualidad"
@@ -828,9 +827,10 @@ exclude_keywords = ["OpenProject", "crop"]
         output_format="html",
     )
 
-    assert [
-        item["id"] for item in view["aggregates"]["software"]["projects"]["items"][:2]
-    ] == ["software_10", "software_12"]
+    assert [item["id"] for item in view["aggregates"]["software"]["projects"]["items"][:2]] == [
+        "software_10",
+        "software_12",
+    ]
     assert "Developed an automated NGS analysis pipeline" in output.content
     assert "Integrated FastQC, MultiQC, Qualimap" in output.content
     assert "Developed a workflow orchestration tool" in output.content
@@ -948,8 +948,7 @@ def test_generate_cv_writes_html(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     assert '<link rel="stylesheet" href="assets/rich.css">' in output.content
     assert '<link rel="stylesheet" href="assets/sober.css">' not in output.content
     assert (
-        'class="cv-document cv-style-rich cv-density-normal cv-font-scale-normal"'
-        in output.content
+        'class="cv-document cv-style-rich cv-density-normal cv-font-scale-normal"' in output.content
     )
     assert 'class="cv-cover cv-cover-with-photo"' in output.content
     assert 'src="assets/profile.jpg"' in output.content
@@ -959,7 +958,7 @@ def test_generate_cv_writes_html(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     assert "<h2>Portfolio Summary</h2>" in output.content
     assert "My academic background comprises" in output.content
     assert 'class="cv-summary"' not in output.content
-    assert "<h2>Research Stays and Publication Cities</h2>" in output.content
+    assert "<h2>Research Footprint and Publication Collaborations</h2>" in output.content
     assert "<h2>Publications</h2>" in output.content
     assert "Journal paper" in output.content
     assert "Conference paper" in output.content
@@ -1307,7 +1306,7 @@ def test_generate_cv_compresses_until_it_fits_page_limit(tmp_path: Path) -> None
     assert output.page_count <= output.page_limit
     assert output.fit_status == "fits"
     if output.model.layout.get("compression_stage"):
-        assert f'cv-fit-{output.model.layout["compression_stage"]}' in output.content
+        assert f"cv-fit-{output.model.layout['compression_stage']}" in output.content
     assert "<h2>Publications</h2>" in output.content
     assert "<h2>Experience</h2>" in output.content
     assert "<h2>Research Stays</h2>" in output.content

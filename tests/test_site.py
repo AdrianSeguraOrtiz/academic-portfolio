@@ -129,16 +129,20 @@ def test_build_site_view_computes_core_metrics() -> None:
     assert view["metrics"]["teaching_hours"] == round(_sum_numeric(classes, "workload_hours"))
     assert view["metrics"]["known_social_views"] == int(_sum_numeric(social_media, "views"))
     assert view["metrics"]["package_downloads"] == 0
-    assert view["metrics"]["work_institutions"] == view["overview"]["experience"]["institution_count"]
+    assert (
+        view["metrics"]["work_institutions"] == view["overview"]["experience"]["institution_count"]
+    )
     assert view["metrics"]["reviewed_manuscripts"] == int(
         _sum_numeric(reviewing, "manuscripts_reviewed")
     )
-    assert view["overview"]["research"]["reviewed_manuscripts"] == view["metrics"][
-        "reviewed_manuscripts"
-    ]
-    assert view["overview"]["internationalization"]["international_publications"] == view[
-        "collaborations"
-    ]["metrics"]["international_papers"]
+    assert (
+        view["overview"]["research"]["reviewed_manuscripts"]
+        == view["metrics"]["reviewed_manuscripts"]
+    )
+    assert (
+        view["overview"]["internationalization"]["international_publications"]
+        == view["collaborations"]["metrics"]["international_papers"]
+    )
     assert view["overview"]["internationalization"]["national_multicity_publications"] >= 0
     assert view["overview"]["education"]["degrees"][0].startswith("Bachelor")
     assert view["overview"]["education"]["degrees"][-1].startswith("Ph.D.")
@@ -146,29 +150,35 @@ def test_build_site_view_computes_core_metrics() -> None:
     assert [item["label"] for item in view["overview"]["experience"]["by_institution"]] == [
         "Universidad de Málaga"
     ]
-    assert "Athena Research and Innovation Center" in view["overview"]["internationalization"][
-        "stays_text"
-    ]
-    assert "ORKAD, belonging to CRIStAL, belonging to Université de Lille" in view[
-        "overview"
-    ]["internationalization"]["stays_text"]
-    assert "covering Predoctoral Researcher (International Stay) at Université de Lille" in view[
-        "overview"
-    ]["recognition"]["grants_text"]
-    assert "PhD candidate - FPU Fellowship at Universidad de Málaga" in view["overview"][
-        "recognition"
-    ]["grants_text"]
+    assert (
+        "Athena Research and Innovation Center"
+        in view["overview"]["internationalization"]["stays_text"]
+    )
+    assert (
+        "ORKAD, belonging to CRIStAL, belonging to Université de Lille"
+        in view["overview"]["internationalization"]["stays_text"]
+    )
+    assert (
+        "covering Predoctoral Researcher (International Stay) at Université de Lille"
+        in view["overview"]["recognition"]["grants_text"]
+    )
+    assert (
+        "PhD candidate - FPU Fellowship at Universidad de Málaga"
+        in view["overview"]["recognition"]["grants_text"]
+    )
     assert view["overview"]["teaching"]["degree_programs"] == len(
         {item["degree"] for item in classes}
     )
     assert view["overview"]["teaching"]["teaching_innovation_projects"] == len(teaching_projects)
-    assert "teaching innovation project" in view["overview"]["teaching"][
-        "teaching_innovation_projects_phrase"
-    ]
+    assert (
+        "teaching innovation project"
+        in view["overview"]["teaching"]["teaching_innovation_projects_phrase"]
+    )
     assert sum(view["overview"]["teaching"]["supervision_counts"].values()) == len(supervisions)
-    assert view["overview"]["dissemination"]["known_social_views"] == view["metrics"][
-        "known_social_views"
-    ]
+    assert (
+        view["overview"]["dissemination"]["known_social_views"]
+        == view["metrics"]["known_social_views"]
+    )
     assert "honor" in view["overview"]["recognition"]["honors_phrase"]
     assert "grant" in view["overview"]["recognition"]["grants_phrase"]
     assert len(view["overview"]["recognition"]["honors"]) == len(honors)
@@ -192,6 +202,27 @@ def test_build_site_view_computes_core_metrics() -> None:
     assert view["collaborations"]["metrics"]["publication_cities"] >= 3
     assert view["collaborations"]["metrics"]["total_papers"] == view["metrics"]["publications"]
     assert view["collaborations"]["metrics"]["publication_countries"] >= 2
+    assert (
+        view["collaborations"]["metrics"]["work_appointments"]
+        == view["collaborations"]["metrics"]["work_institutions"]
+    )
+    assert view["collaborations"]["metrics"]["work_institutions"] >= 1
+    assert view["collaborations"]["metrics"]["work_cities"] == len(
+        view["collaborations"]["map_data"]["work_nodes"]
+    )
+    assert view["collaborations"]["metrics"]["work_countries"] == len(
+        {
+            node["country"]
+            for node in view["collaborations"]["map_data"]["work_nodes"]
+            if node.get("country")
+        }
+    )
+    assert len(view["collaborations"]["map_data"]["route_nodes"]) == len(
+        _data_list(resolver, "career/research_stays.yaml", "stays")
+    )
+    assert {route["stay_id"] for route in view["collaborations"]["map_data"]["route_nodes"]} == {
+        stay["id"] for stay in _data_list(resolver, "career/research_stays.yaml", "stays")
+    }
     assert view["collaborations"]["metrics"]["stay_cities"] == len(
         view["collaborations"]["map_data"]["stay_nodes"]
     )
@@ -210,19 +241,17 @@ def test_build_site_view_computes_core_metrics() -> None:
     }
     assert all("mo ·" in label for label in stay_labels)
     assert any(node["city"] == "Málaga" for node in view["collaborations"]["publication_nodes"])
+    assert any(node["city"] == "Málaga" for node in view["collaborations"]["work_nodes"])
     assert view["career_timeline"]["items"]
     assert view["career_timeline"]["markers"]
     assert any(
-        item["type"] == "experience" and item["grants"]
-        for item in view["career_timeline"]["items"]
+        item["type"] == "experience" and item["grants"] for item in view["career_timeline"]["items"]
     )
     assert any(
-        item["type"] == "stay" and item["grants"]
-        for item in view["career_timeline"]["items"]
+        item["type"] == "stay" and item["grants"] for item in view["career_timeline"]["items"]
     )
     assert any(
-        item["type"] == "education" and item["grants"]
-        for item in view["career_timeline"]["items"]
+        item["type"] == "education" and item["grants"] for item in view["career_timeline"]["items"]
     )
     assert view["career_details"]["items"]
     assert {filter_item["id"] for filter_item in view["career_details"]["filters"]} == {
@@ -255,9 +284,12 @@ def test_build_site_view_computes_core_metrics() -> None:
     university_of_malaga = next(
         organization for organization in organizations if organization["id"] == "organization_01"
     )
-    assert view["teaching_hours_chart"]["legend"][0]["label"] == university_of_malaga["abbreviation"]
-    assert view["teaching_hours_chart"]["by_degree"][0]["segments"][0]["label"] == (
-        university_of_malaga["abbreviation"]
+    assert (
+        view["teaching_hours_chart"]["legend"][0]["label"] == university_of_malaga["abbreviation"]
+    )
+    assert (
+        view["teaching_hours_chart"]["by_degree"][0]["segments"][0]["label"]
+        == (university_of_malaga["abbreviation"])
     )
     assert view["teaching_timeline"]["legend"][0]["label"] == university_of_malaga["abbreviation"]
     assert {event["type"] for event in view["teaching_timeline"]["events"]} == {
@@ -315,14 +347,20 @@ def test_build_site_view_computes_core_metrics() -> None:
     assert {"organization_01", "organization_03", "organization_04", "organization_11"}.issubset(
         organization_ids
     )
-    assert {"organization_13", "organization_14", "organization_15"}.isdisjoint(
-        organization_ids
-    )
+    assert {"organization_13", "organization_14", "organization_15"}.isdisjoint(organization_ids)
     khaos = next(node for node in organization_nodes if node["id"] == "organization_03")
     assert khaos["path_label"] == "UMA > ITIS > Khaos Research"
-    spain = next(country for country in view["organization_network"]["cards"] if country["country"] == "Spain")
+    spain = next(
+        country
+        for country in view["organization_network"]["cards"]
+        if country["country"] == "Spain"
+    )
     malaga = next(city for city in spain["cities"] if city["city"] == "Málaga")
-    uma = next(organization for organization in malaga["organizations"] if organization["id"] == "organization_01")
+    uma = next(
+        organization
+        for organization in malaga["organizations"]
+        if organization["id"] == "organization_01"
+    )
     itis = next(child for child in uma["children"] if child["id"] == "organization_06")
     cimes = next(child for child in uma["children"] if child["id"] == "organization_12")
     assert next(child for child in itis["children"] if child["id"] == "organization_03")
@@ -381,7 +419,7 @@ def test_build_site_view_uses_github_stats_for_software_visuals() -> None:
                     {"month": "2022-01", "count": 12},
                     {"month": "2026-04", "count": 4},
                 ],
-            }
+            },
         },
     )
 
@@ -462,7 +500,7 @@ def test_generate_site_writes_index_and_assets(tmp_path: Path) -> None:
     assert "This academic trajectory has also been recognized" in output.content
     assert "Predoctoral grant (FPU)" in output.content
     assert "Destacad@s Awards 2021" in output.content
-    assert "Research Stays and Publication Cities" in output.content
+    assert "Research Footprint and Publication Collaborations" in output.content
     assert "collaboration-map" in output.content
     assert "collaboration-map-data" in output.content
     assert "Publications by Year" in output.content

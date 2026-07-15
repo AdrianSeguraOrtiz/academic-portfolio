@@ -402,6 +402,7 @@ def build_site_view(
         "collaborations": _collaboration_view(
             publications,
             research_stays,
+            experience,
             translator=active_translator,
         ),
         "publication_chart": _publication_year_chart(journal_papers, conference_papers),

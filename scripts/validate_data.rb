@@ -26,6 +26,7 @@ REFERENCE_PREFIXES = {
   "parent_organization_id" => "organization_",
   "degree_ids" => "degree_",
   "position_ids" => "position_",
+  "origin_position_ids" => "position_",
   "current_position_ids" => "position_",
   "stay_ids" => "stay_",
   "current_stay_ids" => "stay_",
@@ -103,7 +104,7 @@ GROUP_REFERENCE_FIELDS = {
     "positions" => %w[organization_ids]
   },
   "career/research_stays.yaml" => {
-    "stays" => %w[organization_ids grant_ids]
+    "stays" => %w[organization_ids origin_position_ids grant_ids]
   },
   "research/publications.yaml" => {
     "journal_papers" => %w[

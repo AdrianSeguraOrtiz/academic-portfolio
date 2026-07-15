@@ -23,7 +23,7 @@ SITE_ENGLISH_BASELINE_LABELS = (
     "Dissemination",
     "Organizations",
     "Portfolio Summary",
-    "Research Stays and Publication Cities",
+    "Research Footprint and Publication Collaborations",
     "Publications by Year",
     "Software Projects",
     "Academic Trajectory",
@@ -39,7 +39,7 @@ SITE_ENGLISH_BASELINE_LABELS = (
 RICH_CV_ENGLISH_BASELINE_LABELS = (
     '<html lang="en">',
     "Portfolio Summary",
-    "Research Stays and Publication Cities",
+    "Research Footprint and Publication Collaborations",
     "Publications",
     "Software",
     "Academic Trajectory",

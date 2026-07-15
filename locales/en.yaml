@@ -91,6 +91,9 @@ units:
   publication:
     one: "{count} publication"
     other: "{count} publications"
+  position:
+    one: "{count} position"
+    other: "{count} positions"
   repository:
     one: "{count} repository"
     other: "{count} repositories"
@@ -131,7 +134,7 @@ site:
     cv_downloads: CV downloads
     research_focus: Research focus
     portfolio_metrics: Portfolio metrics
-    world_map: World map of research stays and publication collaborations
+    world_map: World map of research appointments, research stays, and publication collaborations
     map_legend: Map legend
     publications_by_year: Publications by year
     publications_grouped_by_year: Publications grouped by year
@@ -202,7 +205,10 @@ site:
     knowledge_transfer: Knowledge Transfer
     location: Location
     map_loading: Loading world map
-    month_short: "{count} mo"
+    month_short:
+      one: "{count} mo"
+      other: "{count} mo"
+    more_items: "+{count} more"
     mvnrepository: MvnRepository
     open: open
     open_research_software: Open Research Software
@@ -220,6 +226,7 @@ site:
     repository_created: "Repository created: {date}"
     research_output: Research Output
     research_stay: Research stay
+    research_appointment: Research appointment
     snapshot: Snapshot
     software_index: Software Index
     supervision: Supervision
@@ -288,9 +295,10 @@ cv:
   sections:
     summary: Summary
     portfolio_summary: Portfolio Summary
-    collaborations: Research Stays and Publication Cities
+    collaborations: Research Footprint and Publication Collaborations
     publication_collaboration: Publication Collaboration
     research_stays: Research Stays
+    research_appointments: Research Appointments
     publications: Publications
     publications_by_year: Publications by Year
     software: Software
@@ -337,6 +345,8 @@ cv:
     research_projects: Research projects
     teaching_hours: Teaching hours
     work_institutions: Work institutions
+    appointments: Appointments
+    active_appointments: Active appointments
     package_downloads: Package downloads
     known_social_views: Known social views
     total_papers: Total papers
