@@ -121,3 +121,43 @@ stays:
     en: Postdoctoral international stay at the CRIStAL centre of the University of Lille.
     es: Estancia internacional postdoctoral en el centro CRIStAL de la Universidad de Lille.
   notes: null
+- id: stay_04
+  title:
+    en: Postdoctoral Researcher (International Stay)
+    es: Investigador postdoctoral (estancia internacional)
+  organization_ids:
+  - organization_18
+  - organization_19
+  origin_position_ids:
+  - position_06
+  location:
+    city: Thermi
+    region: Central Macedonia
+    country: Greece
+    coordinates:
+      latitude: 40.56677
+      longitude: 22.99794
+  start_date: 2026-09
+  end_date: 2026-09
+  employment_type:
+    en: Full-time
+    es: Tiempo completo
+  work_mode:
+    en: On-site
+    es: Presencial
+  purpose:
+    en: Postdoctoral research
+    es: Investigación postdoctoral
+  type:
+    en: International stay
+    es: Estancia internacional
+  host_group:
+    en: Institute of Applied Biosciences, CERTH
+    es: Institute of Applied Biosciences, CERTH
+  grant_ids:
+  - grant_04
+  tasks: []
+  description:
+    en: Postdoctoral international stay at the Institute of Applied Biosciences of CERTH.
+    es: Estancia internacional postdoctoral en el Institute of Applied Biosciences de CERTH.
+  notes: null

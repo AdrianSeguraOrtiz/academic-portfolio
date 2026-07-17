@@ -220,3 +220,29 @@ organizations:
       latitude: 50.4547
       longitude: 30.5238
   website: https://www.kpi.ua
+- id: organization_18
+  name: Centre for Research and Technology Hellas
+  full_name: Centre for Research and Technology Hellas
+  abbreviation: CERTH
+  type: Research center
+  parent_organization_id: null
+  location:
+    city: Thermi
+    country: Greece
+    coordinates:
+      latitude: 40.56677
+      longitude: 22.99794
+  website: https://www.certh.gr/
+- id: organization_19
+  name: INAB|CERTH
+  full_name: Institute of Applied Biosciences
+  abbreviation: INAB
+  type: Research institute
+  parent_organization_id: organization_18
+  location:
+    city: Thermi
+    country: Greece
+    coordinates:
+      latitude: 40.56677
+      longitude: 22.99794
+  website: https://www.inab.certh.gr/

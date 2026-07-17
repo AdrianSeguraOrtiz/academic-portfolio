@@ -118,9 +118,9 @@
       <p>{{ record.issue_date }} · {{ record.awarding_entities | join(", ") }}</p>
       <p>{{ record.context }}</p>
       {% elif item.category == "grant" %}
-      <div class="record-topline"><span>{{ record.awarding_entity_type }}</span><time>{{ record.issue_date }}</time></div>
+      <div class="record-topline"><span>{{ record.awarding_entity_type }}</span>{% if record.issue_date %}<time>{{ record.issue_date }}</time>{% endif %}</div>
       <h3>{{ record.name }}</h3>
-      <p>{{ record.issue_date }} · {{ record.awarding_entity }}</p>
+      <p>{% if record.issue_date %}{{ record.issue_date }} · {% endif %}{{ record.awarding_entity }}</p>
       <p>{{ record.purpose }}</p>
       {% if record.reference %}<p>{{ t("cv.fields.reference") }}: {{ record.reference }}</p>{% endif %}
       {% if common.date_span(record) %}<p class="tags">{{ common.date_span(record) }}</p>{% endif %}

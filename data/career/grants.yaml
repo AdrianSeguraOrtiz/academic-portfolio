@@ -56,3 +56,21 @@ grants:
   start_date: 2026-07
   end_date: 2026-07
   notes: null
+- id: grant_04
+  name: IMMUNO-model COST Action STSM grant
+  awarding_entity: COST Action CA21135 - Modelling immunotherapy response and toxicity
+    in cancer (IMMUNO-model)
+  awarding_entity_type:
+    en: International network
+    es: Red internacional
+  position_ids: []
+  stay_ids:
+  - stay_04
+  purpose:
+    en: Postdoctoral mobility
+    es: Movilidad postdoctoral
+  reference: E-COST-GRANT-CA21135-93b78129
+  issue_date: null
+  start_date: 2026-09
+  end_date: 2026-09
+  notes: null

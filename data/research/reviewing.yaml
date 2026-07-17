@@ -9,11 +9,6 @@ reviewing:
   publisher: Elsevier
   manuscripts_reviewed: 2
   last_updated: '2026-01-13'
-- id: reviewing_04
-  journal: Scientific Reports
-  publisher: Springer Nature
-  manuscripts_reviewed: 2
-  last_updated: '2026-01-23'
 - id: reviewing_05
   journal: Knowledge-Based Systems
   publisher: Elsevier
@@ -29,13 +24,18 @@ reviewing:
   publisher: BMC
   manuscripts_reviewed: 2
   last_updated: '2026-05-13'
-- id: reviewing_07
-  journal: Archives of Computational Methods in Engineering
-  publisher: Springer Nature
-  manuscripts_reviewed: 1
-  last_updated: '2026-06-03'
 - id: reviewing_08
   journal: Computational Biology and Chemistry
   publisher: Elsevier
   manuscripts_reviewed: 1
   last_updated: '2026-06-05'
+- id: reviewing_04
+  journal: Scientific Reports
+  publisher: Springer Nature
+  manuscripts_reviewed: 3
+  last_updated: '2026-07-17'
+- id: reviewing_07
+  journal: Archives of Computational Methods in Engineering
+  publisher: Springer Nature
+  manuscripts_reviewed: 2
+  last_updated: '2026-07-17'
