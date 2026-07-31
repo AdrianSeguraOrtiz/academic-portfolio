@@ -5,12 +5,12 @@ from __future__ import annotations
 
 import argparse
 import copy
-from datetime import date
 import json
 import re
 import sys
 import unicodedata
 from dataclasses import dataclass
+from datetime import date
 from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
