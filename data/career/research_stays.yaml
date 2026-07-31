@@ -74,11 +74,21 @@ stays:
     en: International stay
     es: Estancia internacional
   host_group: null
-  grant_ids: []
-  tasks: []
+  grant_ids:
+  - grant_05
+  tasks:
+  - en: Developed ANDREA, a catalog-driven platform for benchmark expression dataset
+      generation, gene regulatory network inference, evaluation, and cross-tool network
+      comparison workflows.
+    es: Desarrollé ANDREA, una plataforma guiada por catálogos para la generación
+      de datasets benchmark de expresión, inferencia de redes de regulación génica,
+      evaluación y comparación de redes entre herramientas.
   description:
-    en: Postdoctoral international research stay.
-    es: Estancia internacional de investigación postdoctoral.
+    en: Postdoctoral international stay at Athena Research Center focused on reproducible
+      benchmark workflows for gene regulatory network discovery and evaluation.
+    es: Estancia internacional postdoctoral en Athena Research Center centrada en
+      flujos reproducibles de benchmarking para descubrimiento y evaluación de redes
+      de regulación génica.
   notes: null
 - id: stay_03
   title:
@@ -116,10 +126,22 @@ stays:
     es: Grupo de investigación ORKAD, centro CRIStAL
   grant_ids:
   - grant_03
-  tasks: []
+  tasks:
+  - en: Developed SALVI, a Python framework for quality-diversity biclustering of
+      heterogeneous data with explicit data preparation, pattern inference, objective
+      evaluation, MOME-style search, final selection, and reproducible scientific
+      experimentation protocols.
+    es: Desarrollé SALVI, un framework Python para biclustering quality-diversity
+      de datos heterogéneos con preparación explícita de datos, inferencia de patrones,
+      evaluación de objetivos, búsqueda tipo MOME, selección final y protocolos
+      reproducibles de experimentación científica.
   description:
-    en: Postdoctoral international stay at the CRIStAL centre of the University of Lille.
-    es: Estancia internacional postdoctoral en el centro CRIStAL de la Universidad de Lille.
+    en: Postdoctoral international stay at the CRIStAL centre of the University of
+      Lille focused on quality-diversity evolutionary biclustering and reproducible
+      experimentation for heterogeneous data.
+    es: Estancia internacional postdoctoral en el centro CRIStAL de la Universidad
+      de Lille centrada en biclustering evolutivo quality-diversity y experimentación
+      reproducible para datos heterogéneos.
   notes: null
 - id: stay_04
   title:
