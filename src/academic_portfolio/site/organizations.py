@@ -529,7 +529,7 @@ def _organization_metric_value_label(
 
 def _organization_metric_compact_value(value: float) -> str:
     if abs(value - round(value)) < 0.001:
-        return str(int(round(value)))
+        return str(round(value))
     return f"{value:.2f}".rstrip("0").rstrip(".")
 
 

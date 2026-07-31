@@ -15,8 +15,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 from urllib.request import Request, urlopen
 
 import yaml
@@ -265,7 +264,7 @@ def fetch_doi_metadata(raw_doi: str, mailto: str | None = None) -> PublicationMe
         try:
             payload = fetcher(doi, mailto)
             return metadata_from_payload(doi, payload)
-        except (HTTPError, URLError, TimeoutError, ValueError) as error:
+        except (HTTPError, TypeError, URLError, TimeoutError, ValueError) as error:
             errors.append(f"{fetcher.__name__}: {error}")
 
     raise ValueError("Could not fetch DOI metadata. " + " | ".join(errors))
@@ -276,7 +275,7 @@ def _fetch_crossref(doi: str, mailto: str | None) -> dict[str, Any]:
     payload = _http_json(url, mailto=mailto)
     message = payload.get("message")
     if not isinstance(message, dict):
-        raise ValueError("Crossref response does not contain a metadata message.")
+        raise TypeError("Crossref response does not contain a metadata message.")
     return message
 
 
@@ -291,7 +290,7 @@ def _fetch_doi_csl(doi: str, mailto: str | None) -> dict[str, Any]:
     with urlopen(request, timeout=20) as response:
         payload = json.loads(response.read().decode("utf-8"))
     if not isinstance(payload, dict):
-        raise ValueError("DOI content negotiation response is not a metadata object.")
+        raise TypeError("DOI content negotiation response is not a metadata object.")
     return payload
 
 
@@ -306,7 +305,7 @@ def _http_json(url: str, mailto: str | None) -> dict[str, Any]:
     with urlopen(request, timeout=20) as response:
         payload = json.loads(response.read().decode("utf-8"))
     if not isinstance(payload, dict):
-        raise ValueError("HTTP response is not a JSON object.")
+        raise TypeError("HTTP response is not a JSON object.")
     return payload
 
 
@@ -362,11 +361,11 @@ def load_publications(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as file:
         document = yaml.safe_load(file) or {}
     if not isinstance(document, dict):
-        raise ValueError(f"{path} must contain a YAML mapping.")
+        raise TypeError(f"{path} must contain a YAML mapping.")
     for group in GROUP_BY_KIND.values():
         document.setdefault(group, [])
         if not isinstance(document[group], list):
-            raise ValueError(f"{path}: {group} must be a list.")
+            raise TypeError(f"{path}: {group} must be a list.")
     return document
 
 
@@ -381,7 +380,7 @@ def load_yaml_mapping(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as file:
         document = yaml.safe_load(file) or {}
     if not isinstance(document, dict):
-        raise ValueError(f"{path} must contain a YAML mapping.")
+        raise TypeError(f"{path} must contain a YAML mapping.")
     return document
 
 
@@ -425,12 +424,12 @@ def fetch_affiliation_report(
     warnings: list[str] = []
     try:
         existing_organizations = load_organizations(organizations_path)
-    except (OSError, ValueError) as error:
+    except (OSError, TypeError, ValueError) as error:
         return AffiliationReport([], [], [f"Existing organizations could not be read: {error}"])
 
     try:
         work = _fetch_openalex_work(doi, mailto=mailto)
-    except (HTTPError, URLError, TimeoutError, ValueError) as error:
+    except (HTTPError, TypeError, URLError, TimeoutError, ValueError) as error:
         warnings.append(f"OpenAlex affiliations could not be fetched: {error}")
         return _crossref_affiliation_report(fallback_affiliations, existing_organizations, warnings)
 
@@ -511,7 +510,7 @@ def load_organizations(path: Path) -> list[dict[str, Any]]:
         document = yaml.safe_load(file) or {}
     organizations = document.get("organizations") if isinstance(document, dict) else None
     if not isinstance(organizations, list):
-        raise ValueError(f"{path}: organizations must be a list.")
+        raise TypeError(f"{path}: organizations must be a list.")
     return [item for item in organizations if isinstance(item, dict)]
 
 
@@ -520,7 +519,7 @@ def append_organizations(path: Path, organizations_to_add: list[dict[str, Any]])
         document = yaml.safe_load(file) or {}
     organizations = document.get("organizations") if isinstance(document, dict) else None
     if not isinstance(organizations, list):
-        raise ValueError(f"{path}: organizations must be a list.")
+        raise TypeError(f"{path}: organizations must be a list.")
     organizations.extend(organizations_to_add)
     path.write_text(
         yaml.safe_dump(document, sort_keys=False, allow_unicode=True, width=100),

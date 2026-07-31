@@ -7,7 +7,6 @@ import pytest
 from academic_portfolio.cv import generate_cv
 from academic_portfolio.site import generate_site
 
-
 CANONICAL_PUBLICATION_TITLE = (
     "GENECI: A novel evolutionary machine learning consensus-based approach for the "
     "inference of gene regulatory networks"

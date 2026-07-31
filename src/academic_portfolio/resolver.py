@@ -8,7 +8,6 @@ from typing import Any
 from academic_portfolio.i18n import localized_value
 from academic_portfolio.loader import LoadedData, load_data
 
-
 REFERENCE_PREFIXES = {
     "organization_ids": "organization_",
     "parent_organization_id": "organization_",

@@ -1,13 +1,12 @@
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 from types import SimpleNamespace
 
 from typer.testing import CliRunner
 
 import academic_portfolio.cli as cli_module
 from academic_portfolio.cli import app
-
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 

@@ -1,16 +1,17 @@
 from __future__ import annotations
 
+import json
+import re
+import tomllib
 from collections import Counter
 from contextlib import contextmanager
 from contextvars import ContextVar
-from dataclasses import dataclass, field as dataclass_field, fields, replace
-from datetime import date
-import json
+from dataclasses import dataclass, fields, replace
+from dataclasses import field as dataclass_field
+from datetime import UTC, datetime
 from pathlib import Path
-import re
 from shutil import copy2
 from typing import Any
-import tomllib
 
 from academic_portfolio.i18n import (
     DEFAULT_LANGUAGE,
@@ -421,13 +422,13 @@ def _validate_model_shape(path: Path, raw_model: dict[str, Any]) -> None:
         raise ValueError(f"{path} is missing required CV model fields: {missing_fields}")
 
     if not isinstance(raw_model["sections"], dict):
-        raise ValueError(f"{path} must define [sections] as a table of detail levels.")
+        raise TypeError(f"{path} must define [sections] as a table of detail levels.")
 
     if "layout" in raw_model and not isinstance(raw_model["layout"], dict):
-        raise ValueError(f"{path} must define [layout] as a TOML table.")
+        raise TypeError(f"{path} must define [layout] as a TOML table.")
 
     if "limits" in raw_model and not isinstance(raw_model["limits"], dict):
-        raise ValueError(f"{path} must define [limits] as a TOML table.")
+        raise TypeError(f"{path} must define [limits] as a TOML table.")
 
 
 def _validate_overlay_shape(path: Path, raw_overlay: dict[str, Any]) -> None:
@@ -466,20 +467,20 @@ def _validate_overlay_shape(path: Path, raw_overlay: dict[str, Any]) -> None:
         "task_filters",
     ):
         if table_name in raw_overlay and not isinstance(raw_overlay[table_name], dict):
-            raise ValueError(f"{path} must define [{table_name}] as a TOML table.")
+            raise TypeError(f"{path} must define [{table_name}] as a TOML table.")
 
     if "section_order" in raw_overlay and not isinstance(raw_overlay["section_order"], list):
-        raise ValueError(f"{path} must define section_order as a TOML array.")
+        raise TypeError(f"{path} must define section_order as a TOML array.")
 
     if "extra_sections" in raw_overlay and not isinstance(raw_overlay["extra_sections"], list):
-        raise ValueError(f"{path} must define [[extra_sections]] as an array of tables.")
+        raise TypeError(f"{path} must define [[extra_sections]] as an array of tables.")
 
 
 def _normalized_extra_sections(path: Path, raw_sections: Any) -> list[dict[str, Any]]:
     extra_sections = []
     for index, raw_section in enumerate(raw_sections):
         if not isinstance(raw_section, dict):
-            raise ValueError(f"{path} extra_sections[{index}] must be a TOML table.")
+            raise TypeError(f"{path} extra_sections[{index}] must be a TOML table.")
         section_id = str(raw_section.get("id") or "").strip()
         if not section_id:
             raise ValueError(f"{path} extra_sections[{index}] is missing id.")
@@ -505,7 +506,7 @@ def _string_list(value: Any) -> list[str]:
     if value is None:
         return []
     if not isinstance(value, list):
-        raise ValueError(f"Expected a TOML array of strings, got {type(value).__name__}.")
+        raise TypeError(f"Expected a TOML array of strings, got {type(value).__name__}.")
     return [str(item) for item in value if str(item).strip()]
 
 
@@ -513,7 +514,7 @@ def _normalized_task_filters(path: Path, raw_filters: Any) -> dict[str, dict[str
     if raw_filters is None:
         return {}
     if not isinstance(raw_filters, dict):
-        raise ValueError(f"{path} must define [task_filters] as a TOML table.")
+        raise TypeError(f"{path} must define [task_filters] as a TOML table.")
 
     filters: dict[str, dict[str, Any]] = {}
     for section, raw_filter in raw_filters.items():
@@ -521,7 +522,7 @@ def _normalized_task_filters(path: Path, raw_filters: Any) -> dict[str, dict[str
         if section_name not in TASK_FILTER_SECTIONS:
             raise ValueError(f"{path} defines unsupported task filter section: {section_name}")
         if not isinstance(raw_filter, dict):
-            raise ValueError(f"{path} task_filters.{section_name} must be a TOML table.")
+            raise TypeError(f"{path} task_filters.{section_name} must be a TOML table.")
 
         max_tasks = raw_filter.get("max_tasks_per_record")
         if max_tasks is not None:
@@ -2946,9 +2947,13 @@ def _record_months(record: dict[str, Any]) -> int:
     return _month_span_to_present(record.get("start_date"), record.get("end_date"))
 
 
+def _current_month_label() -> str:
+    return datetime.now(UTC).strftime("%Y-%m")
+
+
 def _record_month_interval(record: dict[str, Any]) -> tuple[int, int] | None:
     start = _month_number(record.get("start_date"))
-    end = _month_number(record.get("end_date") or date.today().strftime("%Y-%m"))
+    end = _month_number(record.get("end_date") or _current_month_label())
     if start is None and end is None:
         return None
     if start is None:
@@ -2960,7 +2965,7 @@ def _record_month_interval(record: dict[str, Any]) -> tuple[int, int] | None:
 
 def _record_sort_month(record: dict[str, Any]) -> int:
     values = (
-        record.get("end_date") or date.today().strftime("%Y-%m"),
+        record.get("end_date") or _current_month_label(),
         record.get("start_date"),
         record.get("issue_date"),
         record.get("date"),
@@ -3096,7 +3101,7 @@ def _render_pdf_with_page_limit(
             fit_status = "not_limited" if attempt_model.page_limit is None else "fits"
             return attempt_model, content, page_count, fit_status
 
-    final_model, final_content, final_page_count = attempted_results[-1]
+    final_model, _final_content, final_page_count = attempted_results[-1]
     raise RuntimeError(
         _page_limit_failure_message(final_model, final_page_count, resolver, translator)
     )

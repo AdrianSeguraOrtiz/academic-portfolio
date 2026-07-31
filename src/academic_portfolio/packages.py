@@ -253,7 +253,7 @@ def _monthly_download_chart(
 
 def _month_short_label(value: str) -> str:
     try:
-        parsed = datetime.strptime(value[:10], "%Y-%m-%d")
+        parsed = datetime.strptime(value[:10], "%Y-%m-%d").replace(tzinfo=UTC)
     except ValueError:
         return value[:7]
     return parsed.strftime("%b %Y")

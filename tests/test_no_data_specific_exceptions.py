@@ -1,7 +1,6 @@
 import re
 from pathlib import Path
 
-
 PRODUCTION_PATHS = [
     Path("assets"),
     Path("scripts"),

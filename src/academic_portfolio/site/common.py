@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -24,8 +24,12 @@ def _organization_short_label(organization: dict[str, Any]) -> str:
 
 
 def _month_span_to_present(start_date: Any, end_date: Any) -> int:
-    effective_end = end_date or date.today().strftime("%Y-%m")
+    effective_end = end_date or _current_month_label()
     return _month_span(start_date, effective_end)
+
+
+def _current_month_label() -> str:
+    return datetime.now(UTC).strftime("%Y-%m")
 
 
 def _float_percentage(value: float, total: float) -> float:

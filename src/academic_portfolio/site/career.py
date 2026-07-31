@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import date
+from datetime import UTC, datetime
 from typing import Any
 
 from academic_portfolio.i18n import Translator, load_translator
@@ -215,7 +215,7 @@ def _career_timeline_view(
     translator: Translator | None = None,
 ) -> dict[str, Any]:
     active_translator = translator or load_translator()
-    current_month = date.today().strftime("%Y-%m")
+    current_month = _current_month_label()
     position_grants = records_by_reference(grants, "position_ids")
     stay_grants = records_by_reference(grants, "stay_ids")
     degree_honors = records_by_reference(honors, "degree_ids")
@@ -419,9 +419,13 @@ def _timeline_organization_names(record: dict[str, Any]) -> list[str]:
 def _timeline_date(value: Any) -> str:
     text = str(value or "").strip()
     if not text:
-        return date.today().replace(day=1).isoformat()
+        return datetime.now(UTC).date().replace(day=1).isoformat()
     if len(text) == 4:
         return f"{text}-01-01"
     if len(text) == 7:
         return f"{text}-01"
     return text[:10]
+
+
+def _current_month_label() -> str:
+    return datetime.now(UTC).strftime("%Y-%m")

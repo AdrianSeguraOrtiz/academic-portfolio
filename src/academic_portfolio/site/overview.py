@@ -4,7 +4,6 @@ import unicodedata
 from collections import Counter, defaultdict
 from contextlib import contextmanager
 from contextvars import ContextVar
-from datetime import date
 from typing import Any
 
 from markupsafe import escape
@@ -12,6 +11,7 @@ from markupsafe import escape
 from academic_portfolio.i18n import Translator, format_duration, format_number, load_translator
 from academic_portfolio.render import record_name
 from academic_portfolio.site.common import (
+    _current_month_label,
     _month_number,
     _month_span_to_present,
     _organization_full_label,
@@ -435,7 +435,7 @@ def _duration_by_root_organization(
 
 def _record_month_interval(record: dict[str, Any]) -> tuple[int, int] | None:
     start = _month_number(record.get("start_date"))
-    end = _month_number(record.get("end_date") or date.today().strftime("%Y-%m"))
+    end = _month_number(record.get("end_date") or _current_month_label())
     if start is None and end is None:
         return None
     if start is None:

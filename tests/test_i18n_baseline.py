@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 import pytest
 
 from academic_portfolio.cv import generate_cv
 from academic_portfolio.site import generate_site
-
 
 SITE_ENGLISH_BASELINE_LABELS = (
     '<html lang="en">',

@@ -75,7 +75,7 @@ class SiteAnalyticsConfig:
     cloudflare_token: str | None = None
 
     @classmethod
-    def cloudflare(cls, token: str | None) -> "SiteAnalyticsConfig":
+    def cloudflare(cls, token: str | None) -> SiteAnalyticsConfig:
         clean_token = (token or "").strip()
         if not clean_token:
             return cls()

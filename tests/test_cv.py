@@ -1,7 +1,7 @@
-from pathlib import Path
+import re
 from dataclasses import replace
 from html.parser import HTMLParser
-import re
+from pathlib import Path
 
 import pytest
 

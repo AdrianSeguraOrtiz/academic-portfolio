@@ -2,13 +2,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cache
 from pathlib import Path
 from typing import Any
 
-from jinja2 import Environment
 import yaml
-
+from jinja2 import Environment
 
 DEFAULT_LANGUAGE = "en"
 SUPPORTED_LANGUAGES = ("en", "es")
@@ -36,7 +35,7 @@ class Translator:
             return key
         return _interpolate(str(message), values)
 
-    def plural(self, key: str, count: int | float, **values: Any) -> str:
+    def plural(self, key: str, count: float, **values: Any) -> str:
         plural_key = "one" if count == 1 else "other"
         message = _lookup_message(self.catalog.messages, f"{key}.{plural_key}")
         if message is None and self.language != self.fallback_catalog.language:
@@ -47,7 +46,7 @@ class Translator:
         interpolation_values = {"count": display_count, **values}
         return _interpolate(str(message), interpolation_values)
 
-    def unit(self, unit_key: str, count: int | float, **values: Any) -> str:
+    def unit(self, unit_key: str, count: float, **values: Any) -> str:
         return self.plural(f"units.{unit_key}", count, **values)
 
     def date_range(self, start: Any, end: Any) -> str:
@@ -57,7 +56,7 @@ class Translator:
             return f"{start_text} - {end_text}"
         return end_text if end else ""
 
-    def duration(self, months: int | float) -> str:
+    def duration(self, months: float) -> str:
         total_months = max(int(months), 0)
         years, remaining_months = divmod(total_months, 12)
         parts = []
@@ -93,7 +92,7 @@ def load_locale(language: str, locale_dir: Path | str = "locales") -> LocaleCata
     return _load_locale_cached(language, str(Path(locale_dir)))
 
 
-@lru_cache(maxsize=None)
+@cache
 def _load_locale_cached(language: str, locale_dir: str) -> LocaleCatalog:
     if language not in SUPPORTED_LANGUAGES:
         raise ValueError(f"Unsupported language: {language}")
@@ -106,7 +105,7 @@ def _load_locale_cached(language: str, locale_dir: str) -> LocaleCatalog:
         messages = yaml.safe_load(handle) or {}
 
     if not isinstance(messages, dict):
-        raise ValueError(f"Locale file must contain a mapping: {path}")
+        raise TypeError(f"Locale file must contain a mapping: {path}")
 
     declared_language = str(messages.get("language", {}).get("code", language))
     if declared_language != language:
@@ -212,7 +211,7 @@ def format_date_range(start: Any, end: Any, translator: Translator | None = None
     return (translator or load_translator()).date_range(start, end)
 
 
-def format_duration(months: int | float, translator: Translator | None = None) -> str:
+def format_duration(months: float, translator: Translator | None = None) -> str:
     return (translator or load_translator()).duration(months)
 
 
@@ -235,7 +234,7 @@ def format_number(value: Any, translator: Translator | None = None) -> str:
 
 def format_unit(
     unit_key: str,
-    count: int | float,
+    count: float,
     translator: Translator | None = None,
     **values: Any,
 ) -> str:

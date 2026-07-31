@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Annotated
 
 import typer
 from rich.console import Console
@@ -11,7 +12,6 @@ from academic_portfolio.i18n import DEFAULT_LANGUAGE
 from academic_portfolio.loader import load_data
 from academic_portfolio.resolver import PortfolioResolver
 from academic_portfolio.site import generate_all_sites, generate_site
-
 
 app = typer.Typer(help="Generate portfolio outputs from structured YAML data.")
 data_app = typer.Typer(help="Inspect and validate loaded portfolio data.")
@@ -25,7 +25,9 @@ console = Console()
 
 
 @data_app.command("summary")
-def data_summary(data_dir: Path = typer.Option(Path("data"), help="Portfolio data directory.")) -> None:
+def data_summary(
+    data_dir: Annotated[Path, typer.Option(help="Portfolio data directory.")] = Path("data"),
+) -> None:
     """Print a compact summary of the YAML data files."""
 
     loaded_data = load_data(data_dir)
@@ -43,7 +45,7 @@ def data_summary(data_dir: Path = typer.Option(Path("data"), help="Portfolio dat
 @data_app.command("resolve")
 def data_resolve(
     record_id: str,
-    data_dir: Path = typer.Option(Path("data"), help="Portfolio data directory."),
+    data_dir: Annotated[Path, typer.Option(help="Portfolio data directory.")] = Path("data"),
 ) -> None:
     """Print the location and outgoing references for a record ID."""
 
@@ -82,25 +84,29 @@ def data_resolve(
 
 @cv_app.command("generate")
 def cv_generate(
-    model: str = typer.Option("academic_rich", help="CV model name or TOML path."),
-    application: Path | None = typer.Option(
-        None,
-        "--application",
-        help="Application overlay TOML path. When provided, it supplies the base model.",
-    ),
-    output_format: str = typer.Option("pdf", "--format", help="Output format: pdf or html."),
-    language: str | None = typer.Option(None, "--lang", help="Output language: en or es."),
-    pages: int | None = typer.Option(
-        None,
-        "--pages",
-        min=1,
-        help="Optional page limit for sober CV output.",
-    ),
-    output_dir: Path = typer.Option(Path("build/cv"), help="Output directory."),
-    data_dir: Path = typer.Option(Path("data"), help="Portfolio data directory."),
-    model_dir: Path = typer.Option(Path("cv_models"), help="CV model directory."),
-    template_dir: Path = typer.Option(Path("templates/cv"), help="CV template directory."),
-    static_dir: Path = typer.Option(Path("assets/cv"), help="CV static assets directory."),
+    model: Annotated[str, typer.Option(help="CV model name or TOML path.")] = "academic_rich",
+    application: Annotated[
+        Path | None,
+        typer.Option(
+            "--application",
+            help="Application overlay TOML path. When provided, it supplies the base model.",
+        ),
+    ] = None,
+    output_format: Annotated[str, typer.Option("--format", help="Output format: pdf or html.")] = "pdf",
+    language: Annotated[str | None, typer.Option("--lang", help="Output language: en or es.")] = None,
+    pages: Annotated[
+        int | None,
+        typer.Option(
+            "--pages",
+            min=1,
+            help="Optional page limit for sober CV output.",
+        ),
+    ] = None,
+    output_dir: Annotated[Path, typer.Option(help="Output directory.")] = Path("build/cv"),
+    data_dir: Annotated[Path, typer.Option(help="Portfolio data directory.")] = Path("data"),
+    model_dir: Annotated[Path, typer.Option(help="CV model directory.")] = Path("cv_models"),
+    template_dir: Annotated[Path, typer.Option(help="CV template directory.")] = Path("templates/cv"),
+    static_dir: Annotated[Path, typer.Option(help="CV static assets directory.")] = Path("assets/cv"),
 ) -> None:
     """Generate a CV from a configured model."""
 
@@ -148,34 +154,40 @@ def _cv_fit_status(output: CVOutput) -> str:
 
 @site_app.command("generate")
 def site_generate(
-    output_dir: Path = typer.Option(Path("build/site"), help="Output directory."),
-    language: str = typer.Option("en", "--lang", help="Output language: en or es."),
-    data_dir: Path = typer.Option(Path("data"), help="Portfolio data directory."),
-    template_dir: Path = typer.Option(Path("templates/site"), help="Site template directory."),
-    static_dir: Path = typer.Option(Path("assets/site"), help="Site static assets directory."),
-    refresh_github: bool = typer.Option(
-        True,
-        "--refresh-github/--no-refresh-github",
-        help="Fetch public GitHub repository statistics for software projects.",
-    ),
-    refresh_packages: bool = typer.Option(
-        True,
-        "--refresh-packages/--no-refresh-packages",
-        help="Fetch package registry and download statistics for software packages.",
-    ),
-    github_cache_path: Path = typer.Option(
-        Path("build/cache/github_repositories.json"),
-        help="Local cache for GitHub repository statistics.",
-    ),
-    package_cache_path: Path = typer.Option(
-        Path("build/cache/software_packages.json"),
-        help="Local cache for package registry and download statistics.",
-    ),
-    cloudflare_analytics_token: str | None = typer.Option(
-        None,
-        "--cloudflare-analytics-token",
-        help="Cloudflare Web Analytics site token. Omit to render without analytics.",
-    ),
+    output_dir: Annotated[Path, typer.Option(help="Output directory.")] = Path("build/site"),
+    language: Annotated[str, typer.Option("--lang", help="Output language: en or es.")] = "en",
+    data_dir: Annotated[Path, typer.Option(help="Portfolio data directory.")] = Path("data"),
+    template_dir: Annotated[Path, typer.Option(help="Site template directory.")] = Path("templates/site"),
+    static_dir: Annotated[Path, typer.Option(help="Site static assets directory.")] = Path("assets/site"),
+    refresh_github: Annotated[
+        bool,
+        typer.Option(
+            "--refresh-github/--no-refresh-github",
+            help="Fetch public GitHub repository statistics for software projects.",
+        ),
+    ] = True,
+    refresh_packages: Annotated[
+        bool,
+        typer.Option(
+            "--refresh-packages/--no-refresh-packages",
+            help="Fetch package registry and download statistics for software packages.",
+        ),
+    ] = True,
+    github_cache_path: Annotated[
+        Path,
+        typer.Option(help="Local cache for GitHub repository statistics."),
+    ] = Path("build/cache/github_repositories.json"),
+    package_cache_path: Annotated[
+        Path,
+        typer.Option(help="Local cache for package registry and download statistics."),
+    ] = Path("build/cache/software_packages.json"),
+    cloudflare_analytics_token: Annotated[
+        str | None,
+        typer.Option(
+            "--cloudflare-analytics-token",
+            help="Cloudflare Web Analytics site token. Omit to render without analytics.",
+        ),
+    ] = None,
 ) -> None:
     """Generate the static personal website."""
 
@@ -196,33 +208,39 @@ def site_generate(
 
 @site_app.command("generate-all")
 def site_generate_all(
-    output_dir: Path = typer.Option(Path("build/site"), help="Output directory."),
-    data_dir: Path = typer.Option(Path("data"), help="Portfolio data directory."),
-    template_dir: Path = typer.Option(Path("templates/site"), help="Site template directory."),
-    static_dir: Path = typer.Option(Path("assets/site"), help="Site static assets directory."),
-    refresh_github: bool = typer.Option(
-        True,
-        "--refresh-github/--no-refresh-github",
-        help="Fetch public GitHub repository statistics for software projects.",
-    ),
-    refresh_packages: bool = typer.Option(
-        True,
-        "--refresh-packages/--no-refresh-packages",
-        help="Fetch package registry and download statistics for software packages.",
-    ),
-    github_cache_path: Path = typer.Option(
-        Path("build/cache/github_repositories.json"),
-        help="Local cache for GitHub repository statistics.",
-    ),
-    package_cache_path: Path = typer.Option(
-        Path("build/cache/software_packages.json"),
-        help="Local cache for package registry and download statistics.",
-    ),
-    cloudflare_analytics_token: str | None = typer.Option(
-        None,
-        "--cloudflare-analytics-token",
-        help="Cloudflare Web Analytics site token. Omit to render without analytics.",
-    ),
+    output_dir: Annotated[Path, typer.Option(help="Output directory.")] = Path("build/site"),
+    data_dir: Annotated[Path, typer.Option(help="Portfolio data directory.")] = Path("data"),
+    template_dir: Annotated[Path, typer.Option(help="Site template directory.")] = Path("templates/site"),
+    static_dir: Annotated[Path, typer.Option(help="Site static assets directory.")] = Path("assets/site"),
+    refresh_github: Annotated[
+        bool,
+        typer.Option(
+            "--refresh-github/--no-refresh-github",
+            help="Fetch public GitHub repository statistics for software projects.",
+        ),
+    ] = True,
+    refresh_packages: Annotated[
+        bool,
+        typer.Option(
+            "--refresh-packages/--no-refresh-packages",
+            help="Fetch package registry and download statistics for software packages.",
+        ),
+    ] = True,
+    github_cache_path: Annotated[
+        Path,
+        typer.Option(help="Local cache for GitHub repository statistics."),
+    ] = Path("build/cache/github_repositories.json"),
+    package_cache_path: Annotated[
+        Path,
+        typer.Option(help="Local cache for package registry and download statistics."),
+    ] = Path("build/cache/software_packages.json"),
+    cloudflare_analytics_token: Annotated[
+        str | None,
+        typer.Option(
+            "--cloudflare-analytics-token",
+            help="Cloudflare Web Analytics site token. Omit to render without analytics.",
+        ),
+    ] = None,
 ) -> None:
     """Generate all static website language routes and the root redirect."""
 
