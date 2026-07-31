@@ -217,3 +217,52 @@ press_items:
   country: Spain
   publication_ids:
   - publication_06
+- id: press_23
+  title: Crean el mapa de los virus del estómago que ayuda a detectar desequilibrios
+    en la salud digestiva
+  outlet: Nova Ciencia
+  date: '2026-07-29'
+  url: https://novaciencia.es/crean-el-mapa-de-los-virus-del-estomago-que-ayuda-a-detectar-desequilibrios-en-la-salud-digestiva/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_07
+- id: press_24
+  title: Desarrollan un ‘mapa inteligente’ para identificar virus asociados a la
+    salud digestiva
+  outlet: Fundación Descubre
+  date: '2026-07-29'
+  url: https://fundaciondescubre.es/noticias/desarrollan-un-mapa-inteligente-para-identificar-virus-asociados-a-la-salud-digestiva/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_07
+- id: press_25
+  title: Desarrollan un "mapa inteligente" para identificar virus asociados a la
+    salud digestiva
+  outlet: 20 Minutos
+  date: '2026-07-29'
+  url: https://www.20minutos.es/salud/desarrollan-un-mapa-inteligente-para-identificar-virus-asociados-salud-digestiva_7020243_0.html
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_07
+- id: press_26
+  title: Una inteligencia artificial desarrollada en Málaga analiza los virus del
+    intestino y detecta posibles desequilibrios
+  outlet: La Opinión de Málaga
+  date: '2026-07-29'
+  url: https://www.laopiniondemalaga.es/malaga/2026/07/29/inteligencia-artificial-desarrollada-malaga-analiza-132915754.html
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_07
+- id: press_27
+  title: Un mapa para leer los virus del intestino
+  outlet: iDescubre
+  date: '2026-07-29'
+  url: https://idescubre.fundaciondescubre.es/noticias/un-mapa-para-leer-los-virus-del-intestino/
+  language: Spanish
+  country: Spain
+  publication_ids:
+  - publication_07
