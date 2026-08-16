@@ -28,8 +28,7 @@ links:
 current_position_ids:
 - position_05
 - position_06
-current_stay_ids:
-- stay_03
+current_stay_ids: []
 research_profile:
   summary:
     en: Researcher in artificial intelligence and bioinformatics focused on context-guided
