@@ -246,3 +246,42 @@ organizations:
       latitude: 40.56677
       longitude: 22.99794
   website: https://www.inab.certh.gr/
+- id: organization_20
+  name: The University of Osaka
+  full_name: The University of Osaka
+  abbreviation: UOsaka
+  type: University
+  parent_organization_id: null
+  location:
+    city: Toyonaka
+    country: Japan
+    coordinates:
+      latitude: 34.80417
+      longitude: 135.45417
+  website: https://www.osaka-u.ac.jp/en
+- id: organization_21
+  name: Graduate School of Engineering Science
+  full_name: School / Graduate School of Engineering Science
+  abbreviation: GSES
+  type: Graduate school
+  parent_organization_id: organization_20
+  location:
+    city: Toyonaka
+    country: Japan
+    coordinates:
+      latitude: 34.80417
+      longitude: 135.45417
+  website: https://www.es.osaka-u.ac.jp/en/
+- id: organization_22
+  name: Kiyono Lab
+  full_name: Kiyono Laboratory, Biophysics and Data Science Group
+  abbreviation: Kiyono Lab
+  type: Research group
+  parent_organization_id: organization_21
+  location:
+    city: Toyonaka
+    country: Japan
+    coordinates:
+      latitude: 34.80417
+      longitude: 135.45417
+  website: https://kiyono-lab.bpe.es.osaka-u.ac.jp/index-en.html

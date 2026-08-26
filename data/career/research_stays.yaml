@@ -183,3 +183,46 @@ stays:
     en: Postdoctoral international stay at the Institute of Applied Biosciences of CERTH.
     es: Estancia internacional postdoctoral en el Institute of Applied Biosciences de CERTH.
   notes: null
+- id: stay_05
+  title:
+    en: Postdoctoral Researcher (International Stay)
+    es: Investigador postdoctoral (estancia internacional)
+  organization_ids:
+  - organization_20
+  - organization_21
+  - organization_22
+  origin_position_ids:
+  - position_06
+  location:
+    city: Toyonaka
+    region: Osaka
+    country: Japan
+    coordinates:
+      latitude: 34.80417
+      longitude: 135.45417
+  start_date: '2026-10-01'
+  end_date: '2026-11-29'
+  employment_type:
+    en: Full-time
+    es: Tiempo completo
+  work_mode:
+    en: On-site
+    es: Presencial
+  purpose:
+    en: Postdoctoral research
+    es: Investigación postdoctoral
+  type:
+    en: International stay
+    es: Estancia internacional
+  host_group:
+    en: Kiyono Lab, Biophysics and Data Science Group
+    es: Kiyono Lab, Biophysics and Data Science Group
+  grant_ids:
+  - grant_06
+  tasks: []
+  description:
+    en: Postdoctoral international stay at Kiyono Lab, Graduate School of Engineering
+      Science, The University of Osaka.
+    es: Estancia internacional postdoctoral en Kiyono Lab, Graduate School of Engineering
+      Science, The University of Osaka.
+  notes: null

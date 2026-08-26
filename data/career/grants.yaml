@@ -91,3 +91,24 @@ grants:
   start_date: 2026-09
   end_date: 2026-09
   notes: null
+- id: grant_06
+  name: D2 research stay grant
+  awarding_entity: Universidad de Málaga
+  awarding_entity_type:
+    en: Public
+    es: Pública
+  position_ids: []
+  stay_ids:
+  - stay_05
+  purpose:
+    en: Postdoctoral mobility
+    es: Movilidad postdoctoral
+  reference: D2 - II Plan Propio 2026
+  issue_date: '2026-07-20'
+  start_date: '2026-10-01'
+  end_date: '2026-11-29'
+  notes:
+    en: Registered as awarded funding for a research stay at Kiyono Lab, The University
+      of Osaka.
+    es: Registrada como ayuda concedida para una estancia de investigación en Kiyono
+      Lab, The University of Osaka.
