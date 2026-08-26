@@ -295,3 +295,26 @@ projects:
     es: Benchmarking
   urls:
     github: https://github.com/AdrianSeguraOrtiz/ANDREA
+- id: software_15
+  name: SALVI
+  full_name: null
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Component-oriented framework for quality-diversity biclustering of heterogeneous
+      data with reproducible pipelines, monitoring, and explainable bicluster outputs.
+    es: >-
+      Framework orientado a componentes para biclustering quality-diversity de datos
+      heterogéneos con pipelines reproducibles, monitorización y salidas de biclústeres
+      explicables.
+  domains:
+  - en: Evolutionary biclustering
+    es: Biclustering evolutivo
+  - en: Quality-diversity optimization
+    es: Optimización quality-diversity
+  - en: Heterogeneous data analysis
+    es: Análisis de datos heterogéneos
+  urls:
+    github: https://github.com/AdrianSeguraOrtiz/SALVI
