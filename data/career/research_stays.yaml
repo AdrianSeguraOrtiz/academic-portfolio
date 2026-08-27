@@ -200,8 +200,8 @@ stays:
     coordinates:
       latitude: 34.80417
       longitude: 135.45417
-  start_date: '2026-10-01'
-  end_date: '2026-11-29'
+  start_date: 2026-10
+  end_date: 2026-11
   employment_type:
     en: Full-time
     es: Tiempo completo

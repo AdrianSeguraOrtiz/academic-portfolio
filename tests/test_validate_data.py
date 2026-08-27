@@ -80,7 +80,7 @@ def test_validate_data_rejects_unsorted_dated_lists(tmp_path: Path) -> None:
     def break_date_order(data_dir: Path) -> None:
         path = data_dir / "career" / "experience.yaml"
         document = _load_yaml(path)
-        document["positions"][0]["start_date"] = "2999-01-01"
+        document["positions"][0]["start_date"] = "2999-01"
         _write_yaml(path, document)
 
     result = _run_validator_with_mutation(tmp_path, break_date_order)
@@ -88,6 +88,22 @@ def test_validate_data_rejects_unsorted_dated_lists(tmp_path: Path) -> None:
     assert result.returncode == 1
     assert (
         "career/experience.yaml: positions is not sorted ascending by start_date"
+        in result.stderr
+    )
+
+
+def test_validate_data_rejects_mixed_date_granularities(tmp_path: Path) -> None:
+    def mix_date_granularities(data_dir: Path) -> None:
+        path = data_dir / "career" / "research_stays.yaml"
+        document = _load_yaml(path)
+        document["stays"][-1]["start_date"] = "2026-10-01"
+        _write_yaml(path, document)
+
+    result = _run_validator_with_mutation(tmp_path, mix_date_granularities)
+
+    assert result.returncode != 0
+    assert (
+        "career/research_stays.yaml: stays.start_date mixes date granularities: month, day"
         in result.stderr
     )
 

@@ -17,9 +17,8 @@ const CAREER_MESSAGES = {
 // Layout constants keep the SVG timeline stable while making visual tuning explicit.
 const TIMELINE_MIN_WIDTH = 1280;
 const TIMELINE_WIDTH_PER_YEAR = 170;
-const TIMELINE_HEIGHT = 820;
+const TIMELINE_MIN_HEIGHT = 700;
 const TIMELINE_MARGIN = { top: 26, right: 42, bottom: 46, left: 110 };
-const TIMELINE_BASELINE = 360;
 const TIMELINE_FALLBACK_YEAR_SPAN = 8;
 const TIMELINE_MIN_YEAR_SPAN = 6;
 const TIMELINE_RESET_DURATION = 250;
@@ -27,51 +26,42 @@ const TIMELINE_ZOOM_EXTENT = [1, 7];
 const COMPACT_TIMELINE_MIN_WIDTH = 320;
 const COMPACT_TIMELINE_MAX_SCALE = 2.4;
 const TIMELINE_ZOOM_STEP = 1.25;
-const AXIS_TOP_OFFSET = 310;
-const AXIS_BOTTOM_OFFSET = 380;
 const AXIS_YEAR_LABEL_OFFSET = 30;
+const AXIS_TOP_GAP = 30;
+const AXIS_BOTTOM_GAP = 50;
 const PAST_PADDING_MONTHS = 4;
-const FUTURE_PADDING_MONTHS = 10;
+const FUTURE_PADDING_MONTHS = 16;
 const FUTURE_LABEL_MONTHS = 4;
 const FUTURE_LABEL_X_FALLBACK = 20;
 const BLOCK_HEIGHT = 26;
+const BLOCK_LANE_GAP = 12;
 const BLOCK_RADIUS = 9;
-const BLOCK_MIN_WIDTH = 14;
+const BLOCK_MIN_WIDTH = 4;
 const BLOCK_INNER_LABEL_X = 8;
 const BLOCK_INNER_LABEL_Y = 17;
 const BLOCK_EDGE_TOP_Y = -3;
 const BLOCK_EDGE_BOTTOM_Y = 29;
 const BLOCK_LABEL_SIDE_PADDING = 16;
 const BLOCK_LABEL_MIN_WIDTH = 44;
-const EXPERIENCE_LANE_OFFSET = -46;
-const EXPERIENCE_LANE_STEP = 92;
-const EDUCATION_LANE_OFFSET = 44;
-const EDUCATION_LANE_STEP = 38;
-const STAY_LANE_OFFSET = 216;
-const STAY_LANE_STEP = 72;
-const MARKER_LABEL_X = 10;
 const MARKER_LABEL_Y_OFFSET = -5;
 const MARKER_LINE_GAP = 10;
-const MARKER_TOP_BASE_Y = 34;
-const MARKER_BOTTOM_BASELINE_OFFSET = 344;
-const MARKER_TOP_LANE_STEP = 70;
-const MARKER_BOTTOM_LANE_STEP = 66;
 const MARKER_LABEL_WIDTH = 190;
 const STACK_COLLISION_GAP = 24;
 const APPROX_CHAR_WIDTH = 6.3;
 const ELLIPSIS_LENGTH = 3;
 const DATE_ISO_LENGTH = 10;
 const LANE_LABELS = [
-  { key: "certification", text: "Certifications", y: 42 },
-  { key: "experience", text: "Experience", baselineOffset: -92 },
-  { key: "education", text: "Education", baselineOffset: 88 },
-  { key: "stay", text: "Research Stays", baselineOffset: 210 },
-  { key: "honor", text: "Honors", baselineOffset: 344 },
+  { key: "certification", text: "Certifications" },
+  { key: "experience", text: "Experience" },
+  { key: "education", text: "Education" },
+  { key: "stay", text: "Research Stays" },
+  { key: "honor", text: "Honors" },
 ];
 const LABEL_LINE_HEIGHT = 12;
-const LABEL_BLOCK_GAP = 14;
 const LABEL_PIECE_GAP = 8;
-const LABEL_STACK_GAP = 14;
+const LABEL_TRACK_GAP = 12;
+const LABEL_AREA_GAP = 14;
+const TIMELINE_SECTION_GAP = 28;
 const LABEL_WIDTH = 178;
 const LABEL_MAX_CHARS = {
   block: 30,
@@ -92,9 +82,9 @@ class CareerTimeline {
       TIMELINE_MIN_WIDTH,
       (this.yearSpan() + 1) * TIMELINE_WIDTH_PER_YEAR,
     );
-    this.height = TIMELINE_HEIGHT;
+    this.height = TIMELINE_MIN_HEIGHT;
     this.margin = TIMELINE_MARGIN;
-    this.baseline = TIMELINE_BASELINE;
+    this.baseline = 0;
     this.compactScale = 1;
     this.displayWidth = compactTimelineDisplayWidth(this.width, this.container, this.compactScale);
     this.displayHeight = Math.round(this.height * (this.displayWidth / this.width));
@@ -162,10 +152,21 @@ class CareerTimeline {
       ])
       .range([this.margin.left, this.width - this.margin.right]);
 
+    const layout = buildTimelineLayout(items, markers, x, this.margin);
+    this.height = layout.height;
+    this.baseline = layout.baseline;
+    this.zoom.translateExtent([
+      [0, 0],
+      [this.width, this.height],
+    ]);
+    this.svg.attr("viewBox", `0 0 ${this.width} ${this.height}`);
+    this.updateDisplaySize();
+
     this.drawAxis(x);
-    this.drawLaneLabels(x);
-    this.drawBlocks(x, items);
-    this.drawMarkers(x, markers);
+    this.drawLaneLabels(x, layout.labels);
+    this.drawMarkerLines(x, layout.markers);
+    this.drawBlocks(x, layout.blocks, layout.labelStacks);
+    this.drawMarkerSymbols(x, layout.markers);
   }
 
   resetZoom() {
@@ -201,8 +202,8 @@ class CareerTimeline {
       .join("line")
       .attr("x1", (tick) => x(tick))
       .attr("x2", (tick) => x(tick))
-      .attr("y1", this.baseline - AXIS_TOP_OFFSET)
-      .attr("y2", this.baseline + AXIS_BOTTOM_OFFSET);
+      .attr("y1", this.margin.top)
+      .attr("y2", this.height - this.margin.bottom);
     tickGroup
       .selectAll("text")
       .data(ticks)
@@ -212,11 +213,13 @@ class CareerTimeline {
       .text((tick) => tick.getFullYear());
   }
 
-  drawLaneLabels(x) {
-    const labels = LANE_LABELS.map((label) => ({
+  drawLaneLabels(x, layoutLabels) {
+    const labels = layoutLabels.map((label) => ({
       ...label,
-      text: this.data.labels?.[label.key] || label.text,
-      y: label.y ?? this.baseline + label.baselineOffset,
+      text:
+        this.data.labels?.[label.key]
+        || LANE_LABELS.find((candidate) => candidate.key === label.key)?.text
+        || label.key,
     }));
     const futureLabelX = x(
       offsetDate(parseCareerDate(this.data.range.end), FUTURE_LABEL_MONTHS),
@@ -237,24 +240,7 @@ class CareerTimeline {
       .text((label) => label.text);
   }
 
-  drawBlocks(x, items) {
-    const education = assignLanes(items.filter((item) => item.type === "education"));
-    const experience = assignLanes(items.filter((item) => item.type === "experience"));
-    const stays = assignLanes(items.filter((item) => item.type === "stay"));
-    const blockData = [
-      ...experience.map((item) => ({
-        ...item,
-        y: this.baseline + EXPERIENCE_LANE_OFFSET - item.lane * EXPERIENCE_LANE_STEP,
-      })),
-      ...education.map((item) => ({
-        ...item,
-        y: this.baseline + EDUCATION_LANE_OFFSET + item.lane * EDUCATION_LANE_STEP,
-      })),
-      ...stays.map((item) => ({
-        ...item,
-        y: this.baseline + STAY_LANE_OFFSET + item.lane * STAY_LANE_STEP,
-      })),
-    ];
+  drawBlocks(x, blockData, labelStacks) {
     const blocks = this.root
       .append("g")
       .attr("class", "career-block-layer")
@@ -286,9 +272,6 @@ class CareerTimeline {
       .attr("y", BLOCK_INNER_LABEL_Y)
       .text((item) => innerBlockLabel(item, blockWidth(item, x)));
 
-    const labelStacks = placeStacks(
-      blockData.flatMap((item) => itemLabelStacks(item, x)),
-    );
     const stackGroups = this.root
       .append("g")
       .attr("class", "career-label-stack-layer")
@@ -311,25 +294,12 @@ class CareerTimeline {
     blocks.append("title").text((item) => blockTitle(item, this.data.labels || {}));
   }
 
-  drawMarkers(x, markers) {
-    const certifications = assignMarkerLanes(
-      markers.filter((marker) => marker.type === "certification"),
-      x,
-      "top",
-      this.baseline,
-    );
-    const honors = assignMarkerLanes(
-      markers.filter((marker) => marker.type === "honor"),
-      x,
-      "bottom",
-      this.baseline,
-    );
-    const positioned = [...certifications, ...honors];
+  drawMarkerLines(x, markers) {
     const markerGroups = this.root
       .append("g")
-      .attr("class", "career-marker-layer")
+      .attr("class", "career-marker-line-layer")
       .selectAll("g")
-      .data(positioned)
+      .data(markers)
       .join("g")
       .attr("class", (marker) => `career-marker ${marker.type}`)
       .attr("transform", (marker) => `translate(${x(parseCareerDate(marker.date))},0)`);
@@ -344,6 +314,17 @@ class CareerTimeline {
           ? marker.yAnchor - MARKER_LINE_GAP
           : marker.yAnchor + MARKER_LINE_GAP,
       );
+  }
+
+  drawMarkerSymbols(x, markers) {
+    const markerGroups = this.root
+      .append("g")
+      .attr("class", "career-marker-symbol-layer")
+      .selectAll("g")
+      .data(markers)
+      .join("g")
+      .attr("class", (marker) => `career-marker ${marker.type}`)
+      .attr("transform", (marker) => `translate(${x(parseCareerDate(marker.date))},0)`);
 
     markerGroups
       .append("path")
@@ -361,7 +342,7 @@ class CareerTimeline {
         .attr("class", "career-marker-label")
         .attr(
           "transform",
-          `translate(${MARKER_LABEL_X},${marker.yAnchor + MARKER_LABEL_Y_OFFSET})`,
+          `translate(${marker.labelX - marker.xPosition},${marker.yAnchor + MARKER_LABEL_Y_OFFSET})`,
         );
       appendWrappedText(labelGroup, markerLabelLines(marker), 0, 0);
     });
@@ -413,13 +394,170 @@ function offsetDate(value, months) {
   return copy;
 }
 
+function isMonthPrecision(value) {
+  return /^\d{4}-\d{2}$/.test(String(value || ""));
+}
+
+function durationEndDate(item) {
+  const end = parseCareerDate(item.end);
+  return item.is_current || isMonthPrecision(item.end_label) ? offsetDate(end, 1) : end;
+}
+
+function buildTimelineLayout(items, markers, x, margin) {
+  const blocks = [];
+  const labelStacks = [];
+  const positionedMarkers = [];
+  const labels = [];
+  let cursor = margin.top;
+
+  const certificationBand = layoutMarkerBand(
+    markers.filter((marker) => marker.type === "certification"),
+    x,
+    cursor,
+  );
+  if (certificationBand.items.length) {
+    positionedMarkers.push(...certificationBand.items);
+    labels.push({ key: "certification", y: certificationBand.center });
+    cursor = certificationBand.bottom + TIMELINE_SECTION_GAP;
+  }
+
+  const experienceBand = layoutBlockBand(
+    items.filter((item) => item.type === "experience"),
+    x,
+    cursor,
+  );
+  if (experienceBand.blocks.length) {
+    blocks.push(...experienceBand.blocks);
+    labelStacks.push(...experienceBand.labelStacks);
+    labels.push({ key: "experience", y: experienceBand.center });
+    cursor = experienceBand.bottom;
+  }
+
+  const baseline = cursor + AXIS_TOP_GAP;
+  cursor = baseline + AXIS_BOTTOM_GAP;
+
+  for (const type of ["education", "stay"]) {
+    const band = layoutBlockBand(
+      items.filter((item) => item.type === type),
+      x,
+      cursor,
+    );
+    if (!band.blocks.length) {
+      continue;
+    }
+    blocks.push(...band.blocks);
+    labelStacks.push(...band.labelStacks);
+    labels.push({ key: type, y: band.center });
+    cursor = band.bottom + TIMELINE_SECTION_GAP;
+  }
+
+  const honorBand = layoutMarkerBand(
+    markers.filter((marker) => marker.type === "honor"),
+    x,
+    cursor,
+  );
+  if (honorBand.items.length) {
+    positionedMarkers.push(...honorBand.items);
+    labels.push({ key: "honor", y: honorBand.center });
+    cursor = honorBand.bottom;
+  }
+
+  return {
+    baseline,
+    blocks,
+    height: Math.max(cursor + margin.bottom, TIMELINE_MIN_HEIGHT),
+    labels,
+    labelStacks,
+    markers: positionedMarkers,
+  };
+}
+
+function layoutBlockBand(items, x, startY) {
+  if (!items.length) {
+    return emptyLayoutBand(startY);
+  }
+
+  const laneItems = assignLanes(items);
+  const labelDefinitions = laneItems.flatMap((item) => itemLabelStackDefinitions(item, x));
+  const aboveDefinitions = labelDefinitions.filter((stack) => stack.side === "above");
+  const belowDefinitions = labelDefinitions.filter((stack) => stack.side === "below");
+  const aboveLayout = positionLabelTracks(aboveDefinitions, startY);
+  const blockTop = aboveDefinitions.length
+    ? aboveLayout.bottom + LABEL_AREA_GAP
+    : startY;
+  const laneCount = Math.max(...laneItems.map((item) => item.lane)) + 1;
+  const blockAreaHeight = laneCount * BLOCK_HEIGHT + (laneCount - 1) * BLOCK_LANE_GAP;
+  const blocks = laneItems.map((item) => ({
+    ...item,
+    y: blockTop + item.lane * (BLOCK_HEIGHT + BLOCK_LANE_GAP),
+  }));
+  const blockBottom = blockTop + blockAreaHeight;
+  const belowStart = belowDefinitions.length
+    ? blockBottom + LABEL_AREA_GAP
+    : blockBottom;
+  const belowLayout = positionLabelTracks(belowDefinitions, belowStart);
+  const bottom = belowDefinitions.length ? belowLayout.bottom : blockBottom;
+
+  return {
+    blocks,
+    bottom,
+    center: startY + (bottom - startY) / 2,
+    labelStacks: [...aboveLayout.stacks, ...belowLayout.stacks],
+  };
+}
+
+function layoutMarkerBand(markers, x, startY) {
+  if (!markers.length) {
+    return { items: [], bottom: startY, center: startY };
+  }
+
+  const candidates = markers.map((marker) => {
+    const xPosition = x(parseCareerDate(marker.date));
+    const labelX = clampedLabelX(xPosition + 10, x, MARKER_LABEL_WIDTH);
+    return {
+      ...marker,
+      x: labelX,
+      lines: markerLabelLines(marker),
+      labelX,
+      width: MARKER_LABEL_WIDTH,
+      xPosition,
+    };
+  });
+  const tracked = assignHorizontalTracks(candidates);
+  const trackHeights = trackMaximums(
+    tracked,
+    (marker) => Math.max(marker.lines.length * LABEL_LINE_HEIGHT + 8, 24),
+  );
+  const trackTops = trackOffsets(trackHeights, startY);
+  const items = tracked.map((marker) => ({
+    ...marker,
+    yAnchor: trackTops[marker.track] + 10,
+  }));
+  const bottom = trackBottom(trackHeights, startY);
+
+  return {
+    items,
+    bottom,
+    center: startY + (bottom - startY) / 2,
+  };
+}
+
+function emptyLayoutBand(startY) {
+  return {
+    blocks: [],
+    bottom: startY,
+    center: startY,
+    labelStacks: [],
+  };
+}
+
 function assignLanes(items) {
   const lanes = [];
   return [...items]
     .sort((a, b) => parseCareerDate(a.start) - parseCareerDate(b.start))
     .map((item) => {
       const start = parseCareerDate(item.start).getTime();
-      const end = parseCareerDate(item.end).getTime();
+      const end = durationEndDate(item).getTime();
       const lane = lanes.findIndex((laneEnd) => start >= laneEnd);
       if (lane === -1) {
         lanes.push(end);
@@ -430,27 +568,8 @@ function assignLanes(items) {
     });
 }
 
-function assignMarkerLanes(markers, x, side, baseline) {
-  const lanes = [];
-  const baseY =
-    side === "top" ? MARKER_TOP_BASE_Y : baseline + MARKER_BOTTOM_BASELINE_OFFSET;
-  const laneStep = side === "top" ? MARKER_TOP_LANE_STEP : MARKER_BOTTOM_LANE_STEP;
-  return [...markers]
-    .sort((a, b) => parseCareerDate(a.date) - parseCareerDate(b.date))
-    .map((marker) => {
-      const xPosition = x(parseCareerDate(marker.date));
-      const lane = lanes.findIndex((laneEnd) => xPosition >= laneEnd + STACK_COLLISION_GAP);
-      if (lane === -1) {
-        lanes.push(xPosition + MARKER_LABEL_WIDTH);
-        return { ...marker, yAnchor: baseY + lanes.length * laneStep - laneStep };
-      }
-      lanes[lane] = xPosition + MARKER_LABEL_WIDTH;
-      return { ...marker, yAnchor: baseY + lane * laneStep };
-    });
-}
-
 function blockWidth(item, x) {
-  return Math.max(x(parseCareerDate(item.end)) - x(parseCareerDate(item.start)), BLOCK_MIN_WIDTH);
+  return Math.max(x(durationEndDate(item)) - x(parseCareerDate(item.start)), BLOCK_MIN_WIDTH);
 }
 
 function textFits(value, width) {
@@ -488,32 +607,32 @@ function edgeY(item) {
   return bottomEdge ? BLOCK_EDGE_BOTTOM_Y : BLOCK_EDGE_TOP_Y;
 }
 
-function itemLabelStacks(item, x) {
+function itemLabelStackDefinitions(item, x) {
   const blockLines = externalBlockLabelLines(item, x);
-  const grantLines = grantLabelLines(item);
+  const grantPieces = grantLabelPieces(item);
   const stacks = [];
 
   if (item.type === "experience") {
     const pieces = [
-      ...(grantLines.length ? [{ kind: "grant", lines: grantLines }] : []),
+      ...grantPieces,
       ...(blockLines.length ? [{ kind: "block", lines: blockLines }] : []),
     ];
-    const stack = buildLabelStack(item, x, "above", pieces);
+    const stack = labelStackDefinition(item, x, "above", pieces);
     return stack ? [stack] : [];
   }
 
   if (item.type === "stay") {
-    const blockStack = buildLabelStack(
+    const blockStack = labelStackDefinition(
       item,
       x,
       "above",
       blockLines.length ? [{ kind: "block", lines: blockLines }] : [],
     );
-    const grantStack = buildLabelStack(
+    const grantStack = labelStackDefinition(
       item,
       x,
       "below",
-      grantLines.length ? [{ kind: "grant", lines: grantLines }] : [],
+      grantPieces,
     );
     if (blockStack) {
       stacks.push(blockStack);
@@ -526,9 +645,9 @@ function itemLabelStacks(item, x) {
 
   const pieces = [
     ...(blockLines.length ? [{ kind: "block", lines: blockLines }] : []),
-    ...(grantLines.length ? [{ kind: "grant", lines: grantLines }] : []),
+    ...grantPieces,
   ];
-  const stack = buildLabelStack(item, x, "below", pieces);
+  const stack = labelStackDefinition(item, x, "below", pieces);
   return stack ? [stack] : [];
 }
 
@@ -539,61 +658,114 @@ function externalBlockLabelLines(item, x) {
   return blockLabelLines(item, x);
 }
 
-function buildLabelStack(item, x, side, pieces) {
+function labelStackDefinition(item, x, side, pieces) {
   if (!pieces.length) {
     return null;
   }
 
-  const stack = {
-    band: `${side}-${item.type}-${item.lane}`,
-    direction: side === "above" ? -1 : 1,
+  const rawX = x(parseCareerDate(item.start)) + 8;
+  return {
+    height: stackHeight(pieces),
+    side,
     type: item.type,
-    x: x(parseCareerDate(item.start)) + 8,
+    x: clampedLabelX(rawX, x, LABEL_WIDTH),
     width: LABEL_WIDTH,
-    pieces: [],
+    pieces,
   };
-  if (side === "above") {
-    let cursor = item.y - LABEL_BLOCK_GAP;
-    [...pieces].reverse().forEach((piece) => {
-      const y = cursor - (piece.lines.length - 1) * LABEL_LINE_HEIGHT;
-      stack.pieces.push({ ...piece, y });
-      cursor = y - LABEL_PIECE_GAP;
-    });
-    stack.pieces.reverse();
-  } else {
-    let cursor = item.y + BLOCK_HEIGHT + LABEL_BLOCK_GAP;
-    pieces.forEach((piece) => {
-      stack.pieces.push({ ...piece, y: cursor });
-      cursor += piece.lines.length * LABEL_LINE_HEIGHT + LABEL_PIECE_GAP;
-    });
-  }
-
-  const firstBaseline = Math.min(...stack.pieces.map((piece) => piece.y));
-  const lastBaseline = Math.max(
-    ...stack.pieces.map(
-      (piece) => piece.y + (piece.lines.length - 1) * LABEL_LINE_HEIGHT,
-    ),
-  );
-  stack.height = lastBaseline - firstBaseline + LABEL_LINE_HEIGHT;
-  return stack;
 }
 
-function placeStacks(stacks) {
-  const laneEndsByBand = new Map();
-  return [...stacks]
-    .sort((a, b) => a.band.localeCompare(b.band) || a.x - b.x)
-    .map((stack) => {
-      const laneEnds = laneEndsByBand.get(stack.band) || [];
-      const lane = laneEnds.findIndex((laneEnd) => stack.x >= laneEnd + STACK_COLLISION_GAP);
-      const laneIndex = lane === -1 ? laneEnds.length : lane;
-      laneEnds[laneIndex] = stack.x + stack.width;
-      laneEndsByBand.set(stack.band, laneEnds);
-      const offset = laneIndex * stack.direction * (stack.height + LABEL_STACK_GAP);
-      return {
-        ...stack,
-        pieces: stack.pieces.map((piece) => ({ ...piece, y: piece.y + offset })),
-      };
+function positionLabelTracks(stacks, startY) {
+  if (!stacks.length) {
+    return { bottom: startY, stacks: [] };
+  }
+
+  const tracked = assignHorizontalTracks(stacks);
+  const trackHeights = trackMaximums(tracked, (stack) => stack.height);
+  const trackTops = trackOffsets(
+    trackHeights,
+    startY,
+    stacks[0].side === "above",
+  );
+  return {
+    bottom: trackBottom(trackHeights, startY),
+    stacks: tracked.map((stack) => ({
+      ...stack,
+      pieces: positionStackPieces(stack.pieces, trackTops[stack.track]),
+    })),
+  };
+}
+
+function assignHorizontalTracks(items) {
+  const trackEnds = [];
+  return [...items]
+    .sort((a, b) => a.x - b.x)
+    .map((item) => {
+      const availableTrack = trackEnds.findIndex(
+        (trackEnd) => item.x >= trackEnd + STACK_COLLISION_GAP,
+      );
+      const track = availableTrack === -1 ? trackEnds.length : availableTrack;
+      trackEnds[track] = item.x + item.width;
+      return { ...item, track };
     });
+}
+
+function trackMaximums(items, measure) {
+  const maximums = [];
+  items.forEach((item) => {
+    maximums[item.track] = Math.max(maximums[item.track] || 0, measure(item));
+  });
+  return maximums;
+}
+
+function trackOffsets(trackHeights, startY, reverse = false) {
+  const offsets = [];
+  if (reverse) {
+    let cursor = trackBottom(trackHeights, startY);
+    trackHeights.forEach((height, index) => {
+      cursor -= height;
+      offsets[index] = cursor;
+      cursor -= LABEL_TRACK_GAP;
+    });
+    return offsets;
+  }
+
+  let cursor = startY;
+  trackHeights.forEach((height, index) => {
+    offsets[index] = cursor;
+    cursor += height + LABEL_TRACK_GAP;
+  });
+  return offsets;
+}
+
+function trackBottom(trackHeights, startY) {
+  if (!trackHeights.length) {
+    return startY;
+  }
+  return startY
+    + trackHeights.reduce((total, height) => total + height, 0)
+    + (trackHeights.length - 1) * LABEL_TRACK_GAP;
+}
+
+function positionStackPieces(pieces, top) {
+  let cursor = top + LABEL_LINE_HEIGHT;
+  return pieces.map((piece) => {
+    const positioned = { ...piece, y: cursor };
+    cursor += piece.lines.length * LABEL_LINE_HEIGHT + LABEL_PIECE_GAP;
+    return positioned;
+  });
+}
+
+function stackHeight(pieces) {
+  return pieces.reduce(
+    (height, piece, index) =>
+      height + piece.lines.length * LABEL_LINE_HEIGHT + (index ? LABEL_PIECE_GAP : 0),
+    0,
+  );
+}
+
+function clampedLabelX(value, x, width) {
+  const [rangeStart, rangeEnd] = x.range();
+  return clamp(value, rangeStart, rangeEnd - width);
 }
 
 function wrapLabel(value, maxChars, maxLines) {
@@ -629,10 +801,16 @@ function blockLabelLines(item, x) {
   return wrapDetails(item.title, item.subtitle, LABEL_MAX_CHARS.block, LABEL_MAX_LINES.block);
 }
 
-function grantLabelLines(item) {
-  return item.grants.flatMap((grant) =>
-    wrapDetails(grant.title, grant.subtitle, LABEL_MAX_CHARS.grant, LABEL_MAX_LINES.block),
-  );
+function grantLabelPieces(item) {
+  return item.grants.map((grant) => ({
+    kind: "grant",
+    lines: wrapDetails(
+      grant.title,
+      grant.subtitle,
+      LABEL_MAX_CHARS.grant,
+      LABEL_MAX_LINES.block,
+    ),
+  }));
 }
 
 function markerLabelLines(marker) {

@@ -164,6 +164,11 @@ Lists with date-bearing records are ordered from oldest to newest. Output
 generators can reverse, group, or filter records for a specific CV or website
 view.
 
+Date precision must also remain consistent for the same field within a top-level
+group. Use `YYYY`, `YYYY-MM`, or `YYYY-MM-DD` according to the information model,
+but do not mix those granularities between sibling records. A different date
+field may use a different precision when it represents a distinct fact.
+
 ## Localized Display Fields
 
 Most fields remain scalar strings. Selected portfolio-facing text fields may be

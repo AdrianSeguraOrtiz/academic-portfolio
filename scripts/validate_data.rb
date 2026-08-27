@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "yaml"
+require "date"
 require "pathname"
+require "yaml"
 
 DATA_DIR = if ARGV[0]
              File.expand_path(ARGV[0])
@@ -152,6 +153,13 @@ DATE_CHECKS = {
   }
 }.freeze
 
+DATE_FIELD_PATTERN = /(?:date|updated)/
+DATE_PRECISIONS = {
+  4 => "year",
+  7 => "month",
+  10 => "day"
+}.freeze
+
 def fail_with(message)
   warn(message)
   exit 1
@@ -179,6 +187,24 @@ end
 
 def scalar_localized_value?(value)
   value.nil? || value.is_a?(String) || value.is_a?(Numeric) || value == true || value == false
+end
+
+def date_precision(value)
+  text = value.to_s
+  precision = DATE_PRECISIONS[text.length]
+  return nil unless precision
+
+  case precision
+  when "year"
+    text.match?(/\A\d{4}\z/) ? precision : nil
+  when "month"
+    text.match?(/\A\d{4}-(?:0[1-9]|1[0-2])\z/) ? precision : nil
+  when "day"
+    Date.iso8601(text)
+    precision
+  end
+rescue Date::Error
+  nil
 end
 
 data = FILES.to_h do |file|
@@ -237,6 +263,28 @@ data.each do |file, document|
     next if key_sets.length == 1
 
     fail_with("#{file}: #{group} has inconsistent item fields")
+  end
+end
+
+data.each do |file, document|
+  next unless document.is_a?(Hash)
+
+  document.each do |group, records|
+    next unless records.is_a?(Array)
+    next if records.empty? || !records.all? { |item| item.is_a?(Hash) }
+
+    date_fields = records.flat_map(&:keys).uniq.grep(DATE_FIELD_PATTERN)
+    date_fields.each do |field|
+      values = records.filter_map { |record| record[field]&.to_s }
+      precisions = values.map do |value|
+        date_precision(value) || fail_with("#{file}: #{group}.#{field} has invalid date: #{value}")
+      end.uniq
+      next if precisions.length <= 1
+
+      fail_with(
+        "#{file}: #{group}.#{field} mixes date granularities: #{precisions.join(', ')}"
+      )
+    end
   end
 end
 

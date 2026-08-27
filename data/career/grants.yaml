@@ -34,9 +34,9 @@ grants:
     en: Postdoctoral mobility
     es: Movilidad postdoctoral
   reference: EST24/00186
-  issue_date: '2024-03-30'
+  issue_date: 2024-03
   start_date: null
-  end_date: '2024-06-28'
+  end_date: 2024-06
   notes: null
 - id: grant_05
   name: FPU mobility grant
@@ -104,9 +104,9 @@ grants:
     en: Postdoctoral mobility
     es: Movilidad postdoctoral
   reference: D2 - II Plan Propio 2026
-  issue_date: '2026-07-20'
-  start_date: '2026-10-01'
-  end_date: '2026-11-29'
+  issue_date: 2026-07
+  start_date: 2026-10
+  end_date: 2026-11
   notes:
     en: Registered as awarded funding for a research stay at Kiyono Lab, The University
       of Osaka.
