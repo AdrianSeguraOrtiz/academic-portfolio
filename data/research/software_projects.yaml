@@ -318,3 +318,27 @@ projects:
     es: Análisis de datos heterogéneos
   urls:
     github: https://github.com/AdrianSeguraOrtiz/SALVI
+- id: software_16
+  name: SPATHI
+  full_name: Similarity-weighted Population-Aware Transcriptional Heterogeneity Inference
+  type:
+    en: Research software project
+    es: Proyecto de software científico
+  description:
+    en: >-
+      Python tool for inferring group-specific gene regulatory networks from single-cell
+      RNA-seq data by weighting cells according to their transcriptomic proximity to each
+      target population.
+    es: >-
+      Herramienta Python para inferir redes de regulación génica específicas de cada grupo
+      a partir de datos de RNA-seq de célula única, ponderando las células según su proximidad
+      transcriptómica a cada población objetivo.
+  domains:
+  - en: Single-cell RNA sequencing
+    es: Secuenciación de ARN de célula única
+  - en: Gene regulatory network inference
+    es: Inferencia de redes de regulación génica
+  - en: Transcriptomic heterogeneity
+    es: Heterogeneidad transcriptómica
+  urls:
+    github: https://github.com/AdrianSeguraOrtiz/SPATHI
