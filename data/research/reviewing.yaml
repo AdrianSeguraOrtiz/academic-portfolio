@@ -19,11 +19,6 @@ reviewing:
   publisher: BMC
   manuscripts_reviewed: 1
   last_updated: '2026-05-03'
-- id: reviewing_01
-  journal: BMC Bioinformatics
-  publisher: BMC
-  manuscripts_reviewed: 2
-  last_updated: '2026-05-13'
 - id: reviewing_08
   journal: Computational Biology and Chemistry
   publisher: Elsevier
@@ -39,3 +34,8 @@ reviewing:
   publisher: Springer Nature
   manuscripts_reviewed: 4
   last_updated: '2026-08-04'
+- id: reviewing_01
+  journal: BMC Bioinformatics
+  publisher: BMC
+  manuscripts_reviewed: 3
+  last_updated: '2026-09-04'
