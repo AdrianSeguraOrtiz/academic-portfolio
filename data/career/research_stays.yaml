@@ -178,10 +178,24 @@ stays:
     es: Institute of Applied Biosciences, CERTH
   grant_ids:
   - grant_04
-  tasks: []
+  tasks:
+  - en: >-
+      Developed SPATHI, a Python tool for inferring group-specific gene regulatory
+      networks from single-cell RNA-seq data by weighting cells according to their
+      transcriptomic proximity to each target population.
+    es: >-
+      Desarrollé SPATHI, una herramienta Python para inferir redes de regulación
+      génica específicas de cada grupo a partir de datos de RNA-seq de célula única,
+      ponderando las células según su proximidad transcriptómica a cada población objetivo.
   description:
-    en: Postdoctoral international stay at the Institute of Applied Biosciences of CERTH.
-    es: Estancia internacional postdoctoral en el Institute of Applied Biosciences de CERTH.
+    en: >-
+      Postdoctoral international stay at the Institute of Applied Biosciences of CERTH,
+      focused on population-aware inference of group-specific gene regulatory networks
+      from single-cell transcriptomic data.
+    es: >-
+      Estancia internacional postdoctoral en el Institute of Applied Biosciences de CERTH,
+      centrada en la inferencia de redes de regulación génica específicas de cada población
+      a partir de datos transcriptómicos de célula única.
   notes: null
 - id: stay_05
   title:
