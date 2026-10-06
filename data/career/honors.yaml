@@ -45,3 +45,16 @@ honors:
       and Artificial Intelligence.
     es: Premio al mejor expediente académico del Máster en Ingeniería del Software
       e Inteligencia Artificial.
+- id: award_05
+  title: Cor Baayen Award 2026 Finalist
+  awarding_entities:
+  - European Research Consortium for Informatics and Mathematics (ERCIM)
+  degree_ids: []
+  issue_date: 2026-10
+  context:
+    en: >-
+      Selected as a finalist for the Cor Baayen Award 2026, which recognizes promising
+      early-career researchers in computer science and applied mathematics.
+    es: >-
+      Seleccionado como finalista del Cor Baayen Award 2026, que reconoce a jóvenes
+      investigadores prometedores en informática y matemáticas aplicadas.
